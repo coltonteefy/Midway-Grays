@@ -466,14 +466,12 @@
                 submitButton.disabled = true;
 
                 // Send the order data as a JSON string to the Apps Script.
-                // NOTE: We have updated the Content-Type and body to send JSON directly,
-                // which is more compatible with the standard Google Apps Script doPost() function.
                 const response = await fetch(APPS_SCRIPT_URL, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
+                        'Content-Type': 'application/x-www-form-urlencoded',
                     },
-                    body: JSON.stringify(payload)
+                    body: `data=${encodeURIComponent(JSON.stringify(payload))}`
                 });
 
                 // Handle non-OK status codes from the Apps Script
