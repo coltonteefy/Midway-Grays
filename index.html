@@ -115,19 +115,20 @@
     <div id="main-content" class="w-full flex flex-col items-center hidden">
 
         <!-- Navigation Bar -->
-        <!-- I've added padding-x to the nav bar to ensure content is not hugging the edges on mobile -->
         <nav id="main-nav" class="w-full bg-white shadow-md p-4 flex justify-between items-center text-primary sticky top-0 z-50">
             <!-- Logo on the left -->
             <div class="flex-1 flex items-center">
-                <!-- Logo now scales up from a smaller size on mobile to the full scale on larger screens -->
-                <img src="https://raw.githubusercontent.com/coltonteefy/inventory/7b07a948e66d331b29f511de8f1fa58310cee050/PPR_logo.png" alt="Company Logo" class="h-10 sm:h-12 transform scale-[1.5] lg:scale-[3.0] origin-left">
+                <!-- Logo now scales to a fixed 3.0 on all screen sizes -->
+                <img src="https://raw.githubusercontent.com/coltonteefy/inventory/7b07a948e66d331b29f511de8f1fa58310cee050/PPR_logo.png" alt="Company Logo" class="h-10 sm:h-12 transform scale-[3.0] origin-left">
             </div>
             <!-- Navigation links in the middle -->
-            <!-- The links now have more spacing on mobile to prevent them from overlapping -->
+            <!-- The 'Peptides' and 'Blog' links are now commented out -->
+            <!--
             <div class="flex space-x-4 sm:space-x-8 font-semibold text-sm sm:text-lg">
                 <a href="#" class="text-accent font-semibold text-lg border-b-2 border-accent pb-1">Peptides</a>
                 <a href="#" class="text-primary font-semibold text-lg hover:text-accent transition-colors border-b-2 border-transparent hover:border-accent pb-1">Blog</a>
             </div>
+            -->
             <!-- Account menu on the right -->
             <div class="flex-1 flex justify-end relative">
                 <button id="account-button" class="flex items-center space-x-2 px-4 py-2 bg-accent text-white font-bold rounded-lg hover:bg-teal-600 transition-colors focus:outline-none text-sm shadow-md">
@@ -157,8 +158,8 @@
         
         <!-- NEW fixed Total Cost "pop" button -->
         <div class="w-full">
-            <!-- I've added 'right-2' to ensure the cart button has a small margin on the right side of the screen -->
-            <button id="total-cost-button" class="fixed top-16 right-2 z-40 px-6 py-3 bg-amber-500 text-white font-bold rounded-l-lg shadow-lg hover:bg-amber-600 transition-colors">
+            <!-- The button's position is now adjusted to be flush with the right and lower than the nav -->
+            <button id="total-cost-button" class="fixed top-20 right-0 z-40 px-6 py-3 bg-amber-500 text-white font-bold rounded-l-lg shadow-lg hover:bg-amber-600 transition-colors">
                 <span>Cart: </span><span id="floating-total-cost">$0.00</span>
             </button>
         </div>
@@ -335,7 +336,8 @@
                     productName: 'Product Name',
                     inventory: 'Inventory',
                     price: 'Price',
-                    resale: 'Resale'
+                    resale: 'Resale',
+                    image: 'Image' // New 'Image' column header
                 };
                 let columnMap = {};
 
@@ -350,7 +352,8 @@
 
                 productData = [];
                 
-                if (columnMap.productName !== undefined && columnMap.price !== undefined && columnMap.inventory !== undefined && columnMap.resale !== undefined) {
+                // Now, check for the new image column in the mapping
+                if (columnMap.productName !== undefined && columnMap.price !== undefined && columnMap.inventory !== undefined && columnMap.resale !== undefined && columnMap.image !== undefined) {
                     productData = originalDataRows
                         .filter(row => {
                             const inventoryValue = row[columnMap.inventory] ? parseInt(row[columnMap.inventory].trim().replace(/"/g, '')) : 0;
@@ -360,15 +363,17 @@
                         .map(row => ({
                             name: row[columnMap.productName].trim().replace(/"/g, ''),
                             inventory: row[columnMap.inventory].trim().replace(/"/g, ''),
-                            price: row[columnMap.price].trim().replace(/"/g, '')
+                            price: row[columnMap.price].trim().replace(/"/g, ''),
+                            image: row[columnMap.image].trim().replace(/"/g, '') // Get the image URL from the sheet
                         }));
                 } else {
-                    console.warn("Could not find all required columns (Product Name, Price, Inventory, Resale). Displaying all products without filters.");
+                    console.warn("Could not find all required columns (Product Name, Price, Inventory, Resale, Image). Displaying all products without filters.");
                     productData = originalDataRows
                         .map(row => ({
                             name: row[0].trim().replace(/"/g, ''),
                             inventory: "N/A",
-                            price: row[1].trim().replace(/"/g, '')
+                            price: row[1].trim().replace(/"/g, ''),
+                            image: '' // Default to an empty string if the column is not found
                         }));
                 }
                 
@@ -404,12 +409,17 @@
                 const priceValue = parseFloat(cleanedPrice);
                 const priceText = !isNaN(priceValue) ? `$${priceValue.toFixed(2)}` : 'Price not available';
                 
+                // Use the image URL from the product data, or the placeholder as a fallback
+                const imageUrl = product.image && product.image !== '' ? product.image : 'https://raw.githubusercontent.com/coltonteefy/inventory/080e0a8248d936101880949e5efa6dfec44f4fae/generic.png';
+
                 const card = document.createElement('div');
-                // The card now uses h-full and flexbox to ensure consistent height and alignment
                 card.className = 'relative bg-white p-6 rounded-lg shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 border border-gray-200 h-full flex flex-col';
                 card.innerHTML = `
-                    <!-- New placeholder image -->
-                    <img src="https://placehold.co/400x200/cccccc/333333?text=Peptide+Co.+3ml+Vial" alt="Peptide Vial Placeholder" class="w-full h-40 object-cover rounded-lg mb-4">
+                    <!-- The image src now uses the product data. The onerror provides a fallback to the placeholder. -->
+                    <img src="${imageUrl}" 
+                         alt="${product.name.trim()} image" 
+                         class="w-full h-40 object-contain rounded-lg mb-4"
+                         onerror="this.onerror=null;this.src='https://raw.githubusercontent.com/coltonteefy/inventory/080e0a8248d936101880949e5efa6dfec44f4fae/generic.png';">
                     
                     <div class="flex-grow flex flex-col justify-between">
                         <div>
