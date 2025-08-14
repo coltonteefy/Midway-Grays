@@ -167,7 +167,8 @@
 
         <!-- Container for the product cards -->
         <!-- I've increased the margin-top to add more space between the Hero section and the product list -->
-        <div id="data-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl w-full px-4 mt-8 mb-8">
+        <!-- I have changed the max-width to make the cards a bit wider and adjusted the grid to a max of two columns -->
+        <div id="data-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 max-w-6xl w-full px-4 mt-8 mb-8">
             <!-- The product cards will be inserted here -->
         </div>
 
@@ -292,7 +293,7 @@
         // The URL for your public Google Sheet CSV
         const SPREADSHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQRYzgS3hJWPzFJHs55qLX5EFQ_3VEcFpqE80-Xrw8xu8eo6FVlQkRPgAYPu7RoAFVFFqBqyDSa6_ae/pub?gid=0&single=true&output=csv';
 
-        // Replace with your deployed Google Apps Script URL
+        // The deployed Google Apps Script URL has been updated here
         const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx8nvcBgC88W71-jW5JnaT0cVw4sctm2GHmEDYkt6X5RjAtW85Bt-_PQd_rCxYetGSF/exec';
         
         // A new global array to hold the items that have been added to the cart
