@@ -6,102 +6,235 @@
     <title>Product Catalog</title>
     <!-- Use the Tailwind CSS CDN for easy styling -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Custom Tailwind CSS configuration for brand colors -->
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: '#003854',   // Dark blue from logo
+              accent: '#006979',     // Teal from logo
+              background: '#F5F5F5' // Light gray from logo
+            }
+          }
+        }
+      }
+    </script>
+    <!-- Link to Google Fonts for 'Poppins' for a modern feel -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Use the Inter font for a clean, modern look */
+        /* Use the Poppins font family for a bold, athletic look */
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Poppins', sans-serif;
+        }
+        /* Custom modal overlay for age verification */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 60;
+        }
+        /* Updated modal content styling to match the main page theme */
+        .modal-content {
+            background-color: white; /* Changed from dark gray to white */
+            padding: 2.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.4);
+            text-align: center;
+            max-width: 400px;
+        }
+        /* Style for the account dropdown menu */
+        #account-menu {
+            transition: all 0.2s ease-in-out;
+            transform-origin: top;
+            transform: scaleY(0);
+            opacity: 0;
+            pointer-events: none;
+        }
+        #account-menu.open {
+            transform: scaleY(1);
+            opacity: 1;
+            pointer-events: auto;
+        }
+        /* Styles for the cart button animation */
+        #total-cost-button {
+            transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            /* Initially hidden off-screen to the right */
+            transform: translateX(150%);
+        }
+        #total-cost-button.visible {
+            /* Slides the button into view */
+            transform: translateX(0);
+        }
+        /* Styles for the temporary inventory message */
+        .inventory-message {
+            position: absolute;
+            bottom: -2.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 0.25rem 0.5rem;
+            background-color: #ef4444; /* red-500 */
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border-radius: 0.375rem;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+            pointer-events: none;
+            white-space: nowrap;
+            /* New z-index to ensure it's always on top */
+            z-index: 70;
+        }
+        .inventory-message.show {
+            opacity: 1;
         }
     </style>
 </head>
-<body class="bg-gray-900 flex flex-col items-center justify-start min-h-screen p-4">
-    <!-- Container for the Past Orders button at the very top -->
-    <div class="flex justify-end w-full max-w-4xl mb-4">
-        <!-- Past Orders Button with an icon -->
-        <button id="past-orders-button" class="flex items-center space-x-2 px-4 py-2 bg-gray-700 text-white font-bold rounded-lg hover:bg-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm">
-            <!-- SVG icon for a receipt -->
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m5.232 1.34L14.75 3.333M16.5 15.75H13.5m-3.75 0H9m10.198-12h2.24m-2.24 0a3.375 3.375 0 01-3.375 3.375H9.75M8.25 21v-7.5m2.25 1.125a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0zM17.585 10.16a2.125 2.125 0 01-1.42 2.76" />
-            </svg>
-            <span>Past Orders</span>
-        </button>
-    </div>
+<body class="bg-background flex flex-col items-center justify-start min-h-screen">
 
-    <!-- Main container for the application -->
-    <div class="bg-gray-800 p-8 rounded-xl shadow-2xl max-w-4xl w-full">
-        <!-- Header Section -->
-        <header class="text-center mb-8">
-            <h1 class="text-4xl font-bold text-white mb-2">Product Catalog</h1>
-            <p class="text-gray-400">Explore our available products with real-time inventory.</p>
-        </header>
-    </div>
-
-    <!-- Sticky header with Total Cost -->
-    <div class="sticky top-0 z-10 w-full max-w-4xl bg-gray-800 rounded-xl shadow-lg p-4 mb-8 -mt-12 md:-mt-8 flex justify-center items-center">
-        <!-- Total Cost Display -->
-        <div class="text-center bg-indigo-600 p-4 rounded-lg shadow-inner flex-grow mx-4">
-            <h2 class="text-xl font-bold text-white">Total Cost: <span id="total-cost" class="font-extrabold">$0.00</span></h2>
-        </div>
-    </div>
-        
-    <!-- Container for the product cards -->
-    <div id="data-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl w-full">
-        <!-- The product cards will be inserted here -->
-    </div>
-
-    <!-- Loading indicator -->
-    <div id="loading-indicator" class="text-center text-indigo-400 mt-8">
-        <svg class="animate-spin h-5 w-5 mr-3 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-        </svg>
-        Loading...
-    </div>
-
-    <!-- Refresh information -->
-    <div id="refresh-info" class="text-center text-gray-500 mt-4 text-sm max-w-4xl w-full">
-        <!-- Refresh status will be displayed here -->
-    </div>
-
-    <!-- Order Summary and Checkout Section -->
-    <div id="order-section" class="bg-gray-800 p-8 rounded-xl shadow-2xl max-w-4xl w-full mt-8 hidden">
-        <h2 class="text-2xl font-bold text-white mb-4">Your Order</h2>
-        <div id="order-summary-list" class="space-y-4">
-            <!-- Order items will be dynamically inserted here -->
-        </div>
-        <div class="mt-6 pt-4 border-t border-gray-700 flex justify-between items-center text-xl font-bold text-white">
-            <span>Total:</span>
-            <span id="order-subtotal">$0.00</span>
-        </div>
-        <form id="order-form" class="mt-6">
-            <div class="mb-4">
-                <label for="email-input" class="block text-gray-400 mb-2">Email for confirmation:</label>
-                <input type="email" id="email-input" class="w-full p-3 rounded-lg bg-gray-900 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="yourname@example.com" required>
+    <!-- Age Verification Modal -->
+    <div id="age-gate-modal" class="modal-overlay">
+        <!-- The modal content now uses the main page's color scheme -->
+        <div class="modal-content">
+            <h2 class="text-3xl font-bold text-accent mb-4">Age Verification</h2>
+            <p class="text-gray-500 mb-6">Are you 21 or older?</p>
+            <div class="flex justify-center space-x-4">
+                <button id="age-gate-yes" class="px-6 py-3 bg-accent text-white font-bold rounded-lg hover:bg-teal-600 transition-colors">Yes</button>
+                <button id="age-gate-no" class="px-6 py-3 bg-red-600 text-white font-bold rounded-lg hover:bg-red-500 transition-colors">No</button>
             </div>
-            <button type="submit" id="submit-button" class="w-full py-3 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                Submit Order
-            </button>
-        </form>
-        <div id="confirmation-message" class="mt-4 text-center font-semibold hidden"></div>
+        </div>
     </div>
 
-    <!-- Order Submitted Modal - z-index increased to z-50 -->
+    <!-- Main Content Container - Hidden by default until age is verified -->
+    <div id="main-content" class="w-full flex flex-col items-center hidden">
+
+        <!-- Navigation Bar -->
+        <nav id="main-nav" class="w-full bg-white shadow-md p-4 flex justify-between items-center text-primary sticky top-0 z-50">
+            <!-- Logo on the left -->
+            <div class="flex-1">
+                <img src="http://googleusercontent.com/file_content/1" alt="Company Logo" class="h-10">
+            </div>
+            <!-- Navigation links in the middle -->
+            <div class="flex space-x-8 font-semibold text-lg">
+                <!-- 'Peptides' link now has a permanent underline to show it's the current page -->
+                <a href="#" class="text-accent font-semibold text-lg border-b-2 border-accent pb-1">Peptides</a>
+                <!-- 'Blog' link has a smooth underline on hover -->
+                <a href="#" class="text-primary font-semibold text-lg hover:text-accent transition-colors border-b-2 border-transparent hover:border-accent pb-1">Blog</a>
+            </div>
+            <!-- Account menu on the right -->
+            <div class="flex-1 flex justify-end relative">
+                <!-- User icon has been removed as requested -->
+                <!-- The account button has been updated with a new background color and shadow -->
+                <button id="account-button" class="flex items-center space-x-2 px-4 py-2 bg-accent text-white font-bold rounded-lg hover:bg-teal-600 transition-colors focus:outline-none text-sm shadow-md">
+                    <span>Account</span>
+                    <svg id="dropdown-arrow" class="w-4 h-4 transform transition-transform" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </button>
+                <!-- Dropdown Menu -->
+                <div id="account-menu" class="absolute top-full mt-2 w-48 rounded-lg shadow-lg bg-white border border-gray-200 py-1 right-0">
+                    <button id="past-orders-button" class="w-full text-left px-4 py-2 text-sm text-primary hover:bg-gray-100">
+                        Past Orders
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main container for the application -->
+        <!-- Updated Hero Section with full width, greater height, and no margin-top -->
+        <div class="bg-gradient-to-r from-primary to-accent py-16 px-8 shadow-2xl w-full">
+            <!-- Header Section -->
+            <header id="page-header" class="text-center">
+                <h1 class="text-4xl font-bold text-white mb-2">PREMIUM RESEARCH PRODUCTS</h1>
+                <p class="text-white text-opacity-80">These products are not intended for human use and are for research purposes only.</p>
+            </header>
+        </div>
+        
+        <!-- NEW fixed Total Cost "pop" button -->
+        <div class="w-full">
+            <!-- The cart button now uses amber colors -->
+            <button id="total-cost-button" class="fixed top-16 right-0 z-40 px-6 py-3 bg-amber-500 text-white font-bold rounded-l-lg shadow-lg hover:bg-amber-600 transition-colors">
+                <span>Cart: </span><span id="floating-total-cost">$0.00</span>
+            </button>
+        </div>
+
+
+        <!-- Container for the product cards -->
+        <!-- I've increased the margin-top to add more space between the Hero section and the product list -->
+        <div id="data-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl w-full px-4 mt-8 mb-8">
+            <!-- The product cards will be inserted here -->
+        </div>
+
+        <!-- Loading indicator -->
+        <div id="loading-indicator" class="text-center text-accent mt-8">
+            <svg class="animate-spin h-5 w-5 mr-3 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Loading...
+        </div>
+
+        <!-- Refresh information -->
+        <div id="refresh-info" class="text-center text-gray-500 mt-4 text-sm max-w-4xl w-full">
+            <!-- Refresh status will be displayed here -->
+        </div>
+
+    </div> <!-- End of main-content container -->
+
+    <!-- Order Summary Modal - Replaces the old 'order-section' div -->
+    <div id="order-summary-modal" class="fixed inset-0 bg-gray-900 bg-opacity-80 flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-white p-8 rounded-xl shadow-2xl max-w-lg w-full relative">
+            <button id="close-order-summary" class="absolute top-4 right-4 p-2 rounded-full text-gray-500 hover:text-primary transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+            <h2 class="text-2xl font-bold text-primary mb-4">Your Order</h2>
+            <div id="order-summary-list" class="space-y-4 max-h-60 overflow-y-auto">
+                <!-- Order items will be dynamically inserted here -->
+            </div>
+            <div class="mt-6 pt-4 border-t border-gray-200 flex justify-between items-center text-xl font-bold text-primary">
+                <span>Total:</span>
+                <span id="order-subtotal">$0.00</span>
+            </div>
+            <form id="order-form" class="mt-6">
+                <div class="mb-4">
+                    <label for="email-input" class="block text-gray-500 mb-2">Email for confirmation:</label>
+                    <input type="email" id="email-input" class="w-full p-3 rounded-lg bg-gray-100 border border-gray-300 text-primary focus:outline-none focus:ring-2 focus:ring-accent" placeholder="yourname@example.com" required>
+                </div>
+                <button type="submit" id="submit-button" class="w-full py-3 bg-accent text-white font-bold rounded-lg hover:bg-teal-600 transition-colors focus:outline-none focus:ring-2 focus:ring-accent">
+                    Submit Order
+                </button>
+            </form>
+            <div id="confirmation-message" class="mt-4 text-center font-semibold hidden"></div>
+        </div>
+    </div>
+
+
+    <!-- Order Submitted Modal -->
     <div id="confirmation-modal" class="fixed inset-0 bg-gray-900 bg-opacity-80 flex items-center justify-center p-4 hidden z-50">
-        <div class="bg-gray-800 p-8 rounded-xl shadow-2xl max-w-sm w-full text-center border border-gray-700">
-            <h3 class="text-2xl font-bold text-green-400 mb-4">Order Submitted!</h3>
-            <p class="text-gray-300 mb-4">Your order has been placed successfully.</p>
-            <p class="text-gray-300 font-bold mb-6">Order ID: <span id="modal-order-id" class="text-white"></span></p>
-            <button id="modal-close-button" class="w-full py-3 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        <div class="bg-white p-8 rounded-xl shadow-2xl max-w-sm w-full text-center border border-gray-200">
+            <h3 class="text-2xl font-bold text-green-600 mb-4">Order Submitted!</h3>
+            <p class="text-gray-600 mb-4">Your order has been placed successfully.</p>
+            <p class="text-gray-600 font-bold mb-6">Order ID: <span id="modal-order-id" class="text-primary"></span></p>
+            <button id="modal-close-button" class="w-full py-3 bg-accent text-white font-bold rounded-lg hover:bg-teal-600 transition-colors focus:outline-none focus:ring-2 focus:ring-accent">
                 Close & Start New Order
             </button>
         </div>
     </div>
 
-    <!-- Past Orders Modal - z-index increased to z-50 -->
+    <!-- Past Orders Modal -->
     <div id="past-orders-modal" class="fixed inset-0 bg-gray-900 bg-opacity-80 flex items-center justify-center p-4 hidden z-50">
-        <div class="bg-gray-800 p-8 rounded-xl shadow-2xl max-w-lg w-full text-center border border-gray-700">
+        <div class="bg-white p-8 rounded-xl shadow-2xl max-w-lg w-full text-center border border-gray-200">
             <div class="flex justify-between items-center mb-6">
-                <h3 class="text-2xl font-bold text-white">Your Past Orders</h3>
-                <button id="close-past-orders" class="p-2 rounded-full text-gray-400 hover:text-white transition-colors">
+                <h3 class="text-2xl font-bold text-primary">Your Past Orders</h3>
+                <button id="close-past-orders" class="p-2 rounded-full text-gray-500 hover:text-primary transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
@@ -110,77 +243,93 @@
             <div id="past-orders-list" class="space-y-4 text-left max-h-96 overflow-y-auto">
                 <!-- Past orders will be dynamically inserted here -->
             </div>
-            <button id="clear-orders-button" class="mt-6 w-full py-2 text-sm text-red-400 border border-red-400 rounded-lg hover:bg-red-400 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-red-500">
+            <button id="clear-orders-button" class="mt-6 w-full py-2 text-sm text-red-500 border border-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-red-500">
                 Clear All Past Orders
             </button>
         </div>
     </div>
 
     <script>
-        // Get references to the HTML elements
+        // Get references to the new HTML elements for age gate
+        const ageGateModal = document.getElementById('age-gate-modal');
+        const ageGateYesButton = document.getElementById('age-gate-yes');
+        const ageGateNoButton = document.getElementById('age-gate-no');
+        const mainContent = document.getElementById('main-content');
+        
+        // Get references to the existing HTML elements
         const dataContainer = document.getElementById('data-container');
         const loadingIndicator = document.getElementById('loading-indicator');
         const refreshInfo = document.getElementById('refresh-info');
-        const totalCostElement = document.getElementById('total-cost');
-        const orderSection = document.getElementById('order-section');
+        
+        // New elements for the total cost pop-up and order summary modal
+        const totalCostButton = document.getElementById('total-cost-button');
+        const floatingTotalCostElement = document.getElementById('floating-total-cost');
+        const orderSummaryModal = document.getElementById('order-summary-modal');
+        const closeOrderSummaryButton = document.getElementById('close-order-summary');
+        
+        // References to elements inside the new order summary modal
         const orderSummaryList = document.getElementById('order-summary-list');
         const orderSubtotalElement = document.getElementById('order-subtotal');
         const emailInput = document.getElementById('email-input');
         const submitButton = document.getElementById('submit-button');
         const orderForm = document.getElementById('order-form');
         const confirmationMessage = document.getElementById('confirmation-message');
+
         const confirmationModal = document.getElementById('confirmation-modal');
         const modalOrderId = document.getElementById('modal-order-id');
         const modalCloseButton = document.getElementById('modal-close-button');
+        
+        // New elements for the navbar and account menu
+        const accountButton = document.getElementById('account-button');
+        const accountMenu = document.getElementById('account-menu');
         const pastOrdersButton = document.getElementById('past-orders-button');
         const pastOrdersModal = document.getElementById('past-orders-modal');
         const closePastOrdersButton = document.getElementById('close-past-orders');
         const pastOrdersList = document.getElementById('past-orders-list');
         const clearOrdersButton = document.getElementById('clear-orders-button');
 
-        // The URL for your public Google Sheet CSV. This is used for reading data.
-        // IMPORTANT: Replace this URL with your own published Google Sheet CSV URL.
+        // The URL for your public Google Sheet CSV
         const SPREADSHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQRYzgS3hJWPzFJHs55qLX5EFQ_3VEcFpqE80-Xrw8xu8eo6FVlQkRPgAYPu7RoAFVFFqBqyDSa6_ae/pub?gid=0&single=true&output=csv';
-        
-        // ========================================================================================================
-        // !! IMPORTANT !!
-        // You MUST replace this placeholder with the URL from your deployed Google Apps Script.
-        // If this is incorrect, the app will not be able to update your sheet.
-        // ========================================================================================================
+
+        // Replace with your deployed Google Apps Script URL
         const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx8nvcBgC88W71-jW5JnaT0cVw4sctm2GHmEDYkt6X5RjAtW85Bt-_PQd_rCxYetGSF/exec';
-        // ========================================================================================================
-
-        // Set the automatic refresh interval in minutes.
-        const REFRESH_INTERVAL_MINUTES = 2;
-
+        
+        // A new global array to hold the items that have been added to the cart
+        let cart = [];
         let productData = []; // Store the fetched product data globally
 
         /**
+         * Toggles the visibility of the account dropdown menu.
+         */
+        function toggleAccountMenu() {
+            accountMenu.classList.toggle('open');
+            const arrow = document.getElementById('dropdown-arrow');
+            arrow.classList.toggle('rotate-180');
+        }
+
+        /**
          * Fetches and displays data from the Google Sheet, filtering out specified columns.
+         * Note: This function also refreshes the available inventory and resets all quantities to 0.
          */
         async function fetchData() {
-            // Show loading indicator
             loadingIndicator.classList.remove('hidden');
             dataContainer.innerHTML = '';
-            totalCostElement.textContent = '$0.00';
+            
+            // Reset the total cost and hide the floating button with the new class
+            floatingTotalCostElement.textContent = '$0.00';
+            totalCostButton.classList.remove('visible');
 
             try {
-                // Fetch the data from the CSV URL
                 const response = await fetch(SPREADSHEET_URL);
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 const csvText = await response.text();
                 
-                // Parse the CSV data
                 const rows = csvText.split('\n').map(row => row.split(','));
-                
-                // Get the original headers and data rows
                 const originalHeaders = rows[0].map(h => h.trim().replace(/"/g, ''));
-                // Filter out empty rows and rows that have an unexpected number of columns
                 const originalDataRows = rows.slice(1).filter(row => row.length > 1 && row[0].trim().replace(/"/g, '') !== '');
 
-                // Define the columns we need based on the spreadsheet.
                 const columnHeaders = {
                     productName: 'Product Name',
                     inventory: 'Inventory',
@@ -189,7 +338,6 @@
                 };
                 let columnMap = {};
 
-                // Map our internal keys to the column indices from the spreadsheet.
                 for (const key in columnHeaders) {
                     const foundIndex = originalHeaders.findIndex(header => header.toLowerCase() === columnHeaders[key].toLowerCase());
                     if (foundIndex !== -1) {
@@ -197,13 +345,10 @@
                     }
                 }
                 
-                // Log the column map for debugging purposes
                 console.log("Column map:", columnMap);
 
                 productData = [];
                 
-                // Filter and map the data based on the required columns.
-                // It now checks for inventory > 0 AND that 'Resale' is not 'False'.
                 if (columnMap.productName !== undefined && columnMap.price !== undefined && columnMap.inventory !== undefined && columnMap.resale !== undefined) {
                     productData = originalDataRows
                         .filter(row => {
@@ -217,7 +362,6 @@
                             price: row[columnMap.price].trim().replace(/"/g, '')
                         }));
                 } else {
-                    // Fallback to display all data if not all columns are found, with a warning.
                     console.warn("Could not find all required columns (Product Name, Price, Inventory, Resale). Displaying all products without filters.");
                     productData = originalDataRows
                         .map(row => ({
@@ -227,19 +371,17 @@
                         }));
                 }
                 
-                // Render the cards
                 renderCards(productData);
+                cart = []; // Reset the cart on new data fetch
+                updateTotalCost();
 
-                // Update the last updated time
                 const now = new Date();
-                refreshInfo.textContent = `Last updated: ${now.toLocaleTimeString()} | Next refresh in ${REFRESH_INTERVAL_MINUTES} minutes.`;
+                refreshInfo.textContent = `Last updated: ${now.toLocaleTimeString()} | Next refresh is on page load.`;
 
             } catch (error) {
-                // Handle any errors during the fetch or parsing process
                 dataContainer.innerHTML = `<p class="col-span-full text-center text-red-500 p-4">Error fetching data: ${error.message}. Please check that the SPREADSHEET_URL is correct and the sheet is published to the web as a CSV.</p>`;
                 console.error('Error fetching data:', error);
             } finally {
-                // Hide loading indicator
                 loadingIndicator.classList.add('hidden');
             }
         }
@@ -249,7 +391,7 @@
          * @param {Array<Object>} products - The array of product objects.
          */
         function renderCards(products) {
-            dataContainer.innerHTML = ''; // Clear the container
+            dataContainer.innerHTML = '';
 
             if (products.length === 0) {
                 dataContainer.innerHTML = '<p class="col-span-full text-center text-gray-500">No products available at this time.</p>';
@@ -257,119 +399,186 @@
             }
 
             products.forEach((product, index) => {
-                // Clean the price string by removing the '$' and then parse it
                 const cleanedPrice = product.price.trim().replace('$', '');
                 const priceValue = parseFloat(cleanedPrice);
                 const priceText = !isNaN(priceValue) ? `$${priceValue.toFixed(2)}` : 'Price not available';
                 
                 const card = document.createElement('div');
-                card.className = 'bg-gray-700 p-6 rounded-lg shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105';
+                // The card now uses h-full and flexbox to ensure consistent height and alignment
+                card.className = 'relative bg-white p-6 rounded-lg shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 border border-gray-200 h-full flex flex-col';
                 card.innerHTML = `
-                    <h3 class="text-xl font-semibold text-white mb-2">${product.name.trim()}</h3>
-                    <p class="text-gray-400 mb-2">Inventory: <span class="font-medium text-gray-200">${product.inventory.trim()}</span></p>
-                    <div class="flex items-center justify-between mt-4">
-                        <p class="text-lg font-bold text-indigo-400 price-per-unit" data-price="${priceValue}">${priceText}</p>
-                        <div class="flex items-center space-x-2">
-                            <span class="text-gray-400">Quantity:</span>
-                            <button class="quantity-btn p-1 rounded-full bg-gray-600 text-white hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors" data-action="decrement" data-product-index="${index}">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
-                                </svg>
-                            </button>
-                            <span class="text-white text-lg font-bold w-6 text-center quantity-display" data-product-index="${index}">0</span>
-                            <button class="quantity-btn p-1 rounded-full bg-gray-600 text-white hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors" data-action="increment" data-product-index="${index}">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                                </svg>
+                    <!-- New placeholder image -->
+                    <img src="https://placehold.co/400x200/cccccc/333333?text=Peptide+Co.+3ml+Vial" alt="Peptide Vial Placeholder" class="w-full h-40 object-cover rounded-lg mb-4">
+                    
+                    <div class="flex-grow flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-xl font-semibold text-primary mb-2">${product.name.trim()}</h3>
+                            <p class="text-gray-500 mb-2">Inventory: <span class="font-medium text-primary">${product.inventory.trim()}</span></p>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <div class="flex items-center justify-between">
+                                <p class="text-lg font-bold text-accent price-per-unit" data-price="${priceValue}">${priceText}</p>
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-gray-500">Quantity:</span>
+                                    <button class="quantity-btn p-1 rounded-full bg-gray-200 text-primary hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-accent transition-colors" data-action="decrement" data-product-index="${index}">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
+                                        </svg>
+                                    </button>
+                                    <span class="text-primary text-lg font-bold w-6 text-center quantity-display" data-product-index="${index}">0</span>
+                                    <button class="quantity-btn p-1 rounded-full bg-gray-200 text-primary hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-accent transition-colors" data-action="increment" data-product-index="${index}">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <!-- New "Add to Cart" button -->
+                            <button class="add-to-cart-btn w-full mt-4 py-2 bg-accent text-white font-bold rounded-lg hover:bg-teal-600 transition-colors focus:outline-none focus:ring-2 focus:ring-accent" data-product-index="${index}">
+                                Add to Cart
                             </button>
                         </div>
                     </div>
+                    <!-- Temporary message for inventory warnings -->
+                    <span id="inventory-message-${index}" class="inventory-message"></span>
                 `;
                 dataContainer.appendChild(card);
             });
-            updateTotalCost(); // Initial call to set the total cost to $0.00 after rendering
+            updateTotalCost();
         }
 
-        // Use event delegation for quantity buttons
+        /**
+         * Displays a temporary warning message on a product card.
+         * @param {number} index - The index of the product card.
+         * @param {string} message - The message to display.
+         */
+        function showInventoryWarning(index, message) {
+            const warningElement = document.getElementById(`inventory-message-${index}`);
+            warningElement.textContent = message;
+            warningElement.classList.add('show');
+            setTimeout(() => {
+                warningElement.classList.remove('show');
+            }, 2500); // Hide after 2.5 seconds
+        }
+
+        // Event delegation for quantity buttons and the new "Add to Cart" button
         dataContainer.addEventListener('click', (event) => {
-            const button = event.target.closest('.quantity-btn');
+            const button = event.target.closest('.quantity-btn, .add-to-cart-btn');
             if (!button) return;
 
-            const action = button.dataset.action;
-            // FIX: Correctly access the camelCase data attribute 'productIndex'
-            const productIndex = button.dataset.productIndex;
-            const card = button.closest('.bg-gray-700');
+            const productIndex = parseInt(button.dataset.productIndex);
+            const card = button.closest('.bg-white');
             const quantityDisplay = card.querySelector(`.quantity-display[data-product-index="${productIndex}"]`);
             const maxInventory = parseInt(productData[productIndex].inventory.trim()) || 0;
             
-            let currentQuantity = parseInt(quantityDisplay.textContent);
-
-            if (action === 'increment' && currentQuantity < maxInventory) {
-                currentQuantity++;
-            } else if (action === 'decrement' && currentQuantity > 0) {
-                currentQuantity--;
-            }
+            let currentQuantity = parseInt(quantityDisplay.textContent) || 0;
             
-            quantityDisplay.textContent = currentQuantity;
-            updateTotalCost();
-        });
+            // Handle quantity buttons
+            if (button.classList.contains('quantity-btn')) {
+                let action = button.dataset.action;
+                if (action === 'increment') {
+                    if (currentQuantity < maxInventory) {
+                        currentQuantity++;
+                    } else {
+                        showInventoryWarning(productIndex, 'Out of stock!');
+                    }
+                } else if (action === 'decrement' && currentQuantity > 0) {
+                    currentQuantity--;
+                }
+                quantityDisplay.textContent = currentQuantity;
+                // Don't update the total cost yet, let the 'Add to Cart' button do that.
+            }
 
+            // Handle the 'Add to Cart' button
+            if (button.classList.contains('add-to-cart-btn')) {
+                if (currentQuantity > 0) {
+                    // Find the item in the cart, or add a new one
+                    const existingCartItem = cart.find(item => item.productIndex === productIndex);
+                    if (existingCartItem) {
+                        // Check if adding this quantity would exceed inventory
+                        if (existingCartItem.quantity + currentQuantity <= maxInventory) {
+                             existingCartItem.quantity += currentQuantity;
+                        } else {
+                            existingCartItem.quantity = maxInventory;
+                             showInventoryWarning(productIndex, 'Out of stock!');
+                        }
+                    } else {
+                        cart.push({
+                            productIndex: productIndex,
+                            name: productData[productIndex].name.trim(),
+                            price: parseFloat(productData[productIndex].price.trim().replace('$', '')),
+                            quantity: currentQuantity
+                        });
+                    }
+                    
+                    // Reset the quantity display on the card
+                    quantityDisplay.textContent = 0;
+                    
+                    // Update the total cost and cart button
+                    updateTotalCost();
+                }
+            }
+        });
 
         /**
          * Calculates and updates the total cost and the order summary list.
          */
         function updateTotalCost() {
             let total = 0;
-            let orderItems = [];
 
-            const cards = dataContainer.querySelectorAll('div.bg-gray-700');
-
-            cards.forEach((card, index) => {
-                const quantityDisplay = card.querySelector('.quantity-display');
-                const priceElement = card.querySelector('.price-per-unit');
-                
-                if (quantityDisplay && priceElement) {
-                    const quantity = parseInt(quantityDisplay.textContent) || 0;
-                    const price = parseFloat(priceElement.dataset.price);
-
-                    if (!isNaN(price) && quantity > 0) {
-                        total += price * quantity;
-                        orderItems.push({
-                            name: productData[index].name.trim(),
-                            price: price,
-                            quantity: quantity
-                        });
-                    }
-                }
+            cart.forEach(item => {
+                total += item.price * item.quantity;
             });
 
-            totalCostElement.textContent = `$${total.toFixed(2)}`;
-            updateOrderSummary(orderItems, total);
-
+            // Update the floating total cost button
+            floatingTotalCostElement.textContent = `$${total.toFixed(2)}`;
             if (total > 0) {
-                orderSection.classList.remove('hidden');
+                totalCostButton.classList.add('visible');
             } else {
-                orderSection.classList.add('hidden');
+                totalCostButton.classList.remove('visible');
             }
+            
+            // Update the order summary modal's content as well
+            updateOrderSummary(cart, total);
         }
 
         /**
          * Populates the order summary section with selected items.
-         * @param {Array<Object>} items - The list of selected order items.
+         * Now includes editable quantity and a remove button.
+         * @param {Array<Object>} items - The list of selected order items from the cart.
          * @param {number} total - The total cost of the order.
          */
         function updateOrderSummary(items, total) {
             orderSummaryList.innerHTML = '';
-            items.forEach(item => {
-                const itemTotal = (item.price * item.quantity).toFixed(2);
-                const listItem = document.createElement('div');
-                listItem.className = 'flex justify-between items-center text-gray-300';
-                listItem.innerHTML = `
-                    <span>${item.name} (x${item.quantity})</span>
-                    <span class="font-medium">$${itemTotal}</span>
-                `;
-                orderSummaryList.appendChild(listItem);
-            });
+            if (items.length === 0) {
+                orderSummaryList.innerHTML = '<p class="text-gray-500 text-center">Your cart is empty.</p>';
+            } else {
+                items.forEach(item => {
+                    const itemTotal = (item.price * item.quantity).toFixed(2);
+                    const listItem = document.createElement('div');
+                    // Changed the main container to align items to the start, and adjusted the layout inside
+                    listItem.className = 'flex justify-between items-start text-gray-500 p-2 rounded-lg bg-gray-50';
+                    listItem.innerHTML = `
+                        <!-- Display the product name on the left -->
+                        <span class="font-medium text-primary flex-1">${item.name}</span>
+                        <!-- Container for quantity, total, and remove button -->
+                        <div class="flex flex-col items-end space-y-1">
+                            <div class="flex items-center space-x-2">
+                                <input type="number" min="0" max="${productData[item.productIndex].inventory.trim()}" value="${item.quantity}" 
+                                    class="quantity-input w-16 p-1 text-center rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-accent"
+                                    data-product-index="${item.productIndex}">
+                                <span class="font-medium w-16 text-right">$${itemTotal}</span>
+                            </div>
+                            <!-- Replaced the trash icon with a text-based "Remove" button -->
+                            <button class="remove-item-btn text-gray-500 hover:text-primary font-bold text-sm transition-colors" data-product-index="${item.productIndex}">
+                                Remove
+                            </button>
+                        </div>
+                    `;
+                    orderSummaryList.appendChild(listItem);
+                });
+            }
             orderSubtotalElement.textContent = `$${total.toFixed(2)}`;
         }
 
@@ -382,7 +591,7 @@
             const randomString = Math.random().toString(36).substr(2, 5);
             return `ORDER-${timestamp}-${randomString.toUpperCase()}`;
         }
-        
+
         /**
          * Saves a completed order to the browser's local storage.
          * @param {Array<Object>} items - The list of ordered items.
@@ -409,63 +618,33 @@
          * @param {Event} event - The form submit event.
          */
         orderForm.addEventListener('submit', async (event) => {
-            event.preventDefault(); // Prevent the default form submission behavior
-
-            // Check if the Apps Script URL is the placeholder and warn the user
-            if (APPS_SCRIPT_URL === 'YOUR_APPS_SCRIPT_URL_HERE') {
-                confirmationMessage.textContent = 'Please replace the `YOUR_APPS_SCRIPT_URL_HERE` placeholder in the code with your deployed Google Apps Script URL to submit orders.';
-                confirmationMessage.classList.remove('text-green-400');
-                confirmationMessage.classList.add('text-red-400', 'block');
-                console.error("Order submission failed: APPS_SCRIPT_URL is a placeholder.");
-                return;
-            }
+            event.preventDefault();
 
             const email = emailInput.value.trim();
-            const orderItems = [];
-            const cards = dataContainer.querySelectorAll('div.bg-gray-700');
-            let total = 0;
-            
-            cards.forEach((card, index) => {
-                const quantityDisplay = card.querySelector('.quantity-display');
-                if (quantityDisplay && parseInt(quantityDisplay.textContent) > 0) {
-                    const price = parseFloat(card.querySelector('.price-per-unit').dataset.price);
-                    const quantity = parseInt(quantityDisplay.textContent);
-                    const itemTotal = price * quantity;
-                    orderItems.push({
-                        name: productData[index].name.trim(),
-                        quantity: quantity,
-                        price: price,
-                        itemTotal: itemTotal.toFixed(2)
-                    });
-                    total += itemTotal;
-                }
-            });
 
-            if (orderItems.length === 0 || !email) {
+            if (cart.length === 0 || !email) {
                 confirmationMessage.textContent = 'Please select at least one item and provide a valid email address.';
-                confirmationMessage.classList.remove('text-green-400');
-                confirmationMessage.classList.add('text-red-400', 'block');
+                confirmationMessage.classList.remove('text-green-600');
+                confirmationMessage.classList.add('text-red-500', 'block');
                 return;
             }
 
-            // Create a unique order ID
             const orderId = generateOrderId();
             const payload = {
-                items: orderItems,
+                items: cart,
                 email: email,
                 orderId: orderId
             };
+            
+            const total = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
 
-            // Log the payload and URL for debugging
             console.log("Attempting to submit order with payload:", payload);
             console.log("To Apps Script URL:", APPS_SCRIPT_URL);
 
             try {
-                // Disable the submit button and show a loading state
                 submitButton.textContent = 'Submitting...';
                 submitButton.disabled = true;
 
-                // Send the order data as a JSON string to the Apps Script.
                 const response = await fetch(APPS_SCRIPT_URL, {
                     method: 'POST',
                     headers: {
@@ -473,54 +652,132 @@
                     },
                     body: `data=${encodeURIComponent(JSON.stringify(payload))}`
                 });
-
-                // Handle non-OK status codes from the Apps Script
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`Apps Script returned an error: ${errorText}`);
-                }
                 
-                // If the submission was successful, save the order to local storage
-                saveOrderToLocalStorage(orderItems, email, orderId, total);
-
-                // Show the modal with the generated order ID
-                modalOrderId.textContent = orderId;
-                confirmationModal.classList.remove('hidden');
-
+                if (response.ok) {
+                    // Success path: The HTTP response was okay.
+                    saveOrderToLocalStorage(cart, email, orderId, total);
+                    modalOrderId.textContent = orderId;
+                    confirmationModal.classList.remove('hidden');
+                    // Hide the order summary modal
+                    orderSummaryModal.classList.add('hidden');
+                    // Refresh the catalog to reflect updated inventory and row order
+                    await fetchData();
+                } else {
+                    // Error path: The HTTP response was not okay.
+                    const errorText = await response.text();
+                    throw new Error(errorText || 'Server responded with an error.');
+                }
             } catch (error) {
                 console.error('Error submitting order to Apps Script:', error);
-                confirmationMessage.textContent = `There was an error submitting your order: ${error.message}. Please double-check that your Apps Script is deployed with 'Anyone' access and that the APPS_SCRIPT_URL is correct.`;
-                confirmationMessage.classList.remove('text-green-400');
-                confirmationMessage.classList.add('text-red-400', 'block');
-                return; // Stop processing further if the submission failed
+                confirmationMessage.textContent = `There was an error submitting your order. Please make sure you have replaced the placeholder URL with your own deployed Google Apps Script URL.`;
+                confirmationMessage.classList.remove('text-green-600');
+                confirmationMessage.classList.add('text-red-500', 'block');
             } finally {
-                // Re-enable the submit button regardless of success or failure
                 submitButton.textContent = 'Submit Order';
                 submitButton.disabled = false;
             }
         });
 
-        // Close the confirmation modal and refresh the page
+        // Close the confirmation modal and reset the form
         modalCloseButton.addEventListener('click', () => {
             confirmationModal.classList.add('hidden');
-            window.location.reload();
+            orderForm.reset();
+            fetchData(); // Refresh again to ensure latest data
+            totalCostButton.classList.remove('visible');
         });
 
         // Open the past orders modal
         pastOrdersButton.addEventListener('click', () => {
             renderPastOrders();
             pastOrdersModal.classList.remove('hidden');
+            toggleAccountMenu(); // Close the dropdown after clicking
         });
+        
+        // Open/close the account dropdown menu
+        accountButton.addEventListener('click', toggleAccountMenu);
 
         // Close the past orders modal
         closePastOrdersButton.addEventListener('click', () => {
             pastOrdersModal.classList.add('hidden');
         });
+        
+        // Open the order summary modal when the floating button is clicked
+        totalCostButton.addEventListener('click', () => {
+            updateOrderSummary(cart, cart.reduce((acc, item) => acc + (item.price * item.quantity), 0));
+            orderSummaryModal.classList.remove('hidden');
+        });
+        
+        // Close the order summary modal
+        closeOrderSummaryButton.addEventListener('click', () => {
+            orderSummaryModal.classList.add('hidden');
+        });
+
+        // Add a single event listener to the order summary modal for both input and button clicks
+        orderSummaryModal.addEventListener('click', (event) => {
+            const button = event.target.closest('.remove-item-btn');
+            if (button) {
+                const productIndex = parseInt(button.dataset.productIndex);
+                // Remove the item from the cart array
+                cart = cart.filter(item => item.productIndex !== productIndex);
+                // Now, update the UI
+                updateTotalCost();
+                // If the cart becomes empty, hide the modal and the floating button
+                if (cart.length === 0) {
+                    orderSummaryModal.classList.add('hidden');
+                    totalCostButton.classList.remove('visible');
+                }
+            }
+        });
+
+        orderSummaryModal.addEventListener('input', (event) => {
+            const input = event.target.closest('.quantity-input');
+            if (input) {
+                const productIndex = parseInt(input.dataset.productIndex);
+                let newQuantity = parseInt(input.value) || 0;
+                const maxInventory = parseInt(productData[productIndex].inventory.trim()) || 0;
+                
+                // Ensure the quantity doesn't exceed inventory and is not negative
+                if (newQuantity > maxInventory) {
+                    newQuantity = maxInventory;
+                    input.value = newQuantity;
+                    showInventoryWarning(productIndex, `Maximum inventory is ${maxInventory}!`);
+                } else if (newQuantity < 0) {
+                    newQuantity = 0;
+                    input.value = newQuantity;
+                }
+                
+                // Update the quantity in the cart array
+                const cartItem = cart.find(item => item.productIndex === productIndex);
+                if (cartItem) {
+                    cartItem.quantity = newQuantity;
+                    if (newQuantity === 0) {
+                        // If quantity is 0, remove the item from the cart
+                        cart = cart.filter(item => item.productIndex !== productIndex);
+                    }
+                }
+                updateTotalCost();
+                // If the cart becomes empty, hide the modal and the floating button
+                if (cart.length === 0) {
+                    orderSummaryModal.classList.add('hidden');
+                    totalCostButton.classList.remove('visible');
+                }
+            }
+        });
+
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (event) => {
+            if (!accountButton.contains(event.target) && !accountMenu.contains(event.target)) {
+                if (accountMenu.classList.contains('open')) {
+                    toggleAccountMenu();
+                }
+            }
+        });
 
         // Clear all past orders from local storage
         clearOrdersButton.addEventListener('click', () => {
             localStorage.removeItem('pastOrders');
-            renderPastOrders(); // Re-render the list, which will now be empty
+            renderPastOrders();
         });
 
         /**
@@ -528,37 +785,48 @@
          */
         function renderPastOrders() {
             const pastOrders = JSON.parse(localStorage.getItem('pastOrders')) || [];
-            pastOrdersList.innerHTML = ''; // Clear the list
-            console.log("Past orders loaded from local storage:", pastOrders);
+            pastOrdersList.innerHTML = '';
 
             if (pastOrders.length === 0) {
                 pastOrdersList.innerHTML = '<p class="text-gray-500 text-center">No past orders found.</p>';
                 return;
             }
 
-            // Sort orders by timestamp, newest first
             pastOrders.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
             pastOrders.forEach(order => {
                 const orderDate = new Date(order.timestamp).toLocaleString();
                 const orderCard = document.createElement('div');
-                orderCard.className = 'bg-gray-700 p-4 rounded-lg shadow-md';
+                orderCard.className = 'bg-gray-100 p-4 rounded-lg shadow-md';
                 orderCard.innerHTML = `
-                    <h4 class="font-bold text-white mb-1">Order ID: <span class="text-indigo-400">${order.orderId}</span></h4>
-                    <p class="text-gray-400 text-sm">Date: ${orderDate}</p>
-                    <p class="text-gray-400 text-sm mb-2">Email: ${order.email}</p>
-                    <ul class="list-disc list-inside text-gray-300 text-sm">
+                    <h4 class="font-bold text-primary mb-1">Order ID: <span class="text-accent">${order.orderId}</span></h4>
+                    <p class="text-gray-500 text-sm">Date: ${orderDate}</p>
+                    <p class="text-gray-500 text-sm mb-2">Email: ${order.email}</p>
+                    <ul class="list-disc list-inside text-gray-500 text-sm">
                         ${order.items.map(item => `<li>${item.name} (x${item.quantity}) - $${(item.price * item.quantity).toFixed(2)}</li>`).join('')}
                     </ul>
-                    <div class="mt-2 text-right font-bold text-lg text-white">Total: <span class="text-indigo-400">$${order.total}</span></div>
+                    <div class="mt-2 text-right font-bold text-lg text-primary">Total: <span class="text-accent">$${order.total}</span></div>
                 `;
                 pastOrdersList.appendChild(orderCard);
             });
         }
 
-        // Initial data fetch and auto-refresh setup
-        fetchData();
-        setInterval(fetchData, REFRESH_INTERVAL_MINUTES * 60 * 1000);
+        // --- NEW AGE GATE LOGIC ---
+
+        ageGateYesButton.addEventListener('click', () => {
+            ageGateModal.classList.add('hidden');
+            mainContent.classList.remove('hidden');
+            fetchData(); // Start fetching data only after age is confirmed
+        });
+
+        ageGateNoButton.addEventListener('click', () => {
+            const modalContent = ageGateModal.querySelector('.modal-content');
+            // The denied access message now uses the light background colors
+            modalContent.innerHTML = `
+                <h2 class="text-3xl font-bold text-red-600 mb-4">Access Denied</h2>
+                <p class="text-gray-600">You must be 21 or older to access this site.</p>
+            `;
+        });
     </script>
 </body>
 </html>
