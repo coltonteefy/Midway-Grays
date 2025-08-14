@@ -234,6 +234,7 @@
         <div class="bg-white p-8 rounded-xl shadow-2xl max-w-lg w-full text-center border border-gray-200">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-2xl font-bold text-primary">Your Past Orders</h3>
+                <!-- Close button for the past orders modal -->
                 <button id="close-past-orders" class="p-2 rounded-full text-gray-500 hover:text-primary transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -417,7 +418,8 @@
                         </div>
                         
                         <div class="mt-4">
-                            <div class="flex items-center justify-between">
+                            <!-- Adjusted the card's price and quantity layout to prevent overlapping on large screens -->
+                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
                                 <p class="text-lg font-bold text-accent price-per-unit" data-price="${priceValue}">${priceText}</p>
                                 <div class="flex items-center space-x-2">
                                     <span class="text-gray-500">Quantity:</span>
