@@ -295,7 +295,7 @@
         
         // !! IMPORTANT: YOU MUST REPLACE THIS PLACEHOLDER WITH YOUR DEPLOYED APPS SCRIPT URL !!
         // This script is required to process and save the orders.
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx8nvcBgC88W71-jW5JnaT0cVw4sctm2GHsEDYkt6X5RjAtW85Bt-_PQd_rCxYetGSF/exec';
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx8nvcBgC88W71-jW5JnaT0cVw4sctm2GHmEDYkt6X5RjAtW85Bt-_PQd_rCxYetGSF/exec';
         
         // A new global array to hold the items that have been added to the cart
         let cart = [];
@@ -824,8 +824,8 @@
                 return;
             }
             
-            // New check to ensure the Apps Script URL has been updated
-            if (APPS_SCRIPT_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE') {
+            // Check if the Apps Script URL has been replaced with a valid one
+            if (APPS_SCRIPT_URL.includes('AKfycbx8nvcBgC88W71-jW5JnaT0cVw4sctm2GHsEDYkt6X5RjAtW85Bt-_PQd_rCxYetGSF')) {
                 confirmationMessage.textContent = 'Order submission failed: Please replace the placeholder APPS_SCRIPT_URL in the code with your deployed Google Apps Script URL.';
                 confirmationMessage.classList.remove('text-green-600');
                 confirmationMessage.classList.add('text-red-500', 'block');
@@ -886,7 +886,7 @@
                 }
             } catch (error) {
                 console.error('Error submitting order to Apps Script:', error);
-                confirmationMessage.textContent = `${error.message}`;
+                confirmationMessage.textContent = `Order submission failed. Please check the following:\n1. The Google Apps Script URL is correct and deployed properly. \n2. The script is deployed as a "Web app" with "Who has access" set to "Anyone."\n3. There are no network connectivity issues.`;
                 confirmationMessage.classList.remove('text-green-600', 'text-gray-500');
                 confirmationMessage.classList.add('text-red-500', 'block');
             } finally {
