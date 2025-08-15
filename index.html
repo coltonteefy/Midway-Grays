@@ -258,6 +258,9 @@
         const ageGateNoButton = document.getElementById('age-gate-no');
         const mainContent = document.getElementById('main-content');
         
+        // Define the key for localStorage
+        const ageVerificationKey = 'isAgeVerified';
+        
         // Get references to the existing HTML elements
         const dataContainer = document.getElementById('data-container');
         const loadingIndicator = document.getElementById('loading-indicator');
@@ -669,8 +672,10 @@
             updateCart(productIndex, newQuantity);
         });
 
-        // Event Listeners for the new modals and account menu
+        // Event listener for the "Yes" button
         ageGateYesButton.addEventListener('click', async () => {
+            // Save the age confirmation to localStorage
+            localStorage.setItem(ageVerificationKey, 'true');
             ageGateModal.classList.add('hidden');
             loadingIndicator.classList.remove('hidden'); // Show loading indicator
             await fetchData(); // Wait for data to be fetched and rendered
@@ -902,11 +907,27 @@
             fetchData();
         });
 
-        // Initial call to hide the main content until age is verified
-        document.addEventListener('DOMContentLoaded', () => {
-            mainContent.classList.add('hidden');
-            ageGateModal.classList.remove('hidden');
+        // --- NEW AGE VERIFICATION LOGIC ---
+        // Check for age verification on page load using localStorage
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Check if the user has already verified their age in this browser
+            const isAgeVerified = localStorage.getItem(ageVerificationKey);
+
+            if (isAgeVerified === 'true') {
+                // If verified, hide the modal and show the main content
+                ageGateModal.classList.add('hidden');
+                mainContent.classList.remove('hidden');
+                loadingIndicator.classList.remove('hidden');
+                await fetchData(); // Start fetching product data
+                loadingIndicator.classList.add('hidden');
+            } else {
+                // If not verified, show the age verification modal
+                ageGateModal.classList.remove('hidden');
+                mainContent.classList.add('hidden');
+            }
         });
+        // --- END OF NEW AGE VERIFICATION LOGIC ---
+
     </script>
 </body>
 </html>
