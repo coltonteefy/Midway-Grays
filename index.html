@@ -295,7 +295,7 @@
         
         // !! IMPORTANT: YOU MUST REPLACE THIS PLACEHOLDER WITH YOUR DEPLOYED APPS SCRIPT URL !!
         // This script is required to process and save the orders.
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx8nvcBgC88W71-jW5JnaT0cVw4sctm2GHmEDYkt6X5RjAtW85Bt-_PQd_rCxYetGSF/exec';
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx8nvcBgC88W71-jW5JnaT0cVw4sctm2GHsEDYkt6X5RjAtW85Bt-_PQd_rCxYetGSF/exec';
         
         // A new global array to hold the items that have been added to the cart
         let cart = [];
@@ -453,7 +453,6 @@
                         <div>
                             <h3 class="text-xl font-semibold text-primary mb-2">${product.name.trim()}</h3>
                             <p class="text-gray-500 mb-2">Inventory: <span class="font-medium text-primary">${product.inventory}</span></p>
-                            <p class="text-gray-500 mb-2">Code: <span class="font-medium text-primary">${product.code.trim()}</span></p>
                         </div>
                         
                         <div class="mt-4">
@@ -471,7 +470,7 @@
                                     <button class="quantity-btn p-1 rounded-full bg-gray-200 text-primary hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-accent transition-colors" data-action="increment" data-product-index="${index}">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                                        </svg>
+                                    </svg>
                                     </button>
                                 </div>
                             </div>
@@ -646,7 +645,7 @@
             const button = event.target.closest('.quantity-summary-btn, .remove-item-btn');
             if (!button) return;
 
-            const productIndex = parseInt(button.dataset.product-index);
+            const productIndex = parseInt(button.dataset.productIndex);
             const cartItem = cart.find(item => item.productIndex === productIndex);
             const maxInventory = productData[productIndex] ? parseInt(productData[productIndex].inventory) || 0 : 0;
             
