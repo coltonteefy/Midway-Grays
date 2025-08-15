@@ -8,17 +8,17 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Custom Tailwind CSS configuration for brand colors -->
     <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              primary: '#003854',   // Dark blue from logo
-              accent: '#006979',     // Teal from logo
-              background: '#F5F5F5' // Light gray from logo
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#003854',  // Dark blue from logo
+                        accent: '#006979',   // Teal from logo
+                        background: '#F5F5F5' // Light gray from logo
+                    }
+                }
             }
-          }
         }
-      }
     </script>
     <!-- Link to Google Fonts for 'Poppins' for a modern feel -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
@@ -111,6 +111,15 @@
         </div>
     </div>
 
+    <!-- Loading indicator - Now outside of main-content -->
+    <div id="loading-indicator" class="text-center text-accent mt-8 hidden">
+        <svg class="animate-spin h-5 w-5 mr-3 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        Loading...
+    </div>
+
     <!-- Main Content Container - Hidden by default until age is verified -->
     <div id="main-content" class="w-full flex flex-col items-center hidden">
 
@@ -131,7 +140,7 @@
             -->
             <!-- Account menu on the right -->
             <div class="flex-1 flex justify-end relative">
-                <button id="account-button" class="flex items-center space-x-2 px-4 py-2 bg-accent text-white font-bold rounded-lg hover:bg-teal-600 transition-colors focus:outline-none text-sm shadow-md">
+                <button id="account-button" class="flex items-center space-x-2 px-4 py-2 bg-accent text-white font-bold rounded-lg hover:bg-teal-600 transition-colors focus:outline-none focus:ring-2 focus:ring-accent text-sm shadow-md">
                     <span>Account</span>
                     <svg id="dropdown-arrow" class="w-4 h-4 transform transition-transform" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
@@ -168,17 +177,8 @@
         <!-- Container for the product cards -->
         <!-- I've increased the margin-top to add more space between the Hero section and the product list -->
         <!-- I have changed the max-width to make the cards a bit wider and adjusted the grid to a max of two columns -->
-        <div id="data-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 max-w-6xl w-full px-4 mt-8 mb-8">
+        <div id="data-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 max-w-6xl w-full px-4 mt-20 mb-8">
             <!-- The product cards will be inserted here -->
-        </div>
-
-        <!-- Loading indicator -->
-        <div id="loading-indicator" class="text-center text-accent mt-8">
-            <svg class="animate-spin h-5 w-5 mr-3 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            Loading...
         </div>
 
         <!-- Refresh information -->
@@ -292,13 +292,27 @@
 
         // The URL for your public Google Sheet CSV
         const SPREADSHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQRYzgS3hJWPzFJHs55qLX5EFQ_3VEcFpqE80-Xrw8xu8eo6FVlQkRPgAYPu7RoAFVFFqBqyDSa6_ae/pub?gid=0&single=true&output=csv';
-
-        // The deployed Google Apps Script URL has been updated here
+        
+        // !! IMPORTANT: YOU MUST REPLACE THIS PLACEHOLDER WITH YOUR DEPLOYED APPS SCRIPT URL !!
+        // This script is required to process and save the orders.
         const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx8nvcBgC88W71-jW5JnaT0cVw4sctm2GHmEDYkt6X5RjAtW85Bt-_PQd_rCxYetGSF/exec';
         
         // A new global array to hold the items that have been added to the cart
         let cart = [];
         let productData = []; // Store the fetched product data globally
+
+        /**
+         * A makeshift database for image URLs. I have corrected this to match your request.
+         */
+        const imageDatabase = {
+            "RT": "https://raw.githubusercontent.com/coltonteefy/inventory/080e0a8248d936101880949e5efa6dfec44f4fae/generic.png",
+            "BPTB": "https://raw.githubusercontent.com/coltonteefy/inventory/080e0a8248d936101880949e5efa6dfec44f4fae/bpc_tb.png",
+            "BPC": "https://raw.githubusercontent.com/coltonteefy/inventory/080e0a8248d936101880949e5efa6dfec44f4fae/generic.png",
+            "TB4": "https://raw.githubusercontent.com/coltonteefy/inventory/080e0a8248d936101880949e5efa6dfec44f4fae/generic.png",
+            "CJIP": "https://raw.githubusercontent.com/coltonteefy/inventory/080e0a8248d936101880949e5efa6dfec44f4fae/generic.png",
+            "GLOW": "https://raw.githubusercontent.com/coltonteefy/inventory/080e0a8248d936101880949e5efa6dfec44f4fae/generic.png"
+        };
+
 
         /**
          * Toggles the visibility of the account dropdown menu.
@@ -311,7 +325,8 @@
 
         /**
          * Fetches and displays data from the Google Sheet, filtering out specified columns.
-         * Note: This function also refreshes the available inventory and resets all quantities to 0.
+         * This version now uses a more robust native JavaScript parser to handle commas
+         * within a CSV row.
          */
         async function fetchData() {
             loadingIndicator.classList.remove('hidden');
@@ -320,6 +335,7 @@
             // Reset the total cost and hide the floating button with the new class
             floatingTotalCostElement.textContent = '$0.00';
             totalCostButton.classList.remove('visible');
+            cart = []; // Reset the cart on new data fetch
 
             try {
                 const response = await fetch(SPREADSHEET_URL);
@@ -328,57 +344,54 @@
                 }
                 const csvText = await response.text();
                 
-                const rows = csvText.split('\n').map(row => row.split(','));
-                const originalHeaders = rows[0].map(h => h.trim().replace(/"/g, ''));
-                const originalDataRows = rows.slice(1).filter(row => row.length > 1 && row[0].trim().replace(/"/g, '') !== '');
+                // Native JavaScript CSV parsing logic
+                const rows = csvText.split('\n').map(row => row.trim());
+                if (rows.length === 0) {
+                    throw new Error("The sheet is empty or could not be parsed.");
+                }
 
-                const columnHeaders = {
-                    productName: 'Product Name',
-                    inventory: 'Inventory',
-                    price: 'Price',
-                    resale: 'Resale',
-                    image: 'Image' // New 'Image' column header
+                const headers = rows[0].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(header => header.trim().replace(/"/g, ''));
+                
+                // Map column headers to their indices
+                const columnIndices = {
+                    code: headers.indexOf('Code'),
+                    productName: headers.indexOf('Product Name'),
+                    inventory: headers.indexOf('Inventory'),
+                    price: headers.indexOf('Price'),
+                    resale: headers.indexOf('Resale')
                 };
-                let columnMap = {};
 
-                for (const key in columnHeaders) {
-                    const foundIndex = originalHeaders.findIndex(header => header.toLowerCase() === columnHeaders[key].toLowerCase());
-                    if (foundIndex !== -1) {
-                        columnMap[key] = foundIndex;
+                // Check if all necessary columns exist
+                const requiredColumns = ['code', 'productName', 'inventory', 'price', 'resale'];
+                const missingColumns = requiredColumns.filter(col => columnIndices[col] === -1);
+                if (missingColumns.length > 0) {
+                    console.warn(`Missing required columns: ${missingColumns.join(', ')}. Proceeding with available data.`);
+                }
+                
+                productData = []; // Reset productData to prevent stale data
+                
+                // Process the data rows
+                rows.slice(1).forEach(row => {
+                    const columns = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(col => col.trim().replace(/"/g, ''));
+                    
+                    // Only process rows that have a product name
+                    if (columns[columnIndices.productName]) {
+                        const inventoryValue = columns[columnIndices.inventory] ? parseInt(columns[columnIndices.inventory]) : 0;
+                        const resaleValue = columns[columnIndices.resale] ? columns[columnIndices.resale].toLowerCase() : '';
+
+                        // Filter out products with 0 inventory or "false" in the Resale column
+                        if (inventoryValue > 0 && resaleValue !== 'false') {
+                            productData.push({
+                                code: columns[columnIndices.code],
+                                name: columns[columnIndices.productName],
+                                inventory: inventoryValue,
+                                price: columns[columnIndices.price]
+                            });
+                        }
                     }
-                }
-                
-                console.log("Column map:", columnMap);
-
-                productData = [];
-                
-                // Now, check for the new image column in the mapping
-                if (columnMap.productName !== undefined && columnMap.price !== undefined && columnMap.inventory !== undefined && columnMap.resale !== undefined && columnMap.image !== undefined) {
-                    productData = originalDataRows
-                        .filter(row => {
-                            const inventoryValue = row[columnMap.inventory] ? parseInt(row[columnMap.inventory].trim().replace(/"/g, '')) : 0;
-                            const resaleValue = row[columnMap.resale] ? row[columnMap.resale].trim().toLowerCase().replace(/"/g, '') : '';
-                            return inventoryValue > 0 && resaleValue !== 'false';
-                        })
-                        .map(row => ({
-                            name: row[columnMap.productName].trim().replace(/"/g, ''),
-                            inventory: row[columnMap.inventory].trim().replace(/"/g, ''),
-                            price: row[columnMap.price].trim().replace(/"/g, ''),
-                            image: row[columnMap.image].trim().replace(/"/g, '') // Get the image URL from the sheet
-                        }));
-                } else {
-                    console.warn("Could not find all required columns (Product Name, Price, Inventory, Resale, Image). Displaying all products without filters.");
-                    productData = originalDataRows
-                        .map(row => ({
-                            name: row[0].trim().replace(/"/g, ''),
-                            inventory: "N/A",
-                            price: row[1].trim().replace(/"/g, ''),
-                            image: '' // Default to an empty string if the column is not found
-                        }));
-                }
+                });
                 
                 renderCards(productData);
-                cart = []; // Reset the cart on new data fetch
                 updateTotalCost();
 
                 const now = new Date();
@@ -409,22 +422,38 @@
                 const priceValue = parseFloat(cleanedPrice);
                 const priceText = !isNaN(priceValue) ? `$${priceValue.toFixed(2)}` : 'Price not available';
                 
-                // Use the image URL from the product data, or the placeholder as a fallback
-                const imageUrl = product.image && product.image !== '' ? product.image : 'https://raw.githubusercontent.com/coltonteefy/inventory/080e0a8248d936101880949e5efa6dfec44f4fae/generic.png';
+                // --- Updated Logic for Image URL selection ---
+                // We are now only pulling images from the local imageDatabase.
+                // The onerror attribute is added here to provide a clear fallback.
+                let imageUrl = null;
+                const productKey = product.code.trim(); // Use the product code as the key
+                if (imageDatabase[productKey]) {
+                    imageUrl = imageDatabase[productKey];
+                }
 
+                // If no image URL is found, use a generic placeholder
+                if (!imageUrl) {
+                    imageUrl = `https://placehold.co/600x400/2B3A67/FFFFFF?text=${product.code.trim().replace(/\s/g, '+')}`;
+                }
+                // --- End of Updated Logic ---
+                
                 const card = document.createElement('div');
                 card.className = 'relative bg-white p-6 rounded-lg shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 border border-gray-200 h-full flex flex-col';
                 card.innerHTML = `
-                    <!-- The image src now uses the product data. The onerror provides a fallback to the placeholder. -->
+                    <!-- The image now uses a tiny placeholder for immediate load, and the actual URL is in 'data-src'. -->
+                    <!-- The 'loading="lazy"' attribute tells the browser to only load the image when it's near the viewport. -->
                     <img src="${imageUrl}" 
                          alt="${product.name.trim()} image" 
-                         class="w-full h-40 object-contain rounded-lg mb-4"
-                         onerror="this.onerror=null;this.src='https://raw.githubusercontent.com/coltonteefy/inventory/080e0a8248d936101880949e5efa6dfec44f4fae/generic.png';">
+                         class="w-full h-40 object-contain rounded-lg mb-4 lazy-image"
+                         loading="lazy"
+                         onerror="this.onerror=null; this.src='https://placehold.co/600x400/ef4444/ffffff?text=Image+Load+Failed!';"
+                         >
                     
                     <div class="flex-grow flex flex-col justify-between">
                         <div>
                             <h3 class="text-xl font-semibold text-primary mb-2">${product.name.trim()}</h3>
-                            <p class="text-gray-500 mb-2">Inventory: <span class="font-medium text-primary">${product.inventory.trim()}</span></p>
+                            <p class="text-gray-500 mb-2">Inventory: <span class="font-medium text-primary">${product.inventory}</span></p>
+                            <p class="text-gray-500 mb-2">Code: <span class="font-medium text-primary">${product.code.trim()}</span></p>
                         </div>
                         
                         <div class="mt-4">
@@ -446,10 +475,6 @@
                                     </button>
                                 </div>
                             </div>
-                            <!-- New "Add to Cart" button -->
-                            <button class="add-to-cart-btn w-full mt-4 py-2 bg-accent text-white font-bold rounded-lg hover:bg-teal-600 transition-colors focus:outline-none focus:ring-2 focus:ring-accent" data-product-index="${index}">
-                                Add to Cart
-                            </button>
                         </div>
                     </div>
                     <!-- Temporary message for inventory warnings -->
@@ -474,64 +499,76 @@
             }, 2500); // Hide after 2.5 seconds
         }
 
-        // Event delegation for quantity buttons and the new "Add to Cart" button
+        // Event delegation for quantity buttons
         dataContainer.addEventListener('click', (event) => {
-            const button = event.target.closest('.quantity-btn, .add-to-cart-btn');
+            const button = event.target.closest('.quantity-btn');
             if (!button) return;
 
             const productIndex = parseInt(button.dataset.productIndex);
             const card = button.closest('.bg-white');
             const quantityDisplay = card.querySelector(`.quantity-display[data-product-index="${productIndex}"]`);
-            const maxInventory = parseInt(productData[productIndex].inventory.trim()) || 0;
+            const maxInventory = parseInt(productData[productIndex].inventory) || 0;
             
             let currentQuantity = parseInt(quantityDisplay.textContent) || 0;
             
             // Handle quantity buttons
-            if (button.classList.contains('quantity-btn')) {
-                let action = button.dataset.action;
-                if (action === 'increment') {
-                    if (currentQuantity < maxInventory) {
-                        currentQuantity++;
-                    } else {
-                        showInventoryWarning(productIndex, 'Out of stock!');
-                    }
-                } else if (action === 'decrement' && currentQuantity > 0) {
-                    currentQuantity--;
+            let action = button.dataset.action;
+            if (action === 'increment') {
+                if (currentQuantity < maxInventory) {
+                    currentQuantity++;
+                } else {
+                    showInventoryWarning(productIndex, 'Out of stock!');
                 }
-                quantityDisplay.textContent = currentQuantity;
-                // Don't update the total cost yet, let the 'Add to Cart' button do that.
+            } else if (action === 'decrement' && currentQuantity > 0) {
+                currentQuantity--;
             }
-
-            // Handle the 'Add to Cart' button
-            if (button.classList.contains('add-to-cart-btn')) {
-                if (currentQuantity > 0) {
-                    // Find the item in the cart, or add a new one
-                    const existingCartItem = cart.find(item => item.productIndex === productIndex);
-                    if (existingCartItem) {
-                        // Check if adding this quantity would exceed inventory
-                        if (existingCartItem.quantity + currentQuantity <= maxInventory) {
-                             existingCartItem.quantity += currentQuantity;
-                        } else {
-                            existingCartItem.quantity = maxInventory;
-                             showInventoryWarning(productIndex, 'Out of stock!');
-                        }
-                    } else {
-                        cart.push({
-                            productIndex: productIndex,
-                            name: productData[productIndex].name.trim(),
-                            price: parseFloat(productData[productIndex].price.trim().replace('$', '')),
-                            quantity: currentQuantity
-                        });
-                    }
-                    
-                    // Reset the quantity display on the card
-                    quantityDisplay.textContent = 0;
-                    
-                    // Update the total cost and cart button
-                    updateTotalCost();
-                }
-            }
+            quantityDisplay.textContent = currentQuantity;
+            
+            // Update the cart immediately after a quantity change
+            updateCart(productIndex, currentQuantity);
         });
+
+        /**
+         * Updates the global cart array based on a product's new quantity.
+         * @param {number} productIndex - The index of the product in the productData array.
+         * @param {number} newQuantity - The new quantity for the product.
+         */
+        function updateCart(productIndex, newQuantity) {
+            const product = productData[productIndex];
+            
+            // Find if the item already exists in the cart
+            const existingCartItemIndex = cart.findIndex(item => item.productIndex === productIndex);
+
+            if (newQuantity > 0) {
+                if (existingCartItemIndex > -1) {
+                    // Update quantity if the item is already in the cart
+                    cart[existingCartItemIndex].quantity = newQuantity;
+                } else {
+                    // Add new item to the cart if it's not there and quantity > 0
+                    cart.push({
+                        productIndex: productIndex,
+                        name: product.name.trim(),
+                        price: parseFloat(product.price.trim().replace('$', '')),
+                        quantity: newQuantity,
+                        code: product.code.trim()
+                    });
+                }
+            } else {
+                // Remove item from cart if quantity is 0
+                if (existingCartItemIndex > -1) {
+                    cart.splice(existingCartItemIndex, 1);
+                }
+            }
+            
+            // Re-calculate the total cost and update the UI
+            updateTotalCost();
+
+            // Update the main product card's quantity display
+            const mainPageQuantityDisplay = document.querySelector(`.quantity-display[data-product-index="${productIndex}"]`);
+            if (mainPageQuantityDisplay) {
+                mainPageQuantityDisplay.textContent = newQuantity;
+            }
+        }
 
         /**
          * Calculates and updates the total cost and the order summary list.
@@ -577,23 +614,101 @@
                         <!-- Container for quantity, total, and remove button -->
                         <div class="flex flex-col items-end space-y-1">
                             <div class="flex items-center space-x-2">
-                                <input type="number" min="0" max="${productData[item.productIndex].inventory.trim()}" value="${item.quantity}" 
-                                    class="quantity-input w-16 p-1 text-center rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-accent"
-                                    data-product-index="${item.productIndex}">
-                                <span class="font-medium w-16 text-right">$${itemTotal}</span>
+                                <span class="text-gray-500">Qty:</span>
+                                <button class="quantity-summary-btn p-1 rounded-full bg-gray-200 text-primary hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-accent transition-colors" data-action="decrement" data-product-index="${item.productIndex}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
+                                    </svg>
+                                </button>
+                                <span class="text-primary text-lg font-bold w-6 text-center">${item.quantity}</span>
+                                <button class="quantity-summary-btn p-1 rounded-full bg-gray-200 text-primary hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-accent transition-colors" data-action="increment" data-product-index="${item.productIndex}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                    </svg>
+                                </button>
                             </div>
-                            <!-- Replaced the trash icon with a text-based "Remove" button -->
-                            <button class="remove-item-btn text-gray-500 hover:text-primary font-bold text-sm transition-colors" data-product-index="${item.productIndex}">
-                                Remove
-                            </button>
+                            <span class="text-lg font-bold text-accent">$${itemTotal}</span>
+                            <button class="remove-item-btn text-xs text-red-500 hover:text-red-700 transition-colors" data-product-index="${item.productIndex}">Remove</button>
                         </div>
                     `;
                     orderSummaryList.appendChild(listItem);
                 });
             }
             orderSubtotalElement.textContent = `$${total.toFixed(2)}`;
+            // Show the submit button only if there are items in the cart
+            submitButton.disabled = items.length === 0;
+            submitButton.classList.toggle('opacity-50', items.length === 0);
+            submitButton.classList.toggle('cursor-not-allowed', items.length === 0);
         }
 
+        // Handle quantity changes in the order summary modal
+        orderSummaryModal.addEventListener('click', (event) => {
+            const button = event.target.closest('.quantity-summary-btn, .remove-item-btn');
+            if (!button) return;
+
+            const productIndex = parseInt(button.dataset.product-index);
+            const cartItem = cart.find(item => item.productIndex === productIndex);
+            const maxInventory = productData[productIndex] ? parseInt(productData[productIndex].inventory) || 0 : 0;
+            
+            let newQuantity = cartItem ? cartItem.quantity : 0;
+            
+            if (button.classList.contains('quantity-summary-btn')) {
+                const action = button.dataset.action;
+                if (action === 'increment') {
+                    if (newQuantity < maxInventory) {
+                        newQuantity++;
+                    }
+                } else if (action === 'decrement' && newQuantity > 0) {
+                    newQuantity--;
+                }
+            } else if (button.classList.contains('remove-item-btn')) {
+                newQuantity = 0;
+            }
+            
+            // Now, always call updateCart with the final determined newQuantity.
+            // This function handles the cart array and the main UI synchronization.
+            updateCart(productIndex, newQuantity);
+        });
+
+        // Event Listeners for the new modals and account menu
+        ageGateYesButton.addEventListener('click', async () => {
+            ageGateModal.classList.add('hidden');
+            loadingIndicator.classList.remove('hidden'); // Show loading indicator
+            await fetchData(); // Wait for data to be fetched and rendered
+            mainContent.classList.remove('hidden'); // Then show the main content
+        });
+
+        ageGateNoButton.addEventListener('click', () => {
+            // For now, just display a message and prevent entry.
+            ageGateModal.innerHTML = `
+                <div class="modal-content">
+                    <h2 class="text-3xl font-bold text-red-600 mb-4">Access Denied</h2>
+                    <p class="text-gray-500 mb-6">You must be 21 or older to view this content.</p>
+                </div>
+            `;
+        });
+        
+        accountButton.addEventListener('click', toggleAccountMenu);
+
+        // Click anywhere outside the menu to close it
+        window.addEventListener('click', (event) => {
+            if (!accountButton.contains(event.target) && !accountMenu.contains(event.target)) {
+                if (accountMenu.classList.contains('open')) {
+                    toggleAccountMenu();
+                }
+            }
+        });
+
+        // Event listener for the "Cart" button
+        totalCostButton.addEventListener('click', () => {
+            orderSummaryModal.classList.remove('hidden');
+        });
+
+        // Event listener to close the order summary modal
+        closeOrderSummaryButton.addEventListener('click', () => {
+            orderSummaryModal.classList.add('hidden');
+        });
+        
         /**
          * Generates a unique order ID.
          * @returns {string} The unique order ID.
@@ -626,18 +741,96 @@
         }
 
         /**
-         * Handles the order submission.
-         * @param {Event} event - The form submit event.
+         * Renders the list of past orders from local storage into the modal.
          */
+        function showPastOrders() {
+            const pastOrders = JSON.parse(localStorage.getItem('pastOrders')) || [];
+            pastOrdersList.innerHTML = '';
+            
+            if (pastOrders.length === 0) {
+                pastOrdersList.innerHTML = '<p class="text-gray-500 text-center">No past orders found.</p>';
+                return;
+            }
+
+            pastOrders.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+            pastOrders.forEach(order => {
+                const orderDate = new Date(order.timestamp).toLocaleString();
+                const orderCard = document.createElement('div');
+                orderCard.className = 'bg-gray-100 p-4 rounded-lg shadow-md';
+                orderCard.innerHTML = `
+                    <h4 class="font-bold text-primary mb-1">Order ID: <span class="text-accent">${order.orderId}</span></h4>
+                    <p class="text-gray-500 text-sm">Date: ${orderDate}</p>
+                    <p class="text-gray-500 text-sm mb-2">Email: ${order.email}</p>
+                    <ul class="list-disc list-inside text-gray-500 text-sm">
+                        ${order.items.map(item => `<li>${item.name} (x${item.quantity}) - $${(item.price * item.quantity).toFixed(2)}</li>`).join('')}
+                    </ul>
+                    <div class="mt-2 text-right font-bold text-lg text-primary">Total: <span class="text-accent">$${order.total}</span></div>
+                `;
+                pastOrdersList.appendChild(orderCard);
+            });
+        }
+        
+        // Event listener for the "Past Orders" button in the account menu
+        pastOrdersButton.addEventListener('click', (event) => {
+            event.preventDefault();
+            toggleAccountMenu(); // Close the account menu
+            showPastOrders();
+            pastOrdersModal.classList.remove('hidden');
+        });
+
+        // Event listener to close the past orders modal
+        closePastOrdersButton.addEventListener('click', () => {
+            pastOrdersModal.classList.add('hidden');
+        });
+
+        // Event listener for the "Clear All Past Orders" button
+        clearOrdersButton.addEventListener('click', async () => {
+            // Replaced alert with a custom confirmation for better UX
+            const confirmed = await new Promise(resolve => {
+                const modal = document.createElement('div');
+                modal.className = 'fixed inset-0 bg-gray-900 bg-opacity-80 flex items-center justify-center p-4 z-50';
+                modal.innerHTML = `
+                    <div class="bg-white p-8 rounded-xl shadow-2xl max-w-sm w-full text-center border border-gray-200">
+                        <h3 class="text-lg font-bold text-primary mb-4">Are you sure?</h3>
+                        <p class="text-gray-600 mb-6">This action cannot be undone.</p>
+                        <div class="flex justify-around">
+                            <button id="confirm-yes" class="px-6 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">Yes, Clear</button>
+                            <button id="confirm-no" class="px-6 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition-colors">Cancel</button>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+                document.getElementById('confirm-yes').addEventListener('click', () => { modal.remove(); resolve(true); });
+                document.getElementById('confirm-no').addEventListener('click', () => { modal.remove(); resolve(false); });
+            });
+
+            if (confirmed) {
+                localStorage.removeItem('pastOrders');
+                showPastOrders(); // Reload to show the 'no orders' message
+            }
+        });
+
+
+        // Handle form submission using the new local storage functions
         orderForm.addEventListener('submit', async (event) => {
             event.preventDefault();
-
+            
             const email = emailInput.value.trim();
 
             if (cart.length === 0 || !email) {
                 confirmationMessage.textContent = 'Please select at least one item and provide a valid email address.';
                 confirmationMessage.classList.remove('text-green-600');
                 confirmationMessage.classList.add('text-red-500', 'block');
+                return;
+            }
+            
+            // New check to ensure the Apps Script URL has been updated
+            if (APPS_SCRIPT_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE') {
+                confirmationMessage.textContent = 'Order submission failed: Please replace the placeholder APPS_SCRIPT_URL in the code with your deployed Google Apps Script URL.';
+                confirmationMessage.classList.remove('text-green-600');
+                confirmationMessage.classList.add('text-red-500', 'block');
+                console.error("Order submission failed: APPS_SCRIPT_URL has not been configured.");
                 return;
             }
 
@@ -653,6 +846,11 @@
             console.log("Attempting to submit order with payload:", payload);
             console.log("To Apps Script URL:", APPS_SCRIPT_URL);
 
+            // Added a class to the message for styling purposes
+            confirmationMessage.classList.remove('text-red-500', 'text-green-600');
+            confirmationMessage.classList.add('text-gray-500', 'block');
+            confirmationMessage.textContent = 'Submitting your order, please wait...';
+            
             try {
                 submitButton.textContent = 'Submitting...';
                 submitButton.disabled = true;
@@ -677,12 +875,20 @@
                 } else {
                     // Error path: The HTTP response was not okay.
                     const errorText = await response.text();
-                    throw new Error(errorText || 'Server responded with an error.');
+                    const errorMessage = errorText.trim() || `Server responded with a status of ${response.status}. The Apps Script might be misconfigured.`;
+                    
+                    // New detailed error message for better debugging
+                    let detailedMessage = `Order submission failed. The server responded with an error (${response.status}). This often means:
+                    \n1. The Google Apps Script URL is incorrect. Double-check for typos.
+                    \n2. The Google Apps Script is not deployed correctly. Ensure it is deployed as a "Web app" and "Execute as:" is set to "Me" and "Who has access:" is set to "Anyone."
+                    \n3. There is an issue with the script's code.`;
+                    
+                    throw new Error(detailedMessage);
                 }
             } catch (error) {
                 console.error('Error submitting order to Apps Script:', error);
-                confirmationMessage.textContent = `There was an error submitting your order. Please make sure you have replaced the placeholder URL with your own deployed Google Apps Script URL.`;
-                confirmationMessage.classList.remove('text-green-600');
+                confirmationMessage.textContent = `${error.message}`;
+                confirmationMessage.classList.remove('text-green-600', 'text-gray-500');
                 confirmationMessage.classList.add('text-red-500', 'block');
             } finally {
                 submitButton.textContent = 'Submit Order';
@@ -690,154 +896,17 @@
             }
         });
 
-        // Close the confirmation modal and reset the form
+        // Event listener for the confirmation modal's close button
         modalCloseButton.addEventListener('click', () => {
             confirmationModal.classList.add('hidden');
-            orderForm.reset();
-            fetchData(); // Refresh again to ensure latest data
-            totalCostButton.classList.remove('visible');
+            // Re-fetch data to reflect any changes in inventory
+            fetchData();
         });
 
-        // Open the past orders modal
-        pastOrdersButton.addEventListener('click', () => {
-            renderPastOrders();
-            pastOrdersModal.classList.remove('hidden');
-            toggleAccountMenu(); // Close the dropdown after clicking
-        });
-        
-        // Open/close the account dropdown menu
-        accountButton.addEventListener('click', toggleAccountMenu);
-
-        // Close the past orders modal
-        closePastOrdersButton.addEventListener('click', () => {
-            pastOrdersModal.classList.add('hidden');
-        });
-        
-        // Open the order summary modal when the floating button is clicked
-        totalCostButton.addEventListener('click', () => {
-            updateOrderSummary(cart, cart.reduce((acc, item) => acc + (item.price * item.quantity), 0));
-            orderSummaryModal.classList.remove('hidden');
-        });
-        
-        // Close the order summary modal
-        closeOrderSummaryButton.addEventListener('click', () => {
-            orderSummaryModal.classList.add('hidden');
-        });
-
-        // Add a single event listener to the order summary modal for both input and button clicks
-        orderSummaryModal.addEventListener('click', (event) => {
-            const button = event.target.closest('.remove-item-btn');
-            if (button) {
-                const productIndex = parseInt(button.dataset.productIndex);
-                // Remove the item from the cart array
-                cart = cart.filter(item => item.productIndex !== productIndex);
-                // Now, update the UI
-                updateTotalCost();
-                // If the cart becomes empty, hide the modal and the floating button
-                if (cart.length === 0) {
-                    orderSummaryModal.classList.add('hidden');
-                    totalCostButton.classList.remove('visible');
-                }
-            }
-        });
-
-        orderSummaryModal.addEventListener('input', (event) => {
-            const input = event.target.closest('.quantity-input');
-            if (input) {
-                const productIndex = parseInt(input.dataset.productIndex);
-                let newQuantity = parseInt(input.value) || 0;
-                const maxInventory = parseInt(productData[productIndex].inventory.trim()) || 0;
-                
-                // Ensure the quantity doesn't exceed inventory and is not negative
-                if (newQuantity > maxInventory) {
-                    newQuantity = maxInventory;
-                    input.value = newQuantity;
-                    showInventoryWarning(productIndex, `Maximum inventory is ${maxInventory}!`);
-                } else if (newQuantity < 0) {
-                    newQuantity = 0;
-                    input.value = newQuantity;
-                }
-                
-                // Update the quantity in the cart array
-                const cartItem = cart.find(item => item.productIndex === productIndex);
-                if (cartItem) {
-                    cartItem.quantity = newQuantity;
-                    if (newQuantity === 0) {
-                        // If quantity is 0, remove the item from the cart
-                        cart = cart.filter(item => item.productIndex !== productIndex);
-                    }
-                }
-                updateTotalCost();
-                // If the cart becomes empty, hide the modal and the floating button
-                if (cart.length === 0) {
-                    orderSummaryModal.classList.add('hidden');
-                    totalCostButton.classList.remove('visible');
-                }
-            }
-        });
-
-
-        // Close dropdown when clicking outside
-        document.addEventListener('click', (event) => {
-            if (!accountButton.contains(event.target) && !accountMenu.contains(event.target)) {
-                if (accountMenu.classList.contains('open')) {
-                    toggleAccountMenu();
-                }
-            }
-        });
-
-        // Clear all past orders from local storage
-        clearOrdersButton.addEventListener('click', () => {
-            localStorage.removeItem('pastOrders');
-            renderPastOrders();
-        });
-
-        /**
-         * Renders the list of past orders from local storage into the modal.
-         */
-        function renderPastOrders() {
-            const pastOrders = JSON.parse(localStorage.getItem('pastOrders')) || [];
-            pastOrdersList.innerHTML = '';
-
-            if (pastOrders.length === 0) {
-                pastOrdersList.innerHTML = '<p class="text-gray-500 text-center">No past orders found.</p>';
-                return;
-            }
-
-            pastOrders.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-
-            pastOrders.forEach(order => {
-                const orderDate = new Date(order.timestamp).toLocaleString();
-                const orderCard = document.createElement('div');
-                orderCard.className = 'bg-gray-100 p-4 rounded-lg shadow-md';
-                orderCard.innerHTML = `
-                    <h4 class="font-bold text-primary mb-1">Order ID: <span class="text-accent">${order.orderId}</span></h4>
-                    <p class="text-gray-500 text-sm">Date: ${orderDate}</p>
-                    <p class="text-gray-500 text-sm mb-2">Email: ${order.email}</p>
-                    <ul class="list-disc list-inside text-gray-500 text-sm">
-                        ${order.items.map(item => `<li>${item.name} (x${item.quantity}) - $${(item.price * item.quantity).toFixed(2)}</li>`).join('')}
-                    </ul>
-                    <div class="mt-2 text-right font-bold text-lg text-primary">Total: <span class="text-accent">$${order.total}</span></div>
-                `;
-                pastOrdersList.appendChild(orderCard);
-            });
-        }
-
-        // --- NEW AGE GATE LOGIC ---
-
-        ageGateYesButton.addEventListener('click', () => {
-            ageGateModal.classList.add('hidden');
-            mainContent.classList.remove('hidden');
-            fetchData(); // Start fetching data only after age is confirmed
-        });
-
-        ageGateNoButton.addEventListener('click', () => {
-            const modalContent = ageGateModal.querySelector('.modal-content');
-            // The denied access message now uses the light background colors
-            modalContent.innerHTML = `
-                <h2 class="text-3xl font-bold text-red-600 mb-4">Access Denied</h2>
-                <p class="text-gray-600">You must be 21 or older to access this site.</p>
-            `;
+        // Initial call to hide the main content until age is verified
+        document.addEventListener('DOMContentLoaded', () => {
+            mainContent.classList.add('hidden');
+            ageGateModal.classList.remove('hidden');
         });
     </script>
 </body>
