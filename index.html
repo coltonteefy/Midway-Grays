@@ -706,7 +706,13 @@
          */
         function updateCartQuantity(productCode, newQuantity) {
             const productIndex = productData.findIndex(p => p.code === productCode);
-            
+            const maxInventory = productIndex > -1 ? parseInt(productData[productIndex].inventory) || 0 : 0;
+
+            if (newQuantity > maxInventory) {
+                showInventoryWarning(productIndex, 'Max inventory reached!');
+                newQuantity = maxInventory;
+            }
+
             if (newQuantity <= 0) {
                 removeCartItem(productCode);
             } else {
@@ -715,7 +721,7 @@
                 if (mainQuantityDisplay) {
                     mainQuantityDisplay.textContent = newQuantity;
                 }
-                
+
                 // Update the cart array directly
                 const cartItem = cart.find(item => item.code === productCode);
                 if (cartItem) {
