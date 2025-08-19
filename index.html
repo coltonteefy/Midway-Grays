@@ -438,13 +438,13 @@
          * A makeshift database for image URLs. I have corrected this to match your request.
          */
         const imageDatabase = {
-            "RT12": "https://raw.githubusercontent.com/coltonteefy/inventory/refs/heads/main/GLP3.PNG",
-            "RT24": "https://raw.githubusercontent.com/coltonteefy/inventory/refs/heads/main/GLP3.PNG",
-            "BPTB": "https://raw.githubusercontent.com/coltonteefy/inventory/refs/heads/main/card_template.PNG",
-            "BPC": "",
-            "TB4": "",
-            "CJIP": "",
-            "GLOW": ""
+            "RT12": "https://raw.githubusercontent.com/coltonteefy/inventory/refs/heads/main/BLANK_VIAL.jpg",
+            "RT24": "https://raw.githubusercontent.com/coltonteefy/inventory/refs/heads/main/BLANK_VIAL.jpg",
+            "BPTB": "https://raw.githubusercontent.com/coltonteefy/inventory/refs/heads/main/BLANK_VIAL.jpg",
+            "BPC": "https://raw.githubusercontent.com/coltonteefy/inventory/refs/heads/main/BLANK_VIAL.jpg",
+            "TB4": "https://raw.githubusercontent.com/coltonteefy/inventory/refs/heads/main/BLANK_VIAL.jpg",
+            "CJIP": "https://raw.githubusercontent.com/coltonteefy/inventory/refs/heads/main/BLANK_VIAL.jpg",
+            "GLOW": "https://raw.githubusercontent.com/coltonteefy/inventory/refs/heads/main/BLANK_VIAL.jpg"
         };
 
 
@@ -625,7 +625,7 @@
                     <!-- The 'loading="lazy"' attribute tells the browser to only load the image when it's near the viewport. -->
                     <img src="${imageUrl}" 
                          alt="${product.name.trim()} image" 
-                         class="w-full h-40 object-contain rounded-lg mb-4 lazy-image"
+                         class="w-full h-65 object-contain rounded-lg mb-4 lazy-image"
                          loading="lazy"
                          onerror="this.onerror=null; this.src='https://placehold.co/600x400/ef4444/ffffff?text=Image+Load+Failed!';"
                          >
