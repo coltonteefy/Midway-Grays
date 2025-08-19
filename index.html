@@ -802,10 +802,11 @@
                 updateTotalCost();
                 syncQuantitiesWithCardPage(); // Sync quantities on main page after order
                 
-                // --- UPDATED: Hide the order summary drawer ---
+                // --- FIX: Explicitly close the order summary drawer and its backdrop ---
                 orderSummaryDrawer.classList.remove('is-open');
-                cartBackdrop.classList.remove('hidden');
-                // --- END UPDATED ---
+                cartBackdrop.classList.remove('is-open');
+                cartBackdrop.classList.add('hidden');
+                // --- END FIX ---
 
             } catch (error) {
                 console.error('Submission failed:', error);
@@ -852,7 +853,7 @@
             localStorage.removeItem('pastOrders');
             renderPastOrders(); // Re-render to show the "no orders" message
         }
-
+        
         /**
          * All event listeners are attached here.
          */
@@ -953,13 +954,6 @@
                 cartBackdrop.classList.add('is-open');
             });
             
-            // Close order summary drawer
-            closeOrderSummaryButton.addEventListener('click', () => {
-                orderSummaryDrawer.classList.remove('is-open');
-                cartBackdrop.classList.remove('is-open');
-                cartBackdrop.classList.add('hidden');
-            });
-            
             // This is the section that caused the error. I've refactored the logic to fix it.
             orderSummaryDrawer.addEventListener('click', (event) => {
                 const target = event.target.closest('.cart-btn');
@@ -1040,6 +1034,12 @@
             // Close confirmation modal
             modalCloseButton.addEventListener('click', () => {
                 confirmationModal.classList.add('hidden');
+                // --- FIX: Reset the app state after the order is confirmed ---
+                cart = [];
+                updateTotalCost();
+                syncQuantitiesWithCardPage();
+                renderOrderSummary();
+                // --- END FIX ---
             });
 
             // Open past orders modal
@@ -1084,5 +1084,3 @@
 
 </body>
 </html>
-
-
