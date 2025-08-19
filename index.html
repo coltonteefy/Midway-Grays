@@ -832,14 +832,27 @@
                     const orderDate = new Date(order.timestamp);
                     const orderDiv = document.createElement('div');
                     orderDiv.className = 'p-4 rounded-lg bg-gray-100 border border-gray-200';
+                    
+                    // --- FIX: Ensure `total` and `price` are numbers before using .toFixed() ---
+                    const totalValue = parseFloat(order.total);
+
                     orderDiv.innerHTML = `
                         <p class="font-bold text-lg text-primary">Order ID: ${order.orderId}</p>
                         <p class="text-sm text-gray-500">Date: ${orderDate.toLocaleDateString()} at ${orderDate.toLocaleTimeString()}</p>
                         <ul class="list-disc list-inside mt-2 text-sm text-gray-600 space-y-1">
-                            ${order.items.map(item => `<li>${item.name} x ${item.quantity} ($${(item.price * item.quantity).toFixed(2)})</li>`).join('')}
+                            ${order.items.map(item => {
+                                // Convert item.price to a float just in case it was stored as a string
+                                const itemPrice = parseFloat(item.price);
+                                if (isNaN(itemPrice)) {
+                                    return `<li>${item.name} x ${item.quantity} (Price N/A)</li>`;
+                                }
+                                return `<li>${item.name} x ${item.quantity} ($${(itemPrice * item.quantity).toFixed(2)})</li>`;
+                            }).join('')}
                         </ul>
-                        <p class="mt-2 text-right font-bold text-accent">Total: $${order.total.toFixed(2)}</p>
+                        <p class="mt-2 text-right font-bold text-accent">Total: $${!isNaN(totalValue) ? totalValue.toFixed(2) : 'N/A'}</p>
                     `;
+                    // --- END FIX ---
+                    
                     pastOrdersList.appendChild(orderDiv);
                 });
             }
