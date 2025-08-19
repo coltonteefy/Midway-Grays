@@ -246,7 +246,7 @@
                     </svg>
                 </button>
                 <!-- Dropdown Menu -->
-                <div id="account-menu" class="absolute top-full mt-2 w-48 rounded-lg shadow-lg bg-white border border-gray-200 py-1 right-0">
+                <div id="account-menu" class="absolute top-full mt-2 w-48 rounded-lg shadow-lg bg-white border border-gray-200 py-1 right-0 z-50">
                     <button id="past-orders-button" class="w-full text-left px-4 py-2 text-sm text-primary hover:bg-gray-100">
                         Past Orders
                     </button>
@@ -256,7 +256,7 @@
         
         <!-- New Pop-down Search Bar Container -->
         <!-- This container is now a direct child of main-content, and its visibility is controlled by the 'open' class -->
-        <div id="search-bar-container" class="w-full">
+        <div id="search-bar-container" class="w-full z-10">
             <div class="relative w-full max-w-2xl mx-auto py-4 px-4">
                 <div class="absolute inset-y-0 left-0 pl-7 flex items-center pointer-events-none">
                     <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -802,11 +802,10 @@
                 updateTotalCost();
                 syncQuantitiesWithCardPage(); // Sync quantities on main page after order
                 
-                // --- FIX: Explicitly close the order summary drawer and its backdrop ---
+                // --- UPDATED: Hide the order summary drawer ---
                 orderSummaryDrawer.classList.remove('is-open');
-                cartBackdrop.classList.remove('is-open');
-                cartBackdrop.classList.add('hidden');
-                // --- END FIX ---
+                cartBackdrop.classList.remove('hidden');
+                // --- END UPDATED ---
 
             } catch (error) {
                 console.error('Submission failed:', error);
@@ -853,7 +852,7 @@
             localStorage.removeItem('pastOrders');
             renderPastOrders(); // Re-render to show the "no orders" message
         }
-        
+
         /**
          * All event listeners are attached here.
          */
@@ -954,6 +953,13 @@
                 cartBackdrop.classList.add('is-open');
             });
             
+            // Close order summary drawer
+            closeOrderSummaryButton.addEventListener('click', () => {
+                orderSummaryDrawer.classList.remove('is-open');
+                cartBackdrop.classList.remove('is-open');
+                cartBackdrop.classList.add('hidden');
+            });
+            
             // This is the section that caused the error. I've refactored the logic to fix it.
             orderSummaryDrawer.addEventListener('click', (event) => {
                 const target = event.target.closest('.cart-btn');
@@ -1034,12 +1040,6 @@
             // Close confirmation modal
             modalCloseButton.addEventListener('click', () => {
                 confirmationModal.classList.add('hidden');
-                // --- FIX: Reset the app state after the order is confirmed ---
-                cart = [];
-                updateTotalCost();
-                syncQuantitiesWithCardPage();
-                renderOrderSummary();
-                // --- END FIX ---
             });
 
             // Open past orders modal
