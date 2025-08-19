@@ -284,7 +284,7 @@
 
         <!-- Container for the product cards -->
         <!-- I have updated the grid to be a max of three columns on large screens to make it more compact. -->
-        <div id="data-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl w-full px-4 mt-20 mb-8 mx-auto">
+        <div id="data-container" class="grid grid-cols-2 md:grid-cols-3 gap-6 max-w-4xl w-full px-4 mt-20 mb-8 mx-auto">
             <!-- The product cards will be inserted here -->
         </div>
 
@@ -1038,9 +1038,14 @@
             });
 
             // Close confirmation modal
+            // --- UPDATED: Reload the page when this button is clicked to get fresh data ---
             modalCloseButton.addEventListener('click', () => {
-                confirmationModal.classList.add('hidden');
+                // This line will hide the modal before the reload, but the reload itself is the key action.
+                confirmationModal.classList.add('hidden'); 
+                // Reload the entire page to refresh the product data from the spreadsheet.
+                window.location.reload();
             });
+            // --- END UPDATED ---
 
             // Open past orders modal
             pastOrdersButton.addEventListener('click', () => {
