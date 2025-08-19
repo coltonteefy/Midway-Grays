@@ -136,6 +136,10 @@
         
         #main-content {
         }
+      
+      #hero-img{
+        background-size:cover;
+      }
         
         /* --- NEW STYLES FOR THE CART DRAWER --- */
         #order-summary-modal {
@@ -161,7 +165,7 @@
         
         #order-summary-modal.is-open {
             transform: translateX(0);
-overflow-y: auto;
+            overflow-y: auto;
             -webkit-overflow-scrolling: touch; /* smooth scrolling on iOS */
         }
         
@@ -220,17 +224,16 @@ overflow-y: auto;
     <!-- Main Content Container - Hidden by default until age is verified -->
     <div id="main-content" class="w-full flex flex-col items-center hidden">
 
-        <!-- Navigation Bar - No longer sticky -->
-        <nav id="main-nav" class="bg-white shadow-md p-4 flex flex-col sm:flex-row justify-between items-center text-primary space-y-4 sm:space-y-0 relative">
+        <!-- Navigation Bar - Now responsive on all screen sizes. -->
+        <nav id="main-nav" class="bg-white shadow-md p-4 w-full flex justify-between items-center text-primary relative">
             <!-- Logo on the left -->
-            <div class="flex-1 flex items-center justify-center sm:justify-start">
-                <!-- Logo now scales to a fixed 2.0 on all screen sizes -->
+            <div class="flex-1 flex items-center">
                 <img src="https://raw.githubusercontent.com/coltonteefy/inventory/refs/heads/main/MWG_LOGO_3.PNG" alt="Company Logo" class="h-10 sm:h-12 transform scale-[2.0] origin-left">
             </div>
 
-            <!-- Account and Search icons on the right -->
-            <div class="flex-1 flex justify-center sm:justify-end relative items-center space-x-4">
-                <!-- New Search Icon Button -->
+            <!-- Account and Search icons on the right, now always in a row -->
+            <div class="flex-1 flex justify-end relative items-center space-x-4">
+                <!-- Search Icon Button -->
                 <button id="search-icon-button" class="flex items-center p-2 rounded-full bg-transparent text-primary hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-accent text-sm shadow-md">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -264,19 +267,24 @@ overflow-y: auto;
             </div>
         </div>
 
-        <!-- Updated Hero Section with full width, greater height, and no margin-top -->
-        <div class="bg-gradient-to-r from-primary to-accent py-16 px-8 shadow-2xl w-full">
-            <!-- Header Section -->
-            <header id="page-header" class="text-center">
-                <h1 class="text-4xl font-bold text-white mb-2">PREMIUM RESEARCH PRODUCTS</h1>
-                <p class="text-white text-opacity-80">These products are not intended for human use and are for research purposes only.</p>
-            </header>
-        </div>
+        <!-- Start of the updated Hero Section with no text and no overlay -->
+        <div>
+            <img src="https://raw.githubusercontent.com/coltonteefy/inventory/refs/heads/main/HERO.PNG" 
+                 alt="Hero section banner showing chemical flasks"
+                 class="w-full h-full hero-img">
+            <!-- <div class="absolute inset-0 bg-black bg-opacity-30 flex flex-col justify-center items-center text-white p-4">
+                <h1 class="text-4xl sm:text-5xl font-bold text-center drop-shadow-lg">PREMIUM RESEARCH PRODUCTS</h1>
+                <p class="mt-2 text-center text-lg drop-shadow-lg">These products are not intended for human use and are for research purposes only.</p>
+            </div> --> 
+        </div> 
+      
+
+
+        <!-- End of the updated Hero Section -->
 
         <!-- Container for the product cards -->
-        <!-- I've increased the margin-top to add more space between the Hero section and the product list -->
-        <!-- I have changed the max-width to make the cards a bit wider and adjusted the grid to a max of two columns -->
-        <div id="data-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 max-w-6xl w-full px-4 mt-20 mb-8">
+        <!-- I have updated the grid to be a max of three columns on large screens to make it more compact. -->
+        <div id="data-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl w-full px-4 mt-20 mb-8 mx-auto">
             <!-- The product cards will be inserted here -->
         </div>
 
@@ -629,25 +637,24 @@ overflow-y: auto;
                             ${isOutOfStock ? `<span class="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full absolute top-4 right-4 shadow">OUT OF STOCK</span>` : ''}
                         </div>
                         
-                        <div class="mt-4">
-                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
-                                <p class="text-lg font-bold text-accent price-per-unit" data-price="${priceValue}">${priceText}</p>
-                                <div class="flex items-center space-x-2">
-                                    <span class="text-gray-500">Quantity:</span>
-                                    <!-- The data attribute is now data-product-code, which is a unique identifier -->
-                                    <button class="quantity-btn p-1 rounded-full bg-gray-200 text-primary hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-accent transition-colors" data-action="decrement" data-product-code="${product.code}" ${isOutOfStock ? 'disabled' : ''}>
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
-                                        </svg>
-                                    </button>
-                                    <!-- The data attribute is also data-product-code -->
-                                    <span class="text-primary text-lg font-bold w-6 text-center quantity-display" data-product-code="${product.code}">${currentQuantity}</span>
-                                    <button class="quantity-btn p-1 rounded-full bg-gray-200 text-primary hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-accent transition-colors" data-action="increment" data-product-code="${product.code}" ${isOutOfStock ? 'disabled' : ''}>
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                                        </svg>
-                                    </button>
-                                </div>
+                        <!-- This is the section that has been updated to break the line -->
+                        <div class="mt-4 flex flex-col items-start space-y-2">
+                            <p class="text-lg font-bold text-accent price-per-unit" data-price="${priceValue}">${priceText}</p>
+                            <div class="flex items-center space-x-2">
+                                <span class="text-gray-500">Quantity:</span>
+                                <!-- The data attribute is now data-product-code, which is a unique identifier -->
+                                <button class="quantity-btn p-1 rounded-full bg-gray-200 text-primary hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-accent transition-colors" data-action="decrement" data-product-code="${product.code}" ${isOutOfStock ? 'disabled' : ''}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
+                                    </svg>
+                                </button>
+                                <!-- The data attribute is also data-product-code -->
+                                <span class="text-primary text-lg font-bold w-6 text-center quantity-display" data-product-code="${product.code}">${currentQuantity}</span>
+                                <button class="quantity-btn p-1 rounded-full bg-gray-200 text-primary hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-accent transition-colors" data-action="increment" data-product-code="${product.code}" ${isOutOfStock ? 'disabled' : ''}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                    </svg>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -718,7 +725,7 @@ overflow-y: auto;
                         <button class="cart-btn p-1 rounded-full bg-gray-200 text-primary hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-accent transition-colors" data-action="decrement" data-product-code="${item.code}">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
-                            </svg>
+                                </svg>
                         </button>
                         <span class="text-lg font-bold w-6 text-center">${item.quantity}</span>
                         <!-- New increment button in the cart summary -->
@@ -797,7 +804,7 @@ overflow-y: auto;
                 
                 // --- UPDATED: Hide the order summary drawer ---
                 orderSummaryDrawer.classList.remove('is-open');
-                cartBackdrop.classList.add('hidden');
+                cartBackdrop.classList.remove('hidden');
                 // --- END UPDATED ---
 
             } catch (error) {
@@ -1077,4 +1084,5 @@ overflow-y: auto;
 
 </body>
 </html>
+
 
