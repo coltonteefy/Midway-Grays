@@ -12,6 +12,7 @@
         /* Use the Poppins font family for a bold, athletic look */
         body {
             font-family: 'Poppins', sans-serif;
+            background-color: #f0f4f8; /* A light, clean background */
         }
         /* Style for the account dropdown menu */
         #account-menu {
@@ -115,7 +116,6 @@
         #order-summary-list {
             /* Make this area scrollable if content overflows */
             flex-grow: 1;
-            
         }
         
         /* Backdrop overlay to close the cart drawer */
@@ -178,80 +178,199 @@
             margin: 0 auto;
             display: block;
         }
+        
+        /* New styles for the age gate */
+        #age-gate {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #f0f4f8; /* A soft, light background */
+            z-index: 100; /* Ensure it's on top of everything */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem;
+            transition: opacity 0.5s ease-in-out;
+        }
+        
+        /* Style for the "No" button with a border */
+        .no-button {
+            border: 2px solid #0ea5e9; /* sky-500 */
+            color: #0ea5e9;
+            background-color: transparent;
+        }
+        
+        .no-button:hover {
+            background-color: rgba(14, 165, 233, 0.1); /* light blue hover effect */
+        }
+
+        /* --- NEW STYLES for denial message overlay --- */
+        #denial-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 110;
+            display: none; /* Initially hidden */
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem;
+            color: white;
+        }
+        /* --- END NEW STYLES --- */
+
+        /* --- NEW LOADING SCREEN STYLES --- */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loader {
+            border: 8px solid rgba(255, 255, 255, 0.2);
+            border-top: 8px solid #3b82f6; /* A nice, prominent color for the spinner */
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+        }
+
+        .fade-out {
+            opacity: 0;
+            transition: opacity 0.5s ease-out;
+        }
+        
+        #loading-screen {
+            background-color: #1a202c;
+            color: #e2e8f0;
+            display: flex; /* Ensure it is a flex container for centering */
+            transition-duration: 0.5s;
+        }
+        /* --- END NEW LOADING SCREEN STYLES --- */
+
     </style>
 </head>
 <!-- The 'm-0 p-0' classes are added here to remove all default body margins and padding, ensuring the content starts at the very top. -->
 <body class="bg-gray-100 flex flex-col items-center justify-start min-h-screen m-0 p-0">
 
-    <!-- Loading indicator -->
-    <div id="loading-indicator" class="text-center text-sky-500 mt-8 hidden">
-        <svg class="animate-spin h-5 w-5 mr-3 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-        </svg>
-        Loading...
+    <!-- The new Loading Screen -->
+    <!-- This will be shown until all content is loaded -->
+    <div id="loading-screen" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 transition-opacity duration-500">
+        <div class="flex flex-col items-center space-y-4">
+            <div class="loader"></div>
+            <p class="text-xl font-medium text-gray-300">Loading...</p>
+        </div>
     </div>
 
-    <!-- Navigation Bar - Now responsive on all screen sizes. -->
-    <nav id="main-nav" class="bg-white shadow-md p-4 w-full flex justify-between items-center h-16 text-primary relative z-50">
-        <!-- Logo on the left -->
-        <div class="flex-1 flex items-center">
-            <img src="https://raw.githubusercontent.com/coltonteefy/inventory/refs/heads/main/MWG_LOGO_3.PNG" alt="Company Logo" class="h-10 sm:h-12 transform scale-[2.0] origin-left">
+    <!-- Age Gate Screen - This will be shown first -->
+    <div id="age-gate" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 transition-opacity duration-500">
+        <div class="flex flex-col items-center justify-center p-8">
+            <!-- Logo, now larger -->
+            <img src="https://raw.githubusercontent.com/coltonteefy/inventory/refs/heads/main/MWG_LOGO_3.PNG" alt="Company Logo" class="h-20 sm:h-24 mb-10">
+
+            <!-- Age Gate Card -->
+            <div class="bg-white rounded-xl shadow-lg p-8 max-w-md w-full text-center">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Are you 21 years of age or older?</h2>
+                <div class="flex justify-center space-x-4">
+                    <button id="yes-button" class="flex-1 py-3 bg-sky-500 text-white font-bold rounded-lg hover:bg-sky-600 transition-colors focus:outline-none focus:ring-2 focus:ring-sky-500">
+                        Yes
+                    </button>
+                    <button id="no-button" class="flex-1 py-3 font-bold rounded-lg no-button hover:bg-blue-100 transition-colors focus:outline-none focus:ring-2 focus:ring-sky-500">
+                        No
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Disclaimer -->
+            <p class="mt-8 text-sm text-gray-500 max-w-sm">
+                This site is for research use only. By proceeding, you acknowledge this limitation.
+            </p>
+
+        </div>
+    </div>
+
+    <!-- Denial Modal - New element -->
+    <div id="denial-modal">
+        <div class="max-w-md w-full p-8">
+            <h2 class="text-4xl font-bold mb-4">Access Denied</h2>
+            <p class="text-lg mb-6">
+                Sorry, you must be 21 years of age or older to access this site.
+            </p>
+            <!-- New button to go back to the age gate -->
+            <button id="denial-back-button" class="w-full py-3 bg-sky-500 text-white font-bold rounded-lg hover:bg-sky-600 transition-colors focus:outline-none focus:ring-2 focus:ring-sky-500">
+                Go Back
+            </button>
+        </div>
+    </div>
+    
+    <!-- Main App Content - Initially hidden -->
+    <div id="main-app-content" class="hidden w-full">
+        <!-- Navigation Bar - Now responsive on all screen sizes. -->
+        <nav id="main-nav" class="bg-white shadow-md p-4 w-full flex justify-between items-center h-16 text-primary relative z-50">
+            <!-- Logo on the left -->
+            <div class="flex-1 flex items-center">
+                <img src="https://raw.githubusercontent.com/coltonteefy/inventory/refs/heads/main/MWG_LOGO_3.PNG" alt="Company Logo" class="h-10 sm:h-12 transform scale-[2.0] origin-left">
+            </div>
+            
+            <!-- Spacer to push content to the sides -->
+            <div class="flex-grow"></div>
+
+            <!-- Account button, search icon, and mobile menu button -->
+            <div class="flex items-center space-x-2 relative">
+                <!-- Search icon button -->
+                <button id="search-icon-button" class="p-2 text-gray-600 hover:text-gray-900 rounded-full transition duration-300 focus:outline-none focus:ring-2 focus:ring-sky-500">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </button>
+                
+                <!-- Account button on the right -->
+                <button id="account-button" class="flex items-center space-x-2 px-4 py-2 bg-sky-500 text-white font-bold rounded-lg hover:bg-sky-600 transition-colors focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm shadow-md">
+                    <span>Account</span>
+                    <svg id="dropdown-arrow" class="w-4 h-4 transform transition-transform" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </button>
+                
+                <!-- Dropdown Menu -->
+                <div id="account-menu" class="absolute top-full mt-2 w-48 rounded-lg shadow-lg bg-white border border-gray-200 py-1 right-0 z-50">
+                    <button id="past-orders-button" class="w-full text-left px-4 py-2 text-sm text-primary hover:bg-gray-100">
+                        Past Orders
+                    </button>
+                </div>
+            </div>
+        </nav>
+        
+        <!-- Collapsible search container -->
+        <div id="search-container" class="flex justify-center">
+            <input type="text" id="product-search" placeholder="Search products..."
+                class="py-4 pl-6 pr-16 bg-transparent rounded-full border-2 border-gray-300 text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all duration-300">
+        </div>
+
+        <!-- Start of the updated Hero Section -->
+        <div class="relative w-full mt-16">
+            <img src="https://raw.githubusercontent.com/coltonteefy/inventory/refs/heads/main/HERO.PNG" 
+                    alt="Hero section banner showing chemical flasks"
+                    class="w-full h-full object-cover">
         </div>
         
-        <!-- Spacer to push content to the sides -->
-        <div class="flex-grow"></div>
-
-        <!-- Account button, search icon, and mobile menu button -->
-        <div class="flex items-center space-x-2 relative">
-            <!-- Search icon button -->
-            <button id="search-icon-button" class="p-2 text-gray-600 hover:text-gray-900 rounded-full transition duration-300 focus:outline-none focus:ring-2 focus:ring-sky-500">
-                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-            </button>
-            
-            <!-- Account button on the right -->
-            <button id="account-button" class="flex items-center space-x-2 px-4 py-2 bg-sky-500 text-white font-bold rounded-lg hover:bg-sky-600 transition-colors focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm shadow-md">
-                <span>Account</span>
-                <svg id="dropdown-arrow" class="w-4 h-4 transform transition-transform" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                </svg>
-            </button>
-            
-            <!-- Dropdown Menu -->
-            <div id="account-menu" class="absolute top-full mt-2 w-48 rounded-lg shadow-lg bg-white border border-gray-200 py-1 right-0 z-50">
-                <button id="past-orders-button" class="w-full text-left px-4 py-2 text-sm text-primary hover:bg-gray-100">
-                    Past Orders
-                </button>
-            </div>
+        <!-- End of the updated Hero Section -->
+        
+        <!-- Container for the product cards -->
+        <div id="data-container" class="grid grid-cols-2 md:grid-cols-3 gap-6 max-w-4xl w-full px-4 mt-8 mb-8 mx-auto">
+            <!-- The product cards will be inserted here -->
         </div>
-    </nav>
-    
-    <!-- Collapsible search container -->
-    <div id="search-container" class="flex justify-center">
-        <input type="text" id="product-search" placeholder="Search products..."
-            class="py-4 pl-6 pr-16 bg-transparent rounded-full border-2 border-gray-300 text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all duration-300">
-    </div>
 
-    <!-- Start of the updated Hero Section with no text and no overlay -->
-    <!-- The mt-16 class ensures the div is pushed down below the fixed nav bar -->
-    <div class="relative w-full mt-16">
-        <img src="https://raw.githubusercontent.com/coltonteefy/inventory/refs/heads/main/HERO.PNG" 
-                alt="Hero section banner showing chemical flasks"
-                class="w-full h-full hero-img">
-    </div>
-    
-    <!-- End of the updated Hero Section -->
-    
-    <!-- Container for the product cards -->
-    <div id="data-container" class="grid grid-cols-2 md:grid-cols-3 gap-6 max-w-4xl w-full px-4 mt-8 mb-8 mx-auto">
-        <!-- The product cards will be inserted here -->
-    </div>
-
-    <!-- Refresh information -->
-    <div id="refresh-info" class="text-center text-gray-500 mt-4 text-sm max-w-4xl w-full">
-        <!-- Refresh status will be displayed here -->
+        <!-- Refresh information -->
+        <div id="refresh-info" class="text-center text-gray-500 mt-4 text-sm max-w-4xl w-full">
+            <!-- Refresh status will be displayed here -->
+        </div>
     </div>
 
 
@@ -335,7 +454,6 @@
     <script>
         // Get references to the existing HTML elements
         const dataContainer = document.getElementById('data-container');
-        const loadingIndicator = document.getElementById('loading-indicator');
         const refreshInfo = document.getElementById('refresh-info');
         
         // New elements for the total cost pop-up and order summary modal
@@ -373,6 +491,20 @@
         const searchIconButton = document.getElementById('search-icon-button');
         const searchContainer = document.getElementById('search-container');
         const productSearchInput = document.getElementById('product-search');
+
+        // New elements for the age gate
+        const ageGate = document.getElementById('age-gate');
+        const yesButton = document.getElementById('yes-button');
+        const noButton = document.getElementById('no-button');
+        const mainAppContent = document.getElementById('main-app-content');
+        
+        // New element for the denial modal
+        const denialModal = document.getElementById('denial-modal');
+        // New element for the denial back button
+        const denialBackButton = document.getElementById('denial-back-button');
+
+        // New elements for the loading screen
+        const loadingScreen = document.getElementById('loading-screen');
 
         // The URL for your public Google Sheet CSV
         const SPREADSHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQRYzgS3hJWPzFJHs55qLX5EFQ_3VEcFpqE80-Xrw8xu8eo6FVlQkRPgAYPu7RoAFVFFqBqyDSa6_ae/pub?gid=0&single=true&output=csv';
@@ -428,7 +560,7 @@
          * This version now no longer filters out products with 0 inventory during the fetch.
          */
         async function fetchData() {
-            loadingIndicator.classList.remove('hidden');
+            // No need to show/hide a loading indicator here, as the full-screen loading page handles it.
             dataContainer.innerHTML = '';
             
             // Reset the total cost and hide the floating button with the new class
@@ -485,7 +617,7 @@
                                 code: columns[columnIndices.code],
                                 name: columns[columnIndices.productName],
                                 inventory: inventoryValue,
-                                price: columns[columnIndices.price]
+                                trimPrice: columns[columnIndices.price]
                             });
                         }
                         // --- END OF UPDATED LOGIC ---
@@ -501,8 +633,6 @@
             } catch (error) {
                 dataContainer.innerHTML = `<p class="col-span-full text-center text-red-500 p-4">Error fetching data: ${error.message}. Please check that the SPREADSHEET_URL is correct and the sheet is published to the web as a CSV.</p>`;
                 console.error('Error fetching data:', error);
-            } finally {
-                loadingIndicator.classList.add('hidden');
             }
         }
 
@@ -541,7 +671,7 @@
             }
 
             products.forEach((product, index) => {
-                const cleanedPrice = product.price.trim().replace('$', '');
+                const cleanedPrice = product.trimPrice.trim().replace('$', '');
                 const priceValue = parseFloat(cleanedPrice);
                 const priceText = !isNaN(priceValue) ? `$${priceValue.toFixed(2)}` : 'Price not available';
                 
@@ -587,7 +717,7 @@
                         <div class="mt-4 flex flex-col items-start space-y-2">
                             <p class="text-lg font-bold text-sky-500 price-per-unit" data-price="${priceValue}">${priceText}</p>
                             <div class="flex items-center space-x-2">
-                                <span class="text-gray-500">Quantity:</span>
+                                
                                 <!-- The data attribute is now data-product-code, which is a unique identifier -->
                                 <button class="quantity-btn p-1 rounded-full bg-gray-200 text-primary hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-colors" data-action="decrement" data-product-code="${product.code}" ${isOutOfStock ? 'disabled' : ''}>
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -640,6 +770,22 @@
                 totalCostButton.classList.remove('is-visible');
             }
         }
+        
+        /**
+         * Checks if the form is valid and updates the submit button state.
+         * The form is valid if the cart is not empty AND the email input is filled.
+         */
+        function checkFormValidity() {
+            const isCartNotEmpty = cart.length > 0;
+            const isEmailFilled = emailInput.value.trim() !== '';
+            
+            // Enable the button only if both conditions are met
+            if (isCartNotEmpty && isEmailFilled) {
+                submitButton.removeAttribute('disabled');
+            } else {
+                submitButton.setAttribute('disabled', 'disabled');
+            }
+        }
 
         /**
          * Renders the items in the order summary modal.
@@ -649,45 +795,48 @@
             if (cart.length === 0) {
                 orderSummaryList.innerHTML = '<p class="text-center text-gray-500 italic">Your cart is empty.</p>';
                 orderSubtotalElement.textContent = '$0.00';
-                submitButton.disabled = true; // Disable submit if cart is empty
+                checkFormValidity(); // Disable button if cart is empty
                 return;
             }
 
             let subtotal = 0;
-            submitButton.disabled = false; // Enable submit if cart has items
+            checkFormValidity(); // Re-check button state after rendering
 
             cart.forEach(item => {
                 const itemTotal = item.price * item.quantity;
                 subtotal += itemTotal;
                 const itemElement = document.createElement('div');
-                itemElement.className = 'flex justify-between items-center text-primary border-b border-gray-200 pb-2 last:border-b-0 last:pb-0';
+                itemElement.className = 'flex flex-col text-primary border-b border-gray-200 pb-2 last:border-b-0 last:pb-0';
+                
                 itemElement.innerHTML = `
-                    <div class="flex-grow">
-                        <p class="font-semibold">${item.name}</p>
+                    <div class="flex justify-between items-center w-full">
+                        <p class="font-semibold text-lg">${item.name}</p>
+                        <span class="font-bold shrink-0">$${itemTotal.toFixed(2)}</span>
+                    </div>
+                    <div class="flex justify-between items-center w-full mt-2">
                         <p class="text-sm text-gray-500">$${item.price.toFixed(2)} per unit</p>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        <!-- New decrement button in the cart summary -->
-                        <button class="cart-btn p-1 rounded-full bg-gray-200 text-primary hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-colors" data-action="decrement" data-product-code="${item.code}">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
+                        <div class="flex items-center space-x-2">
+                            <!-- New decrement button in the cart summary -->
+                            <button class="cart-btn p-1 rounded-full bg-gray-200 text-primary hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-colors" data-action="decrement" data-product-code="${item.code}">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
+                                    </svg>
+                            </button>
+                            <span class="text-lg font-bold w-6 text-center">${item.quantity}</span>
+                            <!-- New increment button in the cart summary -->
+                            <button class="cart-btn p-1 rounded-full bg-gray-200 text-primary hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-colors" data-action="increment" data-product-code="${item.code}">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                                 </svg>
-                        </button>
-                        <span class="text-lg font-bold w-6 text-center">${item.quantity}</span>
-                        <!-- New increment button in the cart summary -->
-                        <button class="cart-btn p-1 rounded-full bg-gray-200 text-primary hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-colors" data-action="increment" data-product-code="${item.code}">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                            </svg>
-                        </button>
+                            </button>
+                            <!-- New remove button -->
+                            <button class="cart-btn ml-4 text-gray-400 hover:text-red-500 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 rounded-full p-1" data-action="remove" data-product-code="${item.code}">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
                     </div>
-                    <span class="font-bold w-20 text-right shrink-0">$${itemTotal.toFixed(2)}</span>
-                    <!-- New remove button -->
-                    <button class="cart-btn ml-4 text-gray-400 hover:text-red-500 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 rounded-full p-1" data-action="remove" data-product-code="${item.code}">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
                 `;
                 orderSummaryList.appendChild(itemElement);
             });
@@ -863,7 +1012,7 @@
                 // Update the cart array
                 const cartIndex = cart.findIndex(item => item.code === product.code);
                 if (currentQuantity > 0) {
-                    const priceValue = parseFloat(product.price.trim().replace('$', ''));
+                    const priceValue = parseFloat(product.trimPrice.trim().replace('$', ''));
                     if (cartIndex > -1) {
                         cart[cartIndex].quantity = currentQuantity;
                     } else {
@@ -1015,15 +1164,52 @@
                     toggleSearch();
                 }
             });
+            
+            // Listen for input on the email field to check form validity
+            emailInput.addEventListener('input', checkFormValidity);
         }
+        
+        // This event now only handles hiding the loading screen and showing the age gate/app
+        window.addEventListener('load', () => {
+            // Hide the loading screen
+            loadingScreen.classList.add('fade-out');
+            setTimeout(() => {
+                loadingScreen.style.display = 'none';
+            }, 500);
 
-        // Initialize the app after the window loads
-        window.onload = function() {
-            fetchData();
-            attachEventListeners();
-        };
+            // Check if the user is already verified from a previous session
+            const isVerified = localStorage.getItem('age_verified');
+            if (isVerified === 'true') {
+                // If so, show the main app immediately
+                ageGate.style.display = 'none'; // Use direct style manipulation
+                mainAppContent.style.display = 'block';
+                fetchData();
+                attachEventListeners();
+            } else {
+                // Otherwise, show the age gate and wait for a user action
+                ageGate.style.display = 'flex'; // Show age gate
+                mainAppContent.style.display = 'none'; // Ensure main content is hidden
+                denialModal.style.display = 'none'; // Ensure denial modal is hidden
+                
+                // Add event listeners for the age gate buttons
+                yesButton.addEventListener('click', () => {
+                    localStorage.setItem('age_verified', 'true');
+                    ageGate.style.display = 'none'; // Hide age gate
+                    mainAppContent.style.display = 'block'; // Show main content
+                    fetchData();
+                    attachEventListeners();
+                });
+                noButton.addEventListener('click', () => {
+                    ageGate.style.display = 'none'; // Hide age gate
+                    denialModal.style.display = 'flex'; // Show the denial message
+                });
+                denialBackButton.addEventListener('click', () => {
+                    denialModal.style.display = 'none'; // Hide denial modal
+                    ageGate.style.display = 'flex'; // Show age gate again
+                });
+            }
+        });
 
     </script>
-
 </body>
 </html>
