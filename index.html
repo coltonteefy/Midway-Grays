@@ -6,48 +6,12 @@
     <title>Product Catalog</title>
     <!-- Use the Tailwind CSS CDN for easy styling -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Custom Tailwind CSS configuration for brand colors -->
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#003854',  // Dark blue from logo
-                        accent: '#006979',   // Teal from logo
-                        background: '#F5F5F5' // Light gray from logo
-                    }
-                }
-            }
-        }
-    </script>
     <!-- Link to Google Fonts for 'Poppins' for a modern feel -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         /* Use the Poppins font family for a bold, athletic look */
         body {
             font-family: 'Poppins', sans-serif;
-        }
-        /* Custom modal overlay for age verification */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.9);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 60;
-        }
-        /* Updated modal content styling to match the main page theme */
-        .modal-content {
-            background-color: white; /* Changed from dark gray to white */
-            padding: 2.5rem;
-            border-radius: 0.75rem;
-            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.4);
-            text-align: center;
-            max-width: 400px;
         }
         /* Style for the account dropdown menu */
         #account-menu {
@@ -107,39 +71,18 @@
             pointer-events: none;
         }
         
-        /* --- UPDATED CSS for the pop-down search bar to fix the glitch --- */
+        /* --- UPDATED CSS for nav to be fixed and main content to be below it --- */
         #main-nav {
             width: 100%;
+            /* Make the nav bar fixed */
+            position: fixed;
+            top: 0;
+            z-index: 50;
         }
 
-        /* The transition now includes padding-top and padding-bottom */
-        #search-bar-container {
-            max-height: 0;
-            opacity: 0;
-            overflow: hidden;
-            /* The transition is now smoother, as padding is included in the animation */
-            transition: max-height 0.5s ease-out, opacity 0.5s ease-out, padding 0.5s ease-out;
-            background-color: white;
-            z-index: 49;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-            /* Initial padding is 0 */
-            padding: 0; 
+        #hero-img{
+            background-size:cover;
         }
-        
-        /* This class is toggled by JavaScript to show the search bar. */
-        #search-bar-container.open {
-            max-height: 200px;
-            opacity: 1;
-            /* The padding now smoothly transitions from 0 to 1rem */
-            padding: 1rem 0; 
-        }
-        
-        #main-content {
-        }
-      
-      #hero-img{
-        background-size:cover;
-      }
         
         /* --- NEW STYLES FOR THE CART DRAWER --- */
         #order-summary-modal {
@@ -194,26 +137,54 @@
             pointer-events: auto;
         }
         /* --- END NEW STYLES --- */
+        
+        /* Styles for the transparent, collapsible search bar */
+        #search-container {
+            /* Position it just below the nav bar */
+            position: fixed;
+            top: 4rem; /* h-16 is 4rem */
+            width: 100%;
+            z-index: 45;
+            
+            /* Add animation for showing/hiding */
+            transition: all 0.3s ease-in-out;
+            transform-origin: top;
+            transform: scaleY(0);
+            opacity: 0;
+            pointer-events: none;
+            
+            /* No background, just a container for the input */
+            background: transparent;
+            padding: 0.5rem 1rem;
+        }
+
+        #search-container.is-visible {
+            transform: scaleY(1);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        #product-search {
+            /* Full width and rounded corners for the input field */
+            width: 100%;
+            max-width: 500px; /* Max width to keep it centered on larger screens */
+            
+            /* CHANGE: Now has a white background */
+            background-color: white;
+            border: 2px solid #e5e7eb; /* gray-300 */
+            color: #1f2937; /* gray-800 */
+            
+            /* Center the input horizontally */
+            margin: 0 auto;
+            display: block;
+        }
     </style>
 </head>
 <!-- The 'm-0 p-0' classes are added here to remove all default body margins and padding, ensuring the content starts at the very top. -->
-<body class="bg-background flex flex-col items-center justify-start min-h-screen m-0 p-0">
+<body class="bg-gray-100 flex flex-col items-center justify-start min-h-screen m-0 p-0">
 
-    <!-- Age Verification Modal -->
-    <div id="age-gate-modal" class="modal-overlay">
-        <!-- The modal content now uses the main page's color scheme -->
-        <div class="modal-content">
-            <h2 class="text-3xl font-bold text-accent mb-4">Age Verification</h2>
-            <p class="text-gray-500 mb-6">Are you 21 or older?</p>
-            <div class="flex justify-center space-x-4">
-                <button id="age-gate-yes" class="px-6 py-3 bg-accent text-white font-bold rounded-lg hover:bg-teal-600 transition-colors">Yes</button>
-                <button id="age-gate-no" class="px-6 py-3 bg-red-600 text-white font-bold rounded-lg hover:bg-red-500 transition-colors">No</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Loading indicator - Now outside of main-content -->
-    <div id="loading-indicator" class="text-center text-accent mt-8 hidden">
+    <!-- Loading indicator -->
+    <div id="loading-indicator" class="text-center text-sky-500 mt-8 hidden">
         <svg class="animate-spin h-5 w-5 mr-3 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -221,79 +192,68 @@
         Loading...
     </div>
 
-    <!-- Main Content Container - Hidden by default until age is verified -->
-    <div id="main-content" class="w-full flex flex-col items-center hidden">
-
-        <!-- Navigation Bar - Now responsive on all screen sizes. -->
-        <nav id="main-nav" class="bg-white shadow-md p-4 w-full flex justify-between items-center text-primary relative">
-            <!-- Logo on the left -->
-            <div class="flex-1 flex items-center">
-                <img src="https://raw.githubusercontent.com/coltonteefy/inventory/refs/heads/main/MWG_LOGO_3.PNG" alt="Company Logo" class="h-10 sm:h-12 transform scale-[2.0] origin-left">
-            </div>
-
-            <!-- Account and Search icons on the right, now always in a row -->
-            <div class="flex-1 flex justify-end relative items-center space-x-4">
-                <!-- Search Icon Button -->
-                <button id="search-icon-button" class="flex items-center p-2 rounded-full bg-transparent text-primary hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-accent text-sm shadow-md">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                    </svg>
-                </button>
-                <button id="account-button" class="flex items-center space-x-2 px-4 py-2 bg-accent text-white font-bold rounded-lg hover:bg-teal-600 transition-colors focus:outline-none focus:ring-2 focus:ring-accent text-sm shadow-md">
-                    <span>Account</span>
-                    <svg id="dropdown-arrow" class="w-4 h-4 transform transition-transform" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                    </svg>
-                </button>
-                <!-- Dropdown Menu -->
-                <div id="account-menu" class="absolute top-full mt-2 w-48 rounded-lg shadow-lg bg-white border border-gray-200 py-1 right-0 z-50">
-                    <button id="past-orders-button" class="w-full text-left px-4 py-2 text-sm text-primary hover:bg-gray-100">
-                        Past Orders
-                    </button>
-                </div>
-            </div>
-        </nav>
+    <!-- Navigation Bar - Now responsive on all screen sizes. -->
+    <nav id="main-nav" class="bg-white shadow-md p-4 w-full flex justify-between items-center h-16 text-primary relative z-50">
+        <!-- Logo on the left -->
+        <div class="flex-1 flex items-center">
+            <img src="https://raw.githubusercontent.com/coltonteefy/inventory/refs/heads/main/MWG_LOGO_3.PNG" alt="Company Logo" class="h-10 sm:h-12 transform scale-[2.0] origin-left">
+        </div>
         
-        <!-- New Pop-down Search Bar Container -->
-        <!-- This container is now a direct child of main-content, and its visibility is controlled by the 'open' class -->
-        <div id="search-bar-container" class="w-full z-10">
-            <div class="relative w-full max-w-2xl mx-auto py-4 px-4">
-                <div class="absolute inset-y-0 left-0 pl-7 flex items-center pointer-events-none">
-                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                    </svg>
-                </div>
-                <input type="text" id="product-search" placeholder="Search products..." class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-accent focus:border-accent transition-colors">
+        <!-- Spacer to push content to the sides -->
+        <div class="flex-grow"></div>
+
+        <!-- Account button, search icon, and mobile menu button -->
+        <div class="flex items-center space-x-2 relative">
+            <!-- Search icon button -->
+            <button id="search-icon-button" class="p-2 text-gray-600 hover:text-gray-900 rounded-full transition duration-300 focus:outline-none focus:ring-2 focus:ring-sky-500">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+            </button>
+            
+            <!-- Account button on the right -->
+            <button id="account-button" class="flex items-center space-x-2 px-4 py-2 bg-sky-500 text-white font-bold rounded-lg hover:bg-sky-600 transition-colors focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm shadow-md">
+                <span>Account</span>
+                <svg id="dropdown-arrow" class="w-4 h-4 transform transition-transform" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+            </button>
+            
+            <!-- Dropdown Menu -->
+            <div id="account-menu" class="absolute top-full mt-2 w-48 rounded-lg shadow-lg bg-white border border-gray-200 py-1 right-0 z-50">
+                <button id="past-orders-button" class="w-full text-left px-4 py-2 text-sm text-primary hover:bg-gray-100">
+                    Past Orders
+                </button>
             </div>
         </div>
+    </nav>
+    
+    <!-- Collapsible search container -->
+    <div id="search-container" class="flex justify-center">
+        <input type="text" id="product-search" placeholder="Search products..."
+            class="py-4 pl-6 pr-16 bg-transparent rounded-full border-2 border-gray-300 text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all duration-300">
+    </div>
 
-        <!-- Start of the updated Hero Section with no text and no overlay -->
-        <div>
-            <img src="https://raw.githubusercontent.com/coltonteefy/inventory/refs/heads/main/HERO.PNG" 
-                 alt="Hero section banner showing chemical flasks"
-                 class="w-full h-full hero-img">
-            <!-- <div class="absolute inset-0 bg-black bg-opacity-30 flex flex-col justify-center items-center text-white p-4">
-                <h1 class="text-4xl sm:text-5xl font-bold text-center drop-shadow-lg">PREMIUM RESEARCH PRODUCTS</h1>
-                <p class="mt-2 text-center text-lg drop-shadow-lg">These products are not intended for human use and are for research purposes only.</p>
-            </div> --> 
-        </div> 
-      
+    <!-- Start of the updated Hero Section with no text and no overlay -->
+    <!-- The mt-16 class ensures the div is pushed down below the fixed nav bar -->
+    <div class="relative w-full mt-16">
+        <img src="https://raw.githubusercontent.com/coltonteefy/inventory/refs/heads/main/HERO.PNG" 
+                alt="Hero section banner showing chemical flasks"
+                class="w-full h-full hero-img">
+    </div>
+    
+    <!-- End of the updated Hero Section -->
+    
+    <!-- Container for the product cards -->
+    <div id="data-container" class="grid grid-cols-2 md:grid-cols-3 gap-6 max-w-4xl w-full px-4 mt-8 mb-8 mx-auto">
+        <!-- The product cards will be inserted here -->
+    </div>
 
+    <!-- Refresh information -->
+    <div id="refresh-info" class="text-center text-gray-500 mt-4 text-sm max-w-4xl w-full">
+        <!-- Refresh status will be displayed here -->
+    </div>
 
-        <!-- End of the updated Hero Section -->
-
-        <!-- Container for the product cards -->
-        <!-- I have updated the grid to be a max of three columns on large screens to make it more compact. -->
-        <div id="data-container" class="grid grid-cols-2 md:grid-cols-3 gap-6 max-w-4xl w-full px-4 mt-20 mb-8 mx-auto">
-            <!-- The product cards will be inserted here -->
-        </div>
-
-        <!-- Refresh information -->
-        <div id="refresh-info" class="text-center text-gray-500 mt-4 text-sm max-w-4xl w-full">
-            <!-- Refresh status will be displayed here -->
-        </div>
-
-    </div> <!-- End of main-content container -->
 
     <!-- New full-width cart button banner at the bottom -->
     <button id="total-cost-button" class="w-full py-4 bg-orange-500 text-white font-bold text-lg rounded-t-lg shadow-lg hover:bg-orange-600 transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 flex justify-center items-center px-6">
@@ -328,9 +288,9 @@
             <form id="order-form">
                 <div class="mb-4">
                     <label for="email-input" class="block text-gray-500 mb-2">Email for confirmation:</label>
-                    <input type="email" id="email-input" class="w-full p-3 rounded-lg bg-gray-100 border border-gray-300 text-primary focus:outline-none focus:ring-2 focus:ring-accent" placeholder="yourname@example.com" required>
+                    <input type="email" id="email-input" class="w-full p-3 rounded-lg bg-gray-100 border border-gray-300 text-primary focus:outline-none focus:ring-2 focus:ring-sky-500" placeholder="yourname@example.com" required>
                 </div>
-                <button type="submit" id="submit-button" class="w-full py-3 bg-accent text-white font-bold rounded-lg hover:bg-teal-600 transition-colors focus:outline-none focus:ring-2 focus:ring-accent">
+                <button type="submit" id="submit-button" class="w-full py-3 bg-sky-500 text-white font-bold rounded-lg hover:bg-sky-600 transition-colors focus:outline-none focus:ring-2 focus:ring-sky-500">
                     Submit Order
                 </button>
             </form>
@@ -345,7 +305,7 @@
             <h3 class="text-2xl font-bold text-green-600 mb-4">Order Submitted!</h3>
             <p class="text-gray-600 mb-4">Your order has been placed successfully.</p>
             <p class="text-gray-600 font-bold mb-6">Order ID: <span id="modal-order-id" class="text-primary"></span></p>
-            <button id="modal-close-button" class="w-full py-3 bg-accent text-white font-bold rounded-lg hover:bg-teal-600 transition-colors focus:outline-none focus:ring-2 focus:ring-accent">
+            <button id="modal-close-button" class="w-full py-3 bg-sky-500 text-white font-bold rounded-lg hover:bg-sky-600 transition-colors focus:outline-none focus:ring-2 focus:ring-sky-500">
                 Close & Start New Order
             </button>
         </div>
@@ -373,15 +333,6 @@
     </div>
 
     <script>
-        // Get references to the new HTML elements for age gate
-        const ageGateModal = document.getElementById('age-gate-modal');
-        const ageGateYesButton = document.getElementById('age-gate-yes');
-        const ageGateNoButton = document.getElementById('age-gate-no');
-        const mainContent = document.getElementById('main-content');
-        
-        // Define the key for localStorage
-        const ageVerificationKey = 'isAgeVerified';
-        
         // Get references to the existing HTML elements
         const dataContainer = document.getElementById('data-container');
         const loadingIndicator = document.getElementById('loading-indicator');
@@ -417,10 +368,10 @@
         const closePastOrdersButton = document.getElementById('close-past-orders');
         const pastOrdersList = document.getElementById('past-orders-list');
         const clearOrdersButton = document.getElementById('clear-orders-button');
-
-        // New elements for the search and filter controls
+        
+        // New elements for the search functionality
         const searchIconButton = document.getElementById('search-icon-button');
-        const searchBarContainer = document.getElementById('search-bar-container');
+        const searchContainer = document.getElementById('search-container');
         const productSearchInput = document.getElementById('product-search');
 
         // The URL for your public Google Sheet CSV
@@ -456,18 +407,19 @@
             const arrow = document.getElementById('dropdown-arrow');
             arrow.classList.toggle('rotate-180');
         }
-
+        
         /**
-         * Toggles the visibility of the pop-down search bar.
+         * Toggles the visibility of the search input field.
          */
-        function toggleSearchBar() {
-            // Toggles the 'open' class, which controls the animation in CSS.
-            searchBarContainer.classList.toggle('open');
-            // Give the input focus when the bar is visible
-            if (searchBarContainer.classList.contains('open')) {
+        function toggleSearch() {
+            const isHidden = !searchContainer.classList.contains('is-visible');
+            if (isHidden) {
+                searchContainer.classList.add('is-visible');
                 productSearchInput.focus();
             } else {
-                productSearchInput.blur();
+                searchContainer.classList.remove('is-visible');
+                productSearchInput.value = ''; // Clear search input when it's hidden
+                applyFilters(); // Re-apply filters to show all products
             }
         }
 
@@ -558,15 +510,9 @@
          * Applies search and category filters to the product data.
          */
         function applyFilters() {
-            // Log to the console to confirm this function is being called
-            console.log('Applying filters...');
-
             // Get the search query and convert it to lower case for case-insensitive matching
             const searchQuery = productSearchInput.value.toLowerCase().trim();
             
-            // Log the current search query
-            console.log('Search Query:', searchQuery);
-
             let filteredProducts = productData;
 
             // Apply search filter if a query exists
@@ -639,18 +585,18 @@
                         
                         <!-- This is the section that has been updated to break the line -->
                         <div class="mt-4 flex flex-col items-start space-y-2">
-                            <p class="text-lg font-bold text-accent price-per-unit" data-price="${priceValue}">${priceText}</p>
+                            <p class="text-lg font-bold text-sky-500 price-per-unit" data-price="${priceValue}">${priceText}</p>
                             <div class="flex items-center space-x-2">
                                 <span class="text-gray-500">Quantity:</span>
                                 <!-- The data attribute is now data-product-code, which is a unique identifier -->
-                                <button class="quantity-btn p-1 rounded-full bg-gray-200 text-primary hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-accent transition-colors" data-action="decrement" data-product-code="${product.code}" ${isOutOfStock ? 'disabled' : ''}>
+                                <button class="quantity-btn p-1 rounded-full bg-gray-200 text-primary hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-colors" data-action="decrement" data-product-code="${product.code}" ${isOutOfStock ? 'disabled' : ''}>
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
                                     </svg>
                                 </button>
                                 <!-- The data attribute is also data-product-code -->
                                 <span class="text-primary text-lg font-bold w-6 text-center quantity-display" data-product-code="${product.code}">${currentQuantity}</span>
-                                <button class="quantity-btn p-1 rounded-full bg-gray-200 text-primary hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-accent transition-colors" data-action="increment" data-product-code="${product.code}" ${isOutOfStock ? 'disabled' : ''}>
+                                <button class="quantity-btn p-1 rounded-full bg-gray-200 text-primary hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-colors" data-action="increment" data-product-code="${product.code}" ${isOutOfStock ? 'disabled' : ''}>
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                                     </svg>
@@ -722,14 +668,14 @@
                     </div>
                     <div class="flex items-center space-x-2">
                         <!-- New decrement button in the cart summary -->
-                        <button class="cart-btn p-1 rounded-full bg-gray-200 text-primary hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-accent transition-colors" data-action="decrement" data-product-code="${item.code}">
+                        <button class="cart-btn p-1 rounded-full bg-gray-200 text-primary hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-colors" data-action="decrement" data-product-code="${item.code}">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
                                 </svg>
                         </button>
                         <span class="text-lg font-bold w-6 text-center">${item.quantity}</span>
                         <!-- New increment button in the cart summary -->
-                        <button class="cart-btn p-1 rounded-full bg-gray-200 text-primary hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-accent transition-colors" data-action="increment" data-product-code="${item.code}">
+                        <button class="cart-btn p-1 rounded-full bg-gray-200 text-primary hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-colors" data-action="increment" data-product-code="${item.code}">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                             </svg>
@@ -804,7 +750,7 @@
                 
                 // --- UPDATED: Hide the order summary drawer ---
                 orderSummaryDrawer.classList.remove('is-open');
-                cartBackdrop.classList.remove('hidden');
+                cartBackdrop.classList.remove('is-open');
                 // --- END UPDATED ---
 
             } catch (error) {
@@ -833,7 +779,6 @@
                     const orderDiv = document.createElement('div');
                     orderDiv.className = 'p-4 rounded-lg bg-gray-100 border border-gray-200';
                     
-                    // --- FIX: Ensure `total` and `price` are numbers before using .toFixed() ---
                     const totalValue = parseFloat(order.total);
 
                     orderDiv.innerHTML = `
@@ -841,7 +786,6 @@
                         <p class="text-sm text-gray-500">Date: ${orderDate.toLocaleDateString()} at ${orderDate.toLocaleTimeString()}</p>
                         <ul class="list-disc list-inside mt-2 text-sm text-gray-600 space-y-1">
                             ${order.items.map(item => {
-                                // Convert item.price to a float just in case it was stored as a string
                                 const itemPrice = parseFloat(item.price);
                                 if (isNaN(itemPrice)) {
                                     return `<li>${item.name} x ${item.quantity} (Price N/A)</li>`;
@@ -849,9 +793,8 @@
                                 return `<li>${item.name} x ${item.quantity} ($${(itemPrice * item.quantity).toFixed(2)})</li>`;
                             }).join('')}
                         </ul>
-                        <p class="mt-2 text-right font-bold text-accent">Total: $${!isNaN(totalValue) ? totalValue.toFixed(2) : 'N/A'}</p>
+                        <p class="mt-2 text-right font-bold text-sky-500">Total: $${!isNaN(totalValue) ? totalValue.toFixed(2) : 'N/A'}</p>
                     `;
-                    // --- END FIX ---
                     
                     pastOrdersList.appendChild(orderDiv);
                 });
@@ -870,18 +813,6 @@
          * All event listeners are attached here.
          */
         function attachEventListeners() {
-            // Age Gate button listeners
-            ageGateYesButton.addEventListener('click', () => {
-                localStorage.setItem(ageVerificationKey, 'true');
-                ageGateModal.classList.add('hidden');
-                mainContent.classList.remove('hidden');
-                fetchData();
-            });
-
-            ageGateNoButton.addEventListener('click', () => {
-                window.location.href = 'https://www.google.com';
-            });
-            
             // Toggle account menu
             accountButton.addEventListener('click', (event) => {
                 event.stopPropagation(); // Prevents the window click listener from immediately closing it
@@ -896,20 +827,16 @@
                     arrow.classList.remove('rotate-180');
                 }
             });
-
-            // Toggle search bar
-            searchIconButton.addEventListener('click', (event) => {
-                event.stopPropagation(); // Prevents the window click listener from immediately closing it
-                toggleSearchBar();
-            });
-
+            
+            // Add click listener to the search icon button to toggle the search bar
+            searchIconButton.addEventListener('click', toggleSearch);
+            
             // Handle quantity buttons and total cost update
             dataContainer.addEventListener('click', (event) => {
                 const target = event.target.closest('.quantity-btn');
                 if (!target) return;
 
                 const card = target.closest('.bg-white');
-                // Use the product code to find the correct product, regardless of its position in the current view.
                 const productCode = target.dataset.productCode;
                 const product = productData.find(p => p.code === productCode);
 
@@ -918,7 +845,6 @@
                     return;
                 }
 
-                // Find the quantity display element for this specific product
                 const quantityDisplay = card.querySelector(`.quantity-display[data-product-code="${productCode}"]`);
                 let currentQuantity = parseInt(quantityDisplay.textContent);
 
@@ -966,14 +892,6 @@
                 cartBackdrop.classList.add('is-open');
             });
             
-            // Close order summary drawer
-            closeOrderSummaryButton.addEventListener('click', () => {
-                orderSummaryDrawer.classList.remove('is-open');
-                cartBackdrop.classList.remove('is-open');
-                cartBackdrop.classList.add('hidden');
-            });
-            
-            // This is the section that caused the error. I've refactored the logic to fix it.
             orderSummaryDrawer.addEventListener('click', (event) => {
                 const target = event.target.closest('.cart-btn');
                 if (!target) return;
@@ -1016,6 +934,11 @@
             });
 
             // Close the drawer if the backdrop is clicked
+            closeOrderSummaryButton.addEventListener('click', () => {
+                orderSummaryDrawer.classList.remove('is-open');
+                cartBackdrop.classList.remove('is-open');
+                cartBackdrop.classList.add('hidden');
+            });
             cartBackdrop.addEventListener('click', () => {
                 orderSummaryDrawer.classList.remove('is-open');
                 cartBackdrop.classList.remove('is-open');
@@ -1051,14 +974,10 @@
             });
 
             // Close confirmation modal
-            // --- UPDATED: Reload the page when this button is clicked to get fresh data ---
             modalCloseButton.addEventListener('click', () => {
-                // This line will hide the modal before the reload, but the reload itself is the key action.
                 confirmationModal.classList.add('hidden'); 
-                // Reload the entire page to refresh the product data from the spreadsheet.
                 window.location.reload();
             });
-            // --- END UPDATED ---
 
             // Open past orders modal
             pastOrdersButton.addEventListener('click', () => {
@@ -1073,28 +992,34 @@
 
             // Clear past orders
             clearOrdersButton.addEventListener('click', () => {
-                // IMPORTANT: NEVER use window.confirm() in a canvas app.
-                // The user will not see the dialog.
-                // Instead, a custom modal UI should be used for this.
-                // For this example, we will just clear the orders.
                 clearPastOrders();
             });
             
             // Add a new event listener for the search input
             productSearchInput.addEventListener('input', applyFilters);
+            
+            // Close the search bar if a click occurs outside of it
+            document.addEventListener('click', (event) => {
+                const isClickInsideNav = document.getElementById('main-nav').contains(event.target);
+                const isClickInsideSearch = searchContainer.contains(event.target);
+                
+                // If the search bar is open and the click is outside the nav and search bar, close it
+                if (searchContainer.classList.contains('is-visible') && !isClickInsideNav && !isClickInsideSearch) {
+                    toggleSearch();
+                }
+            });
+
+            // Handle ESC key to close the search bar
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape' && searchContainer.classList.contains('is-visible')) {
+                    toggleSearch();
+                }
+            });
         }
 
         // Initialize the app after the window loads
         window.onload = function() {
-            // Check if age is already verified in localStorage
-            const isVerified = localStorage.getItem(ageVerificationKey);
-            if (isVerified === 'true') {
-                ageGateModal.classList.add('hidden');
-                mainContent.classList.remove('hidden');
-                fetchData();
-            } else {
-                ageGateModal.classList.remove('hidden');
-            }
+            fetchData();
             attachEventListeners();
         };
 
