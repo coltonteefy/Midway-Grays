@@ -253,6 +253,15 @@
             transition-duration: 0.5s;
         }
         /* --- END NEW LOADING SCREEN STYLES --- */
+        
+        /* --- NEW STYLES FOR SCROLLABLE MODAL CONTENT --- */
+        .modal-content-scrollable {
+            /* Max height to allow scrolling on small screens */
+            max-height: 80vh; 
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch; /* For smooth scrolling on iOS */
+        }
+        /* --- END NEW STYLES --- */
 
     </style>
 </head>
@@ -404,11 +413,41 @@
                 <span>Total:</span>
                 <span id="order-subtotal">$0.00</span>
             </div>
+            
+            <!-- UPDATED: The form now includes fields for full name, phone, and shipping address -->
             <form id="order-form">
+                <div class="mb-4">
+                    <label for="full-name-input" class="block text-gray-500 mb-2">Full Name:</label>
+                    <input type="text" id="full-name-input" class="w-full p-3 rounded-lg bg-gray-100 border border-gray-300 text-primary focus:outline-none focus:ring-2 focus:ring-sky-500" placeholder="John Doe" required>
+                </div>
                 <div class="mb-4">
                     <label for="email-input" class="block text-gray-500 mb-2">Email for confirmation:</label>
                     <input type="email" id="email-input" class="w-full p-3 rounded-lg bg-gray-100 border border-gray-300 text-primary focus:outline-none focus:ring-2 focus:ring-sky-500" placeholder="yourname@example.com" required>
                 </div>
+                <div class="mb-4">
+                    <label for="phone-input" class="block text-gray-500 mb-2">Phone Number:</label>
+                    <input type="tel" id="phone-input" class="w-full p-3 rounded-lg bg-gray-100 border border-gray-300 text-primary focus:outline-none focus:ring-2 focus:ring-sky-500" placeholder="555-555-5555" required>
+                </div>
+                <!-- UPDATED: Address fields are now separated for clarity -->
+                <div class="mb-4">
+                    <label for="shipping-address-input" class="block text-gray-500 mb-2">Shipping Address:</label>
+                    <input type="text" id="shipping-address-input" class="w-full p-3 rounded-lg bg-gray-100 border border-gray-300 text-primary focus:outline-none focus:ring-2 focus:ring-sky-500" placeholder="123 Main St" required>
+                </div>
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label for="city-input" class="block text-gray-500 mb-2">City:</label>
+                        <input type="text" id="city-input" class="w-full p-3 rounded-lg bg-gray-100 border border-gray-300 text-primary focus:outline-none focus:ring-2 focus:ring-sky-500" placeholder="Anytown" required>
+                    </div>
+                    <div>
+                        <label for="state-input" class="block text-gray-500 mb-2">State:</label>
+                        <input type="text" id="state-input" class="w-full p-3 rounded-lg bg-gray-100 border border-gray-300 text-primary focus:outline-none focus:ring-2 focus:ring-sky-500" placeholder="State" required>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label for="zip-input" class="block text-gray-500 mb-2">ZIP Code:</label>
+                    <input type="text" id="zip-input" class="w-full p-3 rounded-lg bg-gray-100 border border-gray-300 text-primary focus:outline-none focus:ring-2 focus:ring-sky-500" placeholder="12345" required>
+                </div>
+                <!-- END UPDATED: Separate address fields -->
                 <button type="submit" id="submit-button" class="w-full py-3 bg-sky-500 text-white font-bold rounded-lg hover:bg-sky-600 transition-colors focus:outline-none focus:ring-2 focus:ring-sky-500">
                     Submit Order
                 </button>
@@ -420,10 +459,24 @@
 
     <!-- Order Submitted Modal -->
     <div id="confirmation-modal" class="fixed inset-0 bg-gray-900 bg-opacity-80 flex items-center justify-center p-4 hidden z-50">
-        <div class="bg-white p-8 rounded-xl shadow-2xl max-w-sm w-full text-center border border-gray-200">
+        <!-- New class 'modal-content-scrollable' added here -->
+        <div class="bg-white p-8 rounded-xl shadow-2xl max-w-sm w-full text-center border border-gray-200 modal-content-scrollable">
             <h3 class="text-2xl font-bold text-green-600 mb-4">Order Submitted!</h3>
-            <p class="text-gray-600 mb-4">Your order has been placed successfully.</p>
+            <!-- UPDATED: Added the new confirmation text -->
+            <p class="text-gray-600 mb-4">Your order has been successfully submitted and is awaiting payment to be processed. An email confirmation with all the details of your order has been sent to the email address you provided.</p>
             <p class="text-gray-600 font-bold mb-6">Order ID: <span id="modal-order-id" class="text-primary"></span></p>
+
+            <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 text-left" role="alert">
+              <h4 class="font-bold text-lg mb-1">IMPORTANT!</h4>
+              <p>
+                This is not a payment. To secure your order, please proceed to the payment options detailed in your confirmation email. Your order will not be fully processed until payment is completed.
+              </p>
+            </div>
+
+            <p class="text-gray-600 mb-4">If you don't receive an email within a few minutes, please check your spam or junk folder.</p>
+            <p class="text-gray-600 font-bold mb-6">We appreciate your business!</p>
+            <!-- END UPDATED -->
+
             <button id="modal-close-button" class="w-full py-3 bg-sky-500 text-white font-bold rounded-lg hover:bg-sky-600 transition-colors focus:outline-none focus:ring-2 focus:ring-sky-500">
                 Close & Start New Order
             </button>
@@ -469,7 +522,16 @@
         // References to elements inside the new order summary modal
         const orderSummaryList = document.getElementById('order-summary-list');
         const orderSubtotalElement = document.getElementById('order-subtotal');
+        // UPDATED: Get references to the new form inputs
+        const fullNameInput = document.getElementById('full-name-input');
         const emailInput = document.getElementById('email-input');
+        const phoneInput = document.getElementById('phone-input');
+        // Get the new individual address fields
+        const shippingAddressInput = document.getElementById('shipping-address-input');
+        const cityInput = document.getElementById('city-input');
+        const stateInput = document.getElementById('state-input');
+        const zipInput = document.getElementById('zip-input');
+        
         const submitButton = document.getElementById('submit-button');
         const orderForm = document.getElementById('order-form');
         const confirmationMessage = document.getElementById('confirmation-message');
@@ -583,7 +645,7 @@
 
                 const headers = rows[0].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(header => header.trim().replace(/"/g, ''));
                 
-                // Map column headers to their indices
+                // Map column headers to their indexes.
                 const columnIndices = {
                     code: headers.indexOf('Code'),
                     productName: headers.indexOf('Product Name'),
@@ -592,26 +654,26 @@
                     resale: headers.indexOf('Resale')
                 };
 
-                // Check if all necessary columns exist
+                // Check if the required columns exist.
                 const requiredColumns = ['code', 'productName', 'inventory', 'price', 'resale'];
                 const missingColumns = requiredColumns.filter(col => columnIndices[col] === -1);
                 if (missingColumns.length > 0) {
                     console.warn(`Missing required columns: ${missingColumns.join(', ')}. Proceeding with available data.`);
                 }
                 
-                productData = []; // Reset productData to prevent stale data
+                productData = []; // Reset productData to prevent stale data.
                 
-                // Process the data rows
+                // Process the data rows.
                 rows.slice(1).forEach(row => {
                     const columns = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(col => col.trim().replace(/"/g, ''));
                     
-                    // Only process rows that have a product name and are available for resale
+                    // Only process rows that have a product name and are available for resale.
                     if (columns[columnIndices.productName]) {
                         const inventoryValue = columns[columnIndices.inventory] ? parseInt(columns[columnIndices.inventory]) : 0;
                         const resaleValue = columns[columnIndices.resale] ? columns[columnIndices.resale].toLowerCase().trim() : '';
 
                         // --- UPDATED FILTERING LOGIC ---
-                        // Only add the product if the resale value is explicitly 'true'
+                        // Only add the product if the resale value is explicitly 'true'.
                         if (resaleValue === 'true') {
                             productData.push({
                                 code: columns[columnIndices.code],
@@ -624,7 +686,7 @@
                     }
                 });
                 
-                // Once data is fetched, apply initial filters and render
+                // Once data is fetched, apply initial filters and render.
                 applyFilters();
 
                 const now = new Date();
@@ -640,15 +702,15 @@
          * Applies search and category filters to the product data.
          */
         function applyFilters() {
-            // Get the search query and convert it to lower case for case-insensitive matching
+            // Get the search query and convert it to lower case for case-insensitive matching.
             const searchQuery = productSearchInput.value.toLowerCase().trim();
             
             let filteredProducts = productData;
 
-            // Apply search filter if a query exists
+            // Apply search filter if a query exists.
             if (searchQuery) {
                 filteredProducts = filteredProducts.filter(product =>
-                    // Check if the product name or code includes the search query
+                    // Check if the product name or code includes the search query.
                     product.name.toLowerCase().includes(searchQuery) ||
                     product.code.toLowerCase().includes(searchQuery)
                 );
@@ -677,18 +739,18 @@
                 
                 const isOutOfStock = product.inventory === 0;
                 
-                // Get the current quantity from the cart, or default to 0
+                // Get the current quantity from the cart, or default to 0.
                 const cartItem = cart.find(item => item.code === product.code);
                 const currentQuantity = cartItem ? cartItem.quantity : 0;
                 
                 // --- Updated Logic for Image URL selection ---
                 let imageUrl = null;
-                const productKey = product.code.trim(); // Use the product code as the key
+                const productKey = product.code.trim(); // Use the product code as the key.
                 if (imageDatabase[productKey]) {
                     imageUrl = imageDatabase[productKey];
                 }
 
-                // If no image URL is found, use a generic placeholder
+                // If no image URL is found, use a generic placeholder.
                 if (!imageUrl) {
                     imageUrl = `https://placehold.co/600x400/2B3A67/FFFFFF?text=${product.code.trim().replace(/\s/g, '+')}`;
                 }
@@ -745,13 +807,13 @@
          * Syncs the quantity displays on the main page with the current cart data.
          */
         function syncQuantitiesWithCardPage() {
-            // Find all quantity displays on the main page
+            // Find all quantity displays on the main page.
             const quantityDisplays = document.querySelectorAll('.quantity-display');
             quantityDisplays.forEach(display => {
                 const productCode = display.dataset.productCode;
-                // Find the corresponding item in the cart
+                // Find the corresponding item in the cart.
                 const cartItem = cart.find(item => item.code === productCode);
-                // Update the quantity display based on the cart or set to 0
+                // Update the quantity display based on the cart or set to 0.
                 display.textContent = cartItem ? cartItem.quantity : 0;
             });
         }
@@ -763,7 +825,7 @@
             const totalCost = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
             floatingTotalCostElement.textContent = `$${totalCost.toFixed(2)}`;
 
-            // Show or hide the floating cart button
+            // Show or hide the floating cart button.
             if (cart.length > 0) {
                 totalCostButton.classList.add('is-visible');
             } else {
@@ -773,14 +835,20 @@
         
         /**
          * Checks if the form is valid and updates the submit button state.
-         * The form is valid if the cart is not empty AND the email input is filled.
+         * The form is valid if the cart is not empty AND the email, full name, phone, and shipping address inputs are filled.
          */
         function checkFormValidity() {
             const isCartNotEmpty = cart.length > 0;
             const isEmailFilled = emailInput.value.trim() !== '';
+            const isFullNameFilled = fullNameInput.value.trim() !== '';
+            const isPhoneFilled = phoneInput.value.trim() !== '';
+            const isStreetAddressFilled = shippingAddressInput.value.trim() !== '';
+            const isCityFilled = cityInput.value.trim() !== '';
+            const isStateFilled = stateInput.value.trim() !== '';
+            const isZipFilled = zipInput.value.trim() !== '';
             
-            // Enable the button only if both conditions are met
-            if (isCartNotEmpty && isEmailFilled) {
+            // Enable the button only if all conditions are met.
+            if (isCartNotEmpty && isEmailFilled && isFullNameFilled && isPhoneFilled && isStreetAddressFilled && isCityFilled && isStateFilled && isZipFilled) {
                 submitButton.removeAttribute('disabled');
             } else {
                 submitButton.setAttribute('disabled', 'disabled');
@@ -791,16 +859,16 @@
          * Renders the items in the order summary modal.
          */
         function renderOrderSummary() {
-            orderSummaryList.innerHTML = ''; // Clear previous items
+            orderSummaryList.innerHTML = ''; // Clear previous items.
             if (cart.length === 0) {
                 orderSummaryList.innerHTML = '<p class="text-center text-gray-500 italic">Your cart is empty.</p>';
                 orderSubtotalElement.textContent = '$0.00';
-                checkFormValidity(); // Disable button if cart is empty
+                checkFormValidity(); // Disable button if cart is empty.
                 return;
             }
 
             let subtotal = 0;
-            checkFormValidity(); // Re-check button state after rendering
+            checkFormValidity(); // Re-check button state after rendering.
 
             cart.forEach(item => {
                 const itemTotal = item.price * item.quantity;
@@ -855,10 +923,10 @@
                 existingMessage.textContent = message;
                 existingMessage.classList.add('show');
                 
-                // Clear any existing timeout
+                // Clear any existing timeout.
                 clearTimeout(cardElement.messageTimeout);
 
-                // Hide the message after 2 seconds
+                // Hide the message after 2 seconds.
                 cardElement.messageTimeout = setTimeout(() => {
                     existingMessage.classList.remove('show');
                 }, 2000);
@@ -876,7 +944,7 @@
             confirmationMessage.classList.add('hidden');
 
             try {
-                // Using fetch API to send the data as a POST request
+                // Using fetch API to send the data as a POST request.
                 const response = await fetch(APPS_SCRIPT_URL, {
                     method: 'POST',
                     mode: 'no-cors', // Required for Google Apps Script
@@ -888,14 +956,14 @@
                 // Since 'no-cors' is used, we cannot check the response status.
                 // We assume success and move on.
                 
-                // Show confirmation modal
+                // Show confirmation modal.
                 modalOrderId.textContent = orderData.orderId;
                 confirmationModal.classList.remove('hidden');
 
-                // Clear the cart and update the display after successful submission
+                // Clear the cart and update the display after successful submission.
                 cart = [];
                 updateTotalCost();
-                syncQuantitiesWithCardPage(); // Sync quantities on main page after order
+                syncQuantitiesWithCardPage(); // Sync quantities on main page after order.
                 
                 // --- UPDATED: Hide the order summary drawer ---
                 orderSummaryDrawer.classList.remove('is-open');
@@ -955,20 +1023,20 @@
          */
         function clearPastOrders() {
             localStorage.removeItem('pastOrders');
-            renderPastOrders(); // Re-render to show the "no orders" message
+            renderPastOrders(); // Re-render to show the "no orders" message.
         }
 
         /**
          * All event listeners are attached here.
          */
         function attachEventListeners() {
-            // Toggle account menu
+            // Toggle account menu.
             accountButton.addEventListener('click', (event) => {
-                event.stopPropagation(); // Prevents the window click listener from immediately closing it
+                event.stopPropagation(); // Prevents the window click listener from immediately closing it.
                 toggleAccountMenu();
             });
 
-            // Close account menu if user clicks outside
+            // Close account menu if user clicks outside.
             window.addEventListener('click', (event) => {
                 if (!accountMenu.contains(event.target) && !accountButton.contains(event.target)) {
                     accountMenu.classList.remove('open');
@@ -977,10 +1045,10 @@
                 }
             });
             
-            // Add click listener to the search icon button to toggle the search bar
+            // Add click listener to the search icon button to toggle the search bar.
             searchIconButton.addEventListener('click', toggleSearch);
             
-            // Handle quantity buttons and total cost update
+            // Handle quantity buttons and total cost update.
             dataContainer.addEventListener('click', (event) => {
                 const target = event.target.closest('.quantity-btn');
                 if (!target) return;
@@ -1009,7 +1077,7 @@
 
                 quantityDisplay.textContent = currentQuantity;
 
-                // Update the cart array
+                // Update the cart array.
                 const cartIndex = cart.findIndex(item => item.code === product.code);
                 if (currentQuantity > 0) {
                     const priceValue = parseFloat(product.trimPrice.trim().replace('$', ''));
@@ -1033,7 +1101,7 @@
                 renderOrderSummary();
             });
 
-            // Event listener for the floating cart button
+            // Event listener for the floating cart button.
             totalCostButton.addEventListener('click', () => {
                 renderOrderSummary();
                 orderSummaryDrawer.classList.add('is-open');
@@ -1066,23 +1134,23 @@
                     if (cart[cartItemIndex].quantity > 1) {
                         cart[cartItemIndex].quantity--;
                     } else {
-                        // If quantity is 1 and user clicks decrement, remove the item
+                        // If quantity is 1 and user clicks decrement, remove the item.
                         cart.splice(cartItemIndex, 1);
                     }
                 } else if (action === 'remove') {
-                    // Remove the item completely from the cart
+                    // Remove the item completely from the cart.
                     cart.splice(cartItemIndex, 1);
                 }
                 
-                // Re-render the cart summary drawer to reflect the changes
+                // Re-render the cart summary drawer to reflect the changes.
                 renderOrderSummary();
-                // Update the floating total cost
+                // Update the floating total cost.
                 updateTotalCost();
-                // Sync quantities on the main page after a cart change
+                // Sync quantities on the main page after a cart change.
                 syncQuantitiesWithCardPage();
             });
 
-            // Close the drawer if the backdrop is clicked
+            // Close the drawer if the backdrop is clicked.
             closeOrderSummaryButton.addEventListener('click', () => {
                 orderSummaryDrawer.classList.remove('is-open');
                 cartBackdrop.classList.remove('is-open');
@@ -1095,26 +1163,40 @@
             });
 
 
-            // Form submission handler
+            // Form submission handler.
             orderForm.addEventListener('submit', (event) => {
                 event.preventDefault();
 
                 if (cart.length === 0) {
                     return;
                 }
-
+                
+                // Get the data from the new form fields.
+                const fullName = fullNameInput.value;
                 const email = emailInput.value;
+                const phone = phoneInput.value;
+                // --- NEW: Get values from all the individual address fields ---
+                const streetAddress = shippingAddressInput.value;
+                const city = cityInput.value;
+                const state = stateInput.value;
+                const zip = zipInput.value;
+                // --- NEW: Combine the address fields into a single string ---
+                const shippingAddress = `${streetAddress}, ${city}, ${state} ${zip}`;
+
                 const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
                 const orderId = `ORDER-${Date.now()}`;
                 const orderData = {
                     orderId: orderId,
+                    fullName: fullName,
                     email: email,
+                    phone: phone,
+                    shippingAddress: shippingAddress,
                     items: cart,
                     total: total,
                     timestamp: new Date().toISOString()
                 };
 
-                // Save to localStorage for past orders view
+                // Save to localStorage for past orders view.
                 const pastOrders = JSON.parse(localStorage.getItem('pastOrders')) || [];
                 pastOrders.push(orderData);
                 localStorage.setItem('pastOrders', JSON.stringify(pastOrders));
@@ -1122,90 +1204,96 @@
                 submitOrder(orderData);
             });
 
-            // Close confirmation modal
+            // Close confirmation modal.
             modalCloseButton.addEventListener('click', () => {
                 confirmationModal.classList.add('hidden'); 
                 window.location.reload();
             });
 
-            // Open past orders modal
+            // Open past orders modal.
             pastOrdersButton.addEventListener('click', () => {
                 renderPastOrders();
                 pastOrdersModal.classList.remove('hidden');
             });
 
-            // Close past orders modal
+            // Close past orders modal.
             closePastOrdersButton.addEventListener('click', () => {
                 pastOrdersModal.classList.add('hidden');
             });
 
-            // Clear past orders
+            // Clear past orders.
             clearOrdersButton.addEventListener('click', () => {
                 clearPastOrders();
             });
             
-            // Add a new event listener for the search input
+            // Add a new event listener for the search input.
             productSearchInput.addEventListener('input', applyFilters);
             
-            // Close the search bar if a click occurs outside of it
+            // Close the search bar if a click occurs outside of it.
             document.addEventListener('click', (event) => {
                 const isClickInsideNav = document.getElementById('main-nav').contains(event.target);
                 const isClickInsideSearch = searchContainer.contains(event.target);
                 
-                // If the search bar is open and the click is outside the nav and search bar, close it
+                // If the search bar is open and the click is outside the nav and search bar, close it.
                 if (searchContainer.classList.contains('is-visible') && !isClickInsideNav && !isClickInsideSearch) {
                     toggleSearch();
                 }
             });
 
-            // Handle ESC key to close the search bar
+            // Handle ESC key to close the search bar.
             document.addEventListener('keydown', (event) => {
                 if (event.key === 'Escape' && searchContainer.classList.contains('is-visible')) {
                     toggleSearch();
                 }
             });
             
-            // Listen for input on the email field to check form validity
+            // Listen for input on the form fields to check form validity.
+            fullNameInput.addEventListener('input', checkFormValidity);
             emailInput.addEventListener('input', checkFormValidity);
+            phoneInput.addEventListener('input', checkFormValidity);
+            shippingAddressInput.addEventListener('input', checkFormValidity);
+            cityInput.addEventListener('input', checkFormValidity);
+            stateInput.addEventListener('input', checkFormValidity);
+            zipInput.addEventListener('input', checkFormValidity);
         }
         
-        // This event now only handles hiding the loading screen and showing the age gate/app
+        // This event now only handles hiding the loading screen and showing the age gate/app.
         window.addEventListener('load', () => {
-            // Hide the loading screen
+            // Hide the loading screen.
             loadingScreen.classList.add('fade-out');
             setTimeout(() => {
                 loadingScreen.style.display = 'none';
             }, 500);
 
-            // Check if the user is already verified from a previous session
+            // Check if the user is already verified from a previous session.
             const isVerified = localStorage.getItem('age_verified');
             if (isVerified === 'true') {
-                // If so, show the main app immediately
-                ageGate.style.display = 'none'; // Use direct style manipulation
+                // If so, show the main app immediately.
+                ageGate.style.display = 'none'; // Use direct style manipulation.
                 mainAppContent.style.display = 'block';
                 fetchData();
                 attachEventListeners();
             } else {
-                // Otherwise, show the age gate and wait for a user action
-                ageGate.style.display = 'flex'; // Show age gate
-                mainAppContent.style.display = 'none'; // Ensure main content is hidden
-                denialModal.style.display = 'none'; // Ensure denial modal is hidden
+                // Otherwise, show the age gate and wait for a user action.
+                ageGate.style.display = 'flex'; // Show age gate.
+                mainAppContent.style.display = 'none'; // Ensure main content is hidden.
+                denialModal.style.display = 'none'; // Ensure denial modal is hidden.
                 
-                // Add event listeners for the age gate buttons
+                // Add event listeners for the age gate buttons.
                 yesButton.addEventListener('click', () => {
                     localStorage.setItem('age_verified', 'true');
-                    ageGate.style.display = 'none'; // Hide age gate
-                    mainAppContent.style.display = 'block'; // Show main content
+                    ageGate.style.display = 'none'; // Hide age gate.
+                    mainAppContent.style.display = 'block'; // Show main content.
                     fetchData();
                     attachEventListeners();
                 });
                 noButton.addEventListener('click', () => {
-                    ageGate.style.display = 'none'; // Hide age gate
-                    denialModal.style.display = 'flex'; // Show the denial message
+                    ageGate.style.display = 'none'; // Hide age gate.
+                    denialModal.style.display = 'flex'; // Show the denial message.
                 });
                 denialBackButton.addEventListener('click', () => {
-                    denialModal.style.display = 'none'; // Hide denial modal
-                    ageGate.style.display = 'flex'; // Show age gate again
+                    denialModal.style.display = 'none'; // Hide denial modal.
+                    ageGate.style.display = 'flex'; // Show age gate again.
                 });
             }
         });
