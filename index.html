@@ -1,1303 +1,690 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Midway Gray</title>
-    <!-- Use the Tailwind CSS CDN for easy styling -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Link to Google Fonts for 'Poppins' for a modern feel -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-    <style>
-        /* Use the Poppins font family for a bold, athletic look */
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #f0f4f8; /* A light, clean background */
-        }
-        /* Style for the account dropdown menu */
-        #account-menu {
-            transition: all 0.2s ease-in-out;
-            transform-origin: top;
-            transform: scaleY(0);
-            opacity: 0;
-            pointer-events: none;
-        }
-        #account-menu.open {
-            transform: scaleY(1);
-            opacity: 1;
-            pointer-events: auto;
-        }
-        /* New styles for the full-width bottom cart button */
-        #total-cost-button {
-            /* Position the button at the bottom of the screen */
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            z-index: 40;
-            /* Use a CSS transition for smooth animation */
-            transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-            /* Initially hidden off-screen to the bottom */
-            transform: translateY(100%);
-        }
-        /* New class for the button to slide into view */
-        #total-cost-button.is-visible {
-            transform: translateY(0);
-        }
-        /* Styles for the temporary inventory message */
-        .inventory-message {
-            position: absolute;
-            bottom: -2.5rem;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 0.25rem 0.5rem;
-            background-color: #ef4444; /* red-500 */
-            color: white;
-            font-size: 0.75rem;
-            font-weight: 600;
-            border-radius: 0.375rem;
-            opacity: 0;
-            transition: opacity 0.3s ease-in-out;
-            pointer-events: none;
-            white-space: nowrap;
-            /* New z-index to ensure it's always on top */
-            z-index: 70;
-        }
-        .inventory-message.show {
-            opacity: 1;
-        }
-        /* Style for out of stock cards */
-        .out-of-stock {
-            opacity: 0.5;
-            pointer-events: none;
-        }
-        
-        /* --- UPDATED CSS for nav to be fixed and main content to be below it --- */
-        #main-nav {
-            width: 100%;
-            /* Make the nav bar fixed */
-            position: fixed;
-            top: 0;
-            z-index: 50;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Midway Grays</title>
 
-        #hero-img{
-            background-size:cover;
-        }
-        
-        /* --- NEW STYLES FOR THE CART DRAWER --- */
-        #order-summary-modal {
-            /* Now a full-height drawer on the right side */
-            position: fixed;
-            top: 0;
-            right: 0;
-            width: 100%;
-            height: 100%;
-            max-width: 420px; /* Max width on larger screens */
-            background-color: white;
-            box-shadow: -10px 0 20px rgba(0, 0, 0, 0.2);
-            z-index: 50;
-            
-            /* Use a CSS transform for the slide-in/out animation */
-            transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            transform: translateX(100%);
-            
-            /* Flex column layout to push the footer to the bottom */
-            display: flex;
-            flex-direction: column;
-        }
-        
-        #order-summary-modal.is-open {
-            transform: translateX(0);
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch; /* smooth scrolling on iOS */
-        }
-        
-        #order-summary-list {
-            /* Make this area scrollable if content overflows */
-            flex-grow: 1;
-        }
-        
-        /* Backdrop overlay to close the cart drawer */
-        #cart-backdrop {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 49;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.5s ease-out;
-        }
-        
-        #cart-backdrop.is-open {
-            opacity: 1;
-            pointer-events: auto;
-        }
-        /* --- END NEW STYLES --- */
-        
-        /* Styles for the transparent, collapsible search bar */
-        #search-container {
-            /* Position it just below the nav bar */
-            position: fixed;
-            top: 4rem; /* h-16 is 4rem */
-            width: 100%;
-            z-index: 45;
-            
-            /* Add animation for showing/hiding */
-            transition: all 0.3s ease-in-out;
-            transform-origin: top;
-            transform: scaleY(0);
-            opacity: 0;
-            pointer-events: none;
-            
-            /* No background, just a container for the input */
-            background: transparent;
-            padding: 0.5rem 1rem;
-        }
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Inter font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
-        #search-container.is-visible {
-            transform: scaleY(1);
-            opacity: 1;
-            pointer-events: auto;
+  <!-- Tailwind custom colors -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'primary-blue': {
+              DEFAULT: '#256997',
+              dark: '#1e537a',
+              light: '#4184b2'
+            }
+          }
         }
+      }
+    }
+  </script>
 
-        #product-search {
-            /* Full width and rounded corners for the input field */
-            width: 100%;
-            max-width: 500px; /* Max width to keep it centered on larger screens */
-            
-            /* CHANGE: Now has a white background */
-            background-color: white;
-            border: 2px solid #e5e7eb; /* gray-300 */
-            color: #1f2937; /* gray-800 */
-            
-            /* Center the input horizontally */
-            margin: 0 auto;
-            display: block;
-        }
-        
-        /* New styles for the age gate */
-        #age-gate {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #f0f4f8; /* A soft, light background */
-            z-index: 100; /* Ensure it's on top of everything */
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 2rem;
-            transition: opacity 0.5s ease-in-out;
-        }
-        
-        /* Style for the "No" button with a border */
-        .no-button {
-            border: 2px solid #0ea5e9; /* sky-500 */
-            color: #0ea5e9;
-            background-color: transparent;
-        }
-        
-        .no-button:hover {
-            background-color: rgba(14, 165, 233, 0.1); /* light blue hover effect */
-        }
+  <style>
+    body { font-family: 'Inter', sans-serif; background-color: #f7fafc; }
+    .scroll-hidden::-webkit-scrollbar { display: none; }
+    .scroll-hidden { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* --- NEW STYLES for denial message overlay --- */
-        #denial-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.9);
-            z-index: 110;
-            display: none; /* Initially hidden */
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 2rem;
-            color: white;
-        }
-        /* --- END NEW STYLES --- */
+    #search-container.collapsed { max-height: 0; opacity: 0; overflow: hidden; margin-top: 0; }
+    #search-container.expanded { max-height: 200px; opacity: 1; margin-top: 1rem; }
 
-        /* --- NEW LOADING SCREEN STYLES --- */
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+    #account-menu.hidden { display: none; }
 
-        .loader {
-            border: 8px solid rgba(255, 255, 255, 0.2);
-            border-top: 8px solid #3b82f6; /* A nice, prominent color for the spinner */
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            animation: spin 1s linear infinite;
-        }
+    #main-nav { transition: all .3s ease-in-out; max-width: 80rem; }
+    #main-nav.sticky-scrolled { max-width: none; border-radius: 0; box-shadow: 0 4px 6px -1px rgba(0,0,0,.1), 0 2px 4px -1px rgba(0,0,0,.06); }
 
-        .fade-out {
-            opacity: 0;
-            transition: opacity 0.5s ease-out;
-        }
-        
-        #loading-screen {
-            background-color: #1a202c;
-            color: #e2e8f0;
-            display: flex; /* Ensure it is a flex container for centering */
-            transition-duration: 0.5s;
-        }
-        /* --- END NEW LOADING SCREEN STYLES --- */
-        
-        /* --- NEW STYLES FOR SCROLLABLE MODAL CONTENT --- */
-        .modal-content-scrollable {
-            /* Max height to allow scrolling on small screens */
-            max-height: 80vh; 
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch; /* For smooth scrolling on iOS */
-        }
-        /* --- END NEW STYLES --- */
+    #total-cost-button {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 40;
+      transition: transform .5s cubic-bezier(0.68,-0.55,0.27,1.55);
+      transform: translateY(100%);
+    }
+    #total-cost-button.is-visible { transform: translateY(0); }
 
-    </style>
+    #order-summary-modal {
+      position: fixed; top: 0; right: 0; width: 100%; height: 100%;
+      max-width: 420px; background-color: #fff; box-shadow: -10px 0 20px rgba(0,0,0,.2);
+      z-index: 50; transition: transform .5s cubic-bezier(0.25,0.46,0.45,0.94);
+      transform: translateX(100%); display: flex; flex-direction: column;
+    }
+    #order-summary-modal.is-open { transform: translateX(0); overflow-y: auto; -webkit-overflow-scrolling: touch; }
+
+    #order-summary-list { flex-grow: 1; }
+
+    #cart-backdrop {
+      position: fixed; inset: 0; background-color: rgba(0,0,0,.5);
+      z-index: 49; opacity: 0; pointer-events: none; transition: opacity .5s ease-out;
+    }
+    #cart-backdrop.is-open { opacity: 1; pointer-events: auto; }
+
+    .modal-content-scrollable { max-height: 80vh; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+
+    /* Loading Animation Styles */
+    .vial-container {
+      width: 100px; height: 150px; position: relative; display: flex; align-items: flex-end;
+    }
+    .vial {
+      width: 70px; height: 120px; background: #fff; border: 3px solid #333;
+      border-bottom-left-radius: 25px; border-bottom-right-radius: 25px;
+      position: relative; overflow: hidden;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    }
+    .vial::before {
+      content: ''; position: absolute; top: -30px; left: 50%; transform: translateX(-50%);
+      width: 40px; height: 50px; background: #fff; border: 3px solid #333;
+      border-bottom: none; border-radius: 10px 10px 0 0;
+    }
+    .vial::after {
+      content: ''; position: absolute; top: -1px; left: 50%; transform: translateX(-50%);
+      width: 46px; height: 4px; background: #333; border-radius: 2px; z-index: 2;
+    }
+    .liquid {
+      position: absolute; bottom: 0; left: 0; width: 100%;
+      background: #256997; animation: fillVial 2s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
+      z-index: 1;
+    }
+    .bubble {
+      position: absolute; bottom: 0; background: #4184b2; border-radius: 50%; opacity: 0;
+      animation: bubbleUp 2s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
+    }
+    @keyframes fillVial { 0% { height: 0; } 100% { height: 100%; } }
+    @keyframes bubbleUp {
+      0% { transform: translateY(0) scale(0); opacity: 0; }
+      50% { opacity: 1; }
+      100% { transform: translateY(-100px) scale(1); opacity: 0; }
+    }
+  </style>
 </head>
-<!-- The 'm-0 p-0' classes are added here to remove all default body margins and padding, ensuring the content starts at the very top. -->
-<body class="bg-gray-100 flex flex-col items-center justify-start min-h-screen m-0 p-0">
+<body class="bg-gray-100 min-h-screen flex flex-col items-center justify-center relative">
 
-    <!-- The new Loading Screen -->
-    <!-- This will be shown until all content is loaded -->
-    <div id="loading-screen" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 transition-opacity duration-500">
-        <div class="flex flex-col items-center space-y-4">
-            <div class="loader"></div>
-            <p class="text-xl font-medium text-gray-300">Loading...</p>
+  <!-- Age Gate Modal -->
+  <div id="ageGate" class="fixed inset-0 z-50 bg-gray-900 bg-opacity-80 flex items-center justify-center p-4 transition-opacity duration-300 ease-in-out">
+    <div class="bg-white rounded-xl shadow-2xl p-8 max-w-xl w-full text-center">
+      <!-- Content for the initial age gate prompt -->
+      <div id="ageGateContent">
+        <div class="mb-6 flex justify-center">
+          <img src="https://raw.githubusercontent.com/coltonteefy/inventory/refs/heads/main/MWG_LOGO_3.PNG" alt="Company Logo" class="h-24">
         </div>
+        <h2 class="text-2xl font-semibold text-gray-800 mb-6">Are you 21 years of age or older?</h2>
+        <div class="flex justify-center space-x-4 mb-6">
+          <button id="yesBtn" class="bg-primary-blue text-white font-bold py-3 px-8 rounded-lg shadow-md hover:bg-primary-blue-dark transition-all">Yes</button>
+          <button id="noBtn" class="bg-white text-primary-blue font-bold py-3 px-8 rounded-lg shadow-md border-2 border-primary-blue hover:bg-primary-blue hover:text-white transition-all">No</button>
+        </div>
+        <p class="text-sm text-gray-500 italic">By entering this site, you acknowledge and agree that this site is for research purposes only.</p>
+        <div id="rejectionMessage" class="hidden mt-4 p-4 text-center bg-red-100 text-red-700 rounded-lg">
+          <p class="font-semibold">Access Denied.</p>
+          <p>You must be 21 or older to view this content.</p>
+        </div>
+      </div>
+
+      <!-- Loading state within the age gate modal -->
+      <div id="ageGateLoading" class="hidden flex flex-col items-center justify-center">
+        <div class="vial-container">
+          <div class="vial">
+            <div class="liquid"></div>
+            <div class="bubble" style="left: 10%; width: 10px; height: 10px; animation-delay: 0s;"></div>
+            <div class="bubble" style="left: 40%; width: 8px; height: 8px; animation-delay: 0.5s;"></div>
+            <div class="bubble" style="left: 70%; width: 12px; height: 12px; animation-delay: 1s;"></div>
+          </div>
+        </div>
+        <div class="text-xl font-bold mt-8 text-primary-blue-dark">Preparing Inventory...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main App -->
+  <div id="mainContent" class="hidden flex-grow flex flex-col w-full h-full max-w-7xl mx-auto p-4 transition-all">
+    <div class="sticky top-0 z-40">
+      <nav id="main-nav" class="bg-white shadow-md p-4 w-full flex justify-between items-center h-16 text-primary relative z-40 rounded-xl mb-4">
+        <div class="flex-1 flex items-center">
+          <img src="https://raw.githubusercontent.com/coltonteefy/inventory/refs/heads/main/MWG_LOGO_3.PNG" alt="Company Logo" class="h-10 sm:h-12 transform scale-[2.0] origin-left">
+        </div>
+        <div class="flex-grow"></div>
+        <div class="flex items-center space-x-2 relative">
+          <button id="search-icon-button" class="p-2 text-gray-600 hover:text-gray-900 rounded-full transition duration-300 focus:outline-none focus:ring-2 focus:ring-primary-blue-light" aria-label="Open search">
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </button>
+          <button id="account-button" class="flex items-center space-x-2 px-4 py-2 bg-primary-blue text-white font-bold rounded-lg hover:bg-primary-blue-dark transition-colors focus:outline-none focus:ring-2 focus:ring-primary-blue-light text-sm shadow-md">
+            <span>Account</span>
+            <svg id="dropdown-arrow" class="w-4 h-4 transform transition-transform" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          <button id="cartBtn" class="relative text-gray-600 hover:text-primary-blue-dark transition-colors duration-300 ml-4 hidden" aria-label="Cart">
+            <i class="fas fa-shopping-cart text-2xl"></i>
+            <span id="cartCount" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">0</span>
+          </button>
+          <div id="account-menu" class="absolute top-full mt-2 w-48 rounded-lg shadow-lg bg-white border border-gray-200 py-1 right-0 z-50 hidden">
+            <button id="past-orders-button" class="w-full text-left px-4 py-2 text-sm text-primary hover:bg-gray-100">Past Orders</button>
+          </div>
+        </div>
+      </nav>
+
+      <div id="search-container" class="flex justify-center transition-all duration-300 ease-in-out collapsed">
+        <input id="product-search" type="text" placeholder="Search products..." class="w-full px-6 py-4 rounded-full border-2 border-gray-300 text-gray-700 placeholder-gray-500 bg-white focus:outline-none focus:ring-2 focus:ring-primary-blue-light transition-all" aria-label="Product search">
+      </div>
     </div>
 
-    <!-- Age Gate Screen - This will be shown first -->
-    <div id="age-gate" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 transition-opacity duration-500">
-        <div class="flex flex-col items-center justify-center p-8">
-            <!-- Logo, now larger -->
-            <img src="https://raw.githubusercontent.com/coltonteefy/inventory/refs/heads/main/MWG_LOGO_3.PNG" alt="Company Logo" class="h-20 sm:h-24 mb-10">
-
-            <!-- Age Gate Card -->
-            <div class="bg-white rounded-xl shadow-lg p-8 max-w-md w-full text-center">
-                <h2 class="text-2xl font-bold text-gray-800 mb-6">Are you 21 years of age or older?</h2>
-                <div class="flex justify-center space-x-4">
-                    <button id="yes-button" class="flex-1 py-3 bg-sky-500 text-white font-bold rounded-lg hover:bg-sky-600 transition-colors focus:outline-none focus:ring-2 focus:ring-sky-500">
-                        Yes
-                    </button>
-                    <button id="no-button" class="flex-1 py-3 font-bold rounded-lg no-button hover:bg-blue-100 transition-colors focus:outline-none focus:ring-2 focus:ring-sky-500">
-                        No
-                    </button>
-                </div>
-            </div>
-            
-            <!-- Disclaimer -->
-            <p class="mt-8 text-sm text-gray-500 max-w-sm">
-                This site is for research use only. By proceeding, you acknowledge this limitation.
-            </p>
-
-        </div>
+    <div class="relative w-full mt-8 rounded-xl overflow-hidden">
+      <img src="https://raw.githubusercontent.com/coltonteefy/inventory/refs/heads/main/HERO.PNG" alt="Hero section banner showing chemical flasks" class="w-full h-full object-cover">
     </div>
 
-    <!-- Denial Modal - New element -->
-    <div id="denial-modal">
-        <div class="max-w-md w-full p-8">
-            <h2 class="text-4xl font-bold mb-4">Access Denied</h2>
-            <p class="text-lg mb-6">
-                Sorry, you must be 21 years of age or older to access this site.
-            </p>
-            <!-- New button to go back to the age gate -->
-            <button id="denial-back-button" class="w-full py-3 bg-sky-500 text-white font-bold rounded-lg hover:bg-sky-600 transition-colors focus:outline-none focus:ring-2 focus:ring-sky-500">
-                Go Back
-            </button>
-        </div>
+    <main id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 flex-grow pb-8 mt-8"></main>
+
+    <div id="fallbackMessage" class="hidden text-center p-8">
+      <h3 class="text-2xl font-bold text-gray-800 mb-2">Site is broken.</h3>
+      <p class="text-gray-600">Please come back later.</p>
     </div>
-    
-    <!-- Main App Content - Initially hidden -->
-    <div id="main-app-content" class="hidden w-full">
-        <!-- Navigation Bar - Now responsive on all screen sizes. -->
-        <nav id="main-nav" class="bg-white shadow-md p-4 w-full flex justify-between items-center h-16 text-primary relative z-50">
-            <!-- Logo on the left -->
-            <div class="flex-1 flex items-center">
-                <img src="https://raw.githubusercontent.com/coltonteefy/inventory/refs/heads/main/MWG_LOGO_3.PNG" alt="Company Logo" class="h-10 sm:h-12 transform scale-[2.0] origin-left">
-            </div>
-            
-            <!-- Spacer to push content to the sides -->
-            <div class="flex-grow"></div>
+  </div>
 
-            <!-- Account button, search icon, and mobile menu button -->
-            <div class="flex items-center space-x-2 relative">
-                <!-- Search icon button -->
-                <button id="search-icon-button" class="p-2 text-gray-600 hover:text-gray-900 rounded-full transition duration-300 focus:outline-none focus:ring-2 focus:ring-sky-500">
-                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                </button>
-                
-                <!-- Account button on the right -->
-                <button id="account-button" class="flex items-center space-x-2 px-4 py-2 bg-sky-500 text-white font-bold rounded-lg hover:bg-sky-600 transition-colors focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm shadow-md">
-                    <span>Account</span>
-                    <svg id="dropdown-arrow" class="w-4 h-4 transform transition-transform" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                    </svg>
-                </button>
-                
-                <!-- Dropdown Menu -->
-                <div id="account-menu" class="absolute top-full mt-2 w-48 rounded-lg shadow-lg bg-white border border-gray-200 py-1 right-0 z-50">
-                    <button id="past-orders-button" class="w-full text-left px-4 py-2 text-sm text-primary hover:bg-gray-100">
-                        Past Orders
-                    </button>
-                </div>
-            </div>
-        </nav>
-        
-        <!-- Collapsible search container -->
-        <div id="search-container" class="flex justify-center">
-            <input type="text" id="product-search" placeholder="Search products..."
-                class="py-4 pl-6 pr-16 bg-transparent rounded-full border-2 border-gray-300 text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all duration-300">
-        </div>
+  <button id="total-cost-button" class="w-full py-4 bg-orange-500 text-white font-bold text-lg rounded-t-lg shadow-lg hover:bg-orange-600 transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 flex justify-center items-center px-6">
+    <i class="fas fa-shopping-cart mr-4 text-xl" aria-hidden="true"></i><span>View Cart: </span><span id="floating-total-cost">$0.00</span>
+  </button>
+  <div id="cart-backdrop" class="hidden"></div>
 
-        <!-- Start of the updated Hero Section -->
-        <div class="relative w-full mt-16">
-            <img src="https://raw.githubusercontent.com/coltonteefy/inventory/refs/heads/main/HERO.PNG" 
-                    alt="Hero section banner showing chemical flasks"
-                    class="w-full h-full object-cover">
-        </div>
-        
-        <!-- End of the updated Hero Section -->
-        
-        <!-- Container for the product cards -->
-        <div id="data-container" class="grid grid-cols-2 md:grid-cols-2 gap-6 max-w-4xl w-full px-4 mt-8 mb-8 mx-auto">
-            <!-- The product cards will be inserted here -->
-        </div>
-
-        <!-- Refresh information -->
-        <div id="refresh-info" class="text-center text-gray-500 mt-4 text-sm max-w-4xl w-full">
-            <!-- Refresh status will be displayed here -->
-        </div>
+  <div id="order-summary-modal" class="p-8">
+    <div class="flex justify-between items-center text-primary mb-4 pb-4 border-b border-gray-200">
+      <h2 class="text-2xl font-bold">Your Order</h2>
+      <button id="close-order-summary" class="p-2 rounded-full text-gray-500 hover:text-primary-blue-light transition-colors" aria-label="Close cart drawer">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
     </div>
-
-
-    <!-- New full-width cart button banner at the bottom -->
-    <button id="total-cost-button" class="w-full py-4 bg-orange-500 text-white font-bold text-lg rounded-t-lg shadow-lg hover:bg-orange-600 transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 flex justify-center items-center px-6">
-        <span>View Cart: </span><span id="floating-total-cost">$0.00</span>
-    </button>
-    
-    <!-- New backdrop overlay for the cart drawer -->
-    <div id="cart-backdrop" class="hidden"></div>
-
-
-    <!-- Order Summary Modal - Now functions as a drawer -->
-    <div id="order-summary-modal" class="p-8">
-        <div class="flex justify-between items-center text-primary mb-4 pb-4 border-b border-gray-200">
-            <h2 class="text-2xl font-bold">Your Order</h2>
-            <button id="close-order-summary" class="p-2 rounded-full text-gray-500 hover:text-primary transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            </button>
-        </div>
-        <!-- This container is for the list of cart items and is now scrollable -->
-        <div id="order-summary-list" class="space-y-4">
-            <p class="text-center text-gray-500 italic">Your cart is empty.</p>
-        </div>
-        
-        <!-- The form and total are now in a separate container pushed to the bottom -->
-        <div class="mt-auto pt-6 border-t border-gray-200">
-            <div class="flex justify-between items-center text-xl font-bold text-primary mb-4">
-                <span>Total:</span>
-                <span id="order-subtotal">$0.00</span>
-            </div>
-            
-            <!-- UPDATED: The form now includes fields for full name, phone, and shipping address -->
-            <form id="order-form">
-                <div class="mb-4">
-                    <label for="full-name-input" class="block text-gray-500 mb-2">Full Name:</label>
-                    <input type="text" id="full-name-input" class="w-full p-3 rounded-lg bg-gray-100 border border-gray-300 text-primary focus:outline-none focus:ring-2 focus:ring-sky-500" placeholder="John Doe" required>
-                </div>
-                <div class="mb-4">
-                    <label for="email-input" class="block text-gray-500 mb-2">Email for confirmation:</label>
-                    <input type="email" id="email-input" class="w-full p-3 rounded-lg bg-gray-100 border border-gray-300 text-primary focus:outline-none focus:ring-2 focus:ring-sky-500" placeholder="yourname@example.com" required>
-                </div>
-                <div class="mb-4">
-                    <label for="phone-input" class="block text-gray-500 mb-2">Phone Number:</label>
-                    <input type="tel" id="phone-input" class="w-full p-3 rounded-lg bg-gray-100 border border-gray-300 text-primary focus:outline-none focus:ring-2 focus:ring-sky-500" placeholder="555-555-5555" required>
-                </div>
-                <!-- UPDATED: Address fields are now separated for clarity -->
-                <div class="mb-4">
-                    <label for="shipping-address-input" class="block text-gray-500 mb-2">Shipping Address:</label>
-                    <input type="text" id="shipping-address-input" class="w-full p-3 rounded-lg bg-gray-100 border border-gray-300 text-primary focus:outline-none focus:ring-2 focus:ring-sky-500" placeholder="123 Main St" required>
-                </div>
-                <div class="grid grid-cols-2 gap-4 mb-4">
-                    <div>
-                        <label for="city-input" class="block text-gray-500 mb-2">City:</label>
-                        <input type="text" id="city-input" class="w-full p-3 rounded-lg bg-gray-100 border border-gray-300 text-primary focus:outline-none focus:ring-2 focus:ring-sky-500" placeholder="Anytown" required>
-                    </div>
-                    <div>
-                        <label for="state-input" class="block text-gray-500 mb-2">State:</label>
-                        <input type="text" id="state-input" class="w-full p-3 rounded-lg bg-gray-100 border border-gray-300 text-primary focus:outline-none focus:ring-2 focus:ring-sky-500" placeholder="State" required>
-                    </div>
-                </div>
-                <div class="mb-4">
-                    <label for="zip-input" class="block text-gray-500 mb-2">ZIP Code:</label>
-                    <input type="text" id="zip-input" class="w-full p-3 rounded-lg bg-gray-100 border border-gray-300 text-primary focus:outline-none focus:ring-2 focus:ring-sky-500" placeholder="12345" required>
-                </div>
-                <!-- END UPDATED: Separate address fields -->
-                <button type="submit" id="submit-button" class="w-full py-3 bg-sky-500 text-white font-bold rounded-lg hover:bg-sky-600 transition-colors focus:outline-none focus:ring-2 focus:ring-sky-500">
-                    Submit Order
-                </button>
-            </form>
-            <div id="confirmation-message" class="mt-4 text-center font-semibold hidden"></div>
-        </div>
+    <div id="order-summary-list" class="space-y-4">
+      <p class="text-center text-gray-500 italic">Your cart is empty.</p>
     </div>
-
-
-    <!-- Order Submitted Modal -->
-    <div id="confirmation-modal" class="fixed inset-0 bg-gray-900 bg-opacity-80 flex items-center justify-center p-4 hidden z-50">
-        <!-- New class 'modal-content-scrollable' added here -->
-        <div class="bg-white p-8 rounded-xl shadow-2xl max-w-sm w-full text-center border border-gray-200 modal-content-scrollable">
-            <h3 class="text-2xl font-bold text-green-600 mb-4">Order Submitted!</h3>
-            <!-- UPDATED: Added the new confirmation text -->
-            <p class="text-gray-600 mb-4">Your order has been successfully submitted and is awaiting payment to be processed. An email confirmation with all the details of your order has been sent to the email address you provided.</p>
-            <p class="text-gray-600 font-bold mb-6">Order ID: <span id="modal-order-id" class="text-primary"></span></p>
-
-            <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 text-left" role="alert">
-              <h4 class="font-bold text-lg mb-1">IMPORTANT!</h4>
-              <p>
-                This is not a payment. To secure your order, please proceed to the payment options detailed in your confirmation email. Your order will not be fully processed until payment is completed.
-              </p>
-            </div>
-
-            <p class="text-gray-600 mb-4">If you don't receive an email within a few minutes, please check your spam or junk folder.</p>
-            <p class="text-gray-600 font-bold mb-6">We appreciate your business!</p>
-            <!-- END UPDATED -->
-
-            <button id="modal-close-button" class="w-full py-3 bg-sky-500 text-white font-bold rounded-lg hover:bg-sky-600 transition-colors focus:outline-none focus:ring-2 focus:ring-sky-500">
-                Close & Start New Order
-            </button>
+    <div class="mt-auto pt-6 border-t border-gray-200">
+      <div class="flex justify-between items-center text-xl font-bold text-primary mb-4">
+        <span>Total:</span><span id="order-subtotal">$0.00</span>
+      </div>
+      <form id="order-form">
+        <div class="mb-4">
+          <label for="full-name-input" class="block text-gray-500 mb-2">Full Name:</label>
+          <input id="full-name-input" type="text" class="w-full p-3 rounded-lg bg-gray-100 border border-gray-300 text-primary focus:outline-none focus:ring-2 focus:ring-primary-blue-light" placeholder="John Doe" required>
         </div>
-    </div>
-
-    <!-- Past Orders Modal -->
-    <div id="past-orders-modal" class="fixed inset-0 bg-gray-900 bg-opacity-80 flex items-center justify-center p-4 hidden z-50">
-        <div class="bg-white p-8 rounded-xl shadow-2xl max-w-lg w-full text-center border border-gray-200">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-2xl font-bold text-primary">Your Past Orders</h3>
-                <!-- Close button for the past orders modal -->
-                <button id="close-past-orders" class="p-2 rounded-full text-gray-500 hover:text-primary transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
-            <div id="past-orders-list" class="space-y-4 text-left max-h-96 overflow-y-auto">
-                <!-- Past orders will be dynamically inserted here -->
-            </div>
-            <button id="clear-orders-button" class="mt-6 w-full py-2 text-sm text-red-500 border border-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-red-500">
-                Clear All Past Orders
-            </button>
+        <div class="mb-4">
+          <label for="email-input" class="block text-gray-500 mb-2">Email for confirmation:</label>
+          <input id="email-input" type="email" class="w-full p-3 rounded-lg bg-gray-100 border border-gray-300 text-primary focus:outline-none focus:ring-2 focus:ring-primary-blue-light" placeholder="yourname@example.com" required>
         </div>
+        <div class="mb-4">
+          <label for="phone-input" class="block text-gray-500 mb-2">Phone Number:</label>
+          <input id="phone-input" type="tel" class="w-full p-3 rounded-lg bg-gray-100 border border-gray-300 text-primary focus:outline-none focus:ring-2 focus:ring-primary-blue-light" placeholder="555-555-5555" required>
+        </div>
+        <div class="mb-4">
+          <label for="shipping-address-input" class="block text-gray-500 mb-2">Shipping Address:</label>
+          <input id="shipping-address-input" type="text" class="w-full p-3 rounded-lg bg-gray-100 border border-gray-300 text-primary focus:outline-none focus:ring-2 focus:ring-primary-blue-light" placeholder="123 Main St" required>
+        </div>
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <div>
+            <label for="city-input" class="block text-gray-500 mb-2">City:</label>
+            <input id="city-input" type="text" class="w-full p-3 rounded-lg bg-gray-100 border border-gray-300 text-primary focus:outline-none focus:ring-2 focus:ring-primary-blue-light" placeholder="Anytown" required>
+          </div>
+          <div>
+            <label for="state-input" class="block text-gray-500 mb-2">State:</label>
+            <input id="state-input" type="text" class="w-full p-3 rounded-lg bg-gray-100 border border-gray-300 text-primary focus:outline-none focus:ring-2 focus:ring-primary-blue-light" placeholder="State" required>
+          </div>
+        </div>
+        <div class="mb-4">
+          <label for="zip-input" class="block text-gray-500 mb-2">ZIP Code:</label>
+          <input id="zip-input" type="text" class="w-full p-3 rounded-lg bg-gray-100 border border-gray-300 text-primary focus:outline-none focus:ring-2 focus:ring-primary-blue-light" placeholder="12345" required>
+        </div>
+        <button id="submit-button" type="submit" class="w-full py-3 bg-primary-blue text-white font-bold rounded-lg hover:bg-primary-blue-dark transition-colors focus:outline-none focus:ring-2 focus:ring-primary-blue-light">
+          Submit Order
+        </button>
+      </form>
+      <div id="confirmation-message" class="mt-4 text-center font-semibold hidden"></div>
     </div>
+  </div>
 
-    <script>
-        // Get references to the existing HTML elements
-        const dataContainer = document.getElementById('data-container');
-        const refreshInfo = document.getElementById('refresh-info');
-        
-        // New elements for the total cost pop-up and order summary modal
-        const totalCostButton = document.getElementById('total-cost-button');
-        const floatingTotalCostElement = document.getElementById('floating-total-cost');
-        
-        // --- UPDATED: Cart Drawer elements ---
-        const orderSummaryDrawer = document.getElementById('order-summary-modal');
-        const closeOrderSummaryButton = document.getElementById('close-order-summary');
-        const cartBackdrop = document.getElementById('cart-backdrop');
-        // --- END UPDATED ---
-        
-        // References to elements inside the new order summary modal
-        const orderSummaryList = document.getElementById('order-summary-list');
-        const orderSubtotalElement = document.getElementById('order-subtotal');
-        // UPDATED: Get references to the new form inputs
-        const fullNameInput = document.getElementById('full-name-input');
-        const emailInput = document.getElementById('email-input');
-        const phoneInput = document.getElementById('phone-input');
-        // Get the new individual address fields
-        const shippingAddressInput = document.getElementById('shipping-address-input');
-        const cityInput = document.getElementById('city-input');
-        const stateInput = document.getElementById('state-input');
-        const zipInput = document.getElementById('zip-input');
-        
-        const submitButton = document.getElementById('submit-button');
-        const orderForm = document.getElementById('order-form');
-        const confirmationMessage = document.getElementById('confirmation-message');
+  <div id="confirmation-modal" class="fixed inset-0 bg-gray-900 bg-opacity-80 flex items-center justify-center p-4 hidden z-50">
+    <div class="bg-white p-8 rounded-xl shadow-2xl max-w-sm w-full text-center border border-gray-200 modal-content-scrollable">
+      <h3 class="text-2xl font-bold text-green-600 mb-4">Order Submitted!</h3>
+      <p class="text-gray-600 mb-4">Your order has been successfully submitted and is awaiting payment to be processed. An email confirmation with all the details of your order has been sent to the email address you provided.</p>
+      <p class="text-gray-600 font-bold mb-4">Order ID: <span id="modal-order-id" class="text-primary"></span></p>
+      <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4 text-left" role="alert">
+        <h4 class="font-bold text-lg mb-1">IMPORTANT!</h4>
+        <p>This is not a payment. To secure your order, please proceed to the payment options detailed in your confirmation email. Your order will not be fully processed until payment is completed.</p>
+      </div>
+      <p class="text-gray-600 mb-4">If you don't receive an email within a few minutes, please check your spam or junk folder.</p>
+      <p class="text-gray-600 font-bold mb-6">We appreciate your business!</p>
+      <button id="modal-close-button" class="w-full py-3 bg-primary-blue text-white font-bold rounded-lg hover:bg-primary-blue-dark transition-colors focus:outline-none focus:ring-2 focus:ring-primary-blue-light">
+        Close & Start New Order
+      </button>
+    </div>
+  </div>
 
-        const confirmationModal = document.getElementById('confirmation-modal');
-        const modalOrderId = document.getElementById('modal-order-id');
-        const modalCloseButton = document.getElementById('modal-close-button');
-        
-        // New elements for the navbar and account menu
-        const accountButton = document.getElementById('account-button');
-        const accountMenu = document.getElementById('account-menu');
-        const pastOrdersButton = document.getElementById('past-orders-button');
-        const pastOrdersModal = document.getElementById('past-orders-modal');
-        const closePastOrdersButton = document.getElementById('close-past-orders');
-        const pastOrdersList = document.getElementById('past-orders-list');
-        const clearOrdersButton = document.getElementById('clear-orders-button');
-        
-        // New elements for the search functionality
-        const searchIconButton = document.getElementById('search-icon-button');
-        const searchContainer = document.getElementById('search-container');
-        const productSearchInput = document.getElementById('product-search');
+  <!-- Firebase SDKs -->
+  <script type="module">
+    // Firebase v12 modular imports
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+    import { getFirestore, collection, onSnapshot, getDocs, query, limit } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+    import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-functions.js";
 
-        // New elements for the age gate
-        const ageGate = document.getElementById('age-gate');
-        const yesButton = document.getElementById('yes-button');
-        const noButton = document.getElementById('no-button');
-        const mainAppContent = document.getElementById('main-app-content');
-        
-        // New element for the denial modal
-        const denialModal = document.getElementById('denial-modal');
-        // New element for the denial back button
-        const denialBackButton = document.getElementById('denial-back-button');
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyCWgqGvXzXWBUWd_W-q7uEuARIBZj_JXyI",
+      authDomain: "peptide-inventory.firebaseapp.com",
+      projectId: "peptide-inventory",
+      storageBucket: "peptide-inventory.firebasestorage.app",
+      messagingSenderId: "547049240971",
+      appId: "1:547049240971:web:83b2e836fee57bb41f578e",
+      measurementId: "G-1W58JMJN37"
+    };
 
-        // New elements for the loading screen
-        const loadingScreen = document.getElementById('loading-screen');
+    // DOM refs
+    const ageGate = document.getElementById('ageGate');
+    const ageGateContent = document.getElementById('ageGateContent');
+    const ageGateLoading = document.getElementById('ageGateLoading');
+    const yesBtn = document.getElementById('yesBtn');
+    const noBtn = document.getElementById('noBtn');
+    const rejectionMessage = document.getElementById('rejectionMessage');
+    const mainContent = document.getElementById('mainContent');
 
-        // The URL for your public Google Sheet CSV
-        const SPREADSHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQRYzgS3hJWPzFJHs55qLX5EFQ_3VEcFpqE80-Xrw8xu8eo6FVlQkRPgAYPu7RoAFVFFqBqyDSa6_ae/pub?gid=0&single=true&output=csv';
-        
-        // !! IMPORTANT: YOU MUST REPLACE THIS PLACEHOLDER WITH YOUR DEPLOYED APPS SCRIPT URL !!
-        // This script is required to process and save the orders.
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx8nvcBgC88W71-jW5JnaT0cVw4sctm2GHmEDYkt6X5RjAtW85Bt-_PQd_rCxYetGSF/exec';
-        
-        // A new global array to hold the items that have been added to the cart
-        let cart = [];
-        let productData = []; // Store the fetched product data globally
+    const productGrid = document.getElementById('productGrid');
+    const searchIconButton = document.getElementById('search-icon-button');
+    const searchContainer = document.getElementById('search-container');
+    const productSearchInput = document.getElementById('product-search');
+    const accountButton = document.getElementById('account-button');
+    const accountMenu = document.getElementById('account-menu');
+    const dropdownArrow = document.getElementById('dropdown-arrow');
+    const mainNav = document.getElementById('main-nav');
 
-        /**
-         * A makeshift database for image URLs. I have corrected this to match your request.
-         */
-        const imageDatabase = {
-            "RT12": "https://raw.githubusercontent.com/coltonteefy/inventory/refs/heads/main/GLP_12.png",
-            "RT24": "https://raw.githubusercontent.com/coltonteefy/inventory/refs/heads/main/GLP_24.png",
-            "BPTB": "https://raw.githubusercontent.com/coltonteefy/inventory/refs/heads/main/BPC_TB.png",
-            "BPC": "https://raw.githubusercontent.com/coltonteefy/inventory/refs/heads/main/BPC.png",
-            "TB4": "https://raw.githubusercontent.com/coltonteefy/inventory/refs/heads/main/TB500.png",
-            "CJIP": "https://raw.githubusercontent.com/coltonteefy/inventory/refs/heads/main/CJC_IPA.png",
-            "GLOW": "https://raw.githubusercontent.com/coltonteefy/inventory/refs/heads/main/GLOW.png"
-        };
+    const totalCostButton = document.getElementById('total-cost-button');
+    const floatingTotalCostElement = document.getElementById('floating-total-cost');
+    const orderSummaryDrawer = document.getElementById('order-summary-modal');
+    const closeOrderSummaryButton = document.getElementById('close-order-summary');
+    const cartBackdrop = document.getElementById('cart-backdrop');
+    const orderSummaryList = document.getElementById('order-summary-list');
+    const orderSubtotalElement = document.getElementById('order-subtotal');
 
+    const orderForm = document.getElementById('order-form');
+    const fullNameInput = document.getElementById('full-name-input');
+    const emailInput = document.getElementById('email-input');
+    const phoneInput = document.getElementById('phone-input');
+    const shippingAddressInput = document.getElementById('shipping-address-input');
+    const cityInput = document.getElementById('city-input');
+    const stateInput = document.getElementById('state-input');
+    // Corrected the syntax error here
+    const zipInput = document.getElementById('zip-input');
+    const submitButton = document.getElementById('submit-button');
+    const confirmationMessage = document.getElementById('confirmation-message');
 
-        /**
-         * Toggles the visibility of the account dropdown menu.
-         */
-        function toggleAccountMenu() {
-            accountMenu.classList.toggle('open');
-            const arrow = document.getElementById('dropdown-arrow');
-            arrow.classList.toggle('rotate-180');
-        }
-        
-        /**
-         * Toggles the visibility of the search input field.
-         */
-        function toggleSearch() {
-            const isHidden = !searchContainer.classList.contains('is-visible');
-            if (isHidden) {
-                searchContainer.classList.add('is-visible');
-                productSearchInput.focus();
-            } else {
-                searchContainer.classList.remove('is-visible');
-                productSearchInput.value = ''; // Clear search input when it's hidden
-                applyFilters(); // Re-apply filters to show all products
-            }
-        }
+    const modalOrderId = document.getElementById('modal-order-id');
+    const modalCloseButton = document.getElementById('modal-close-button');
+    const confirmationModal = document.getElementById('confirmation-modal');
 
-        /**
-         * Fetches and displays data from the Google Sheet.
-         * This version now no longer filters out products with 0 inventory during the fetch.
-         */
-        async function fetchData() {
-            // No need to show/hide a loading indicator here, as the full-screen loading page handles it.
-            dataContainer.innerHTML = '';
-            
-            // Reset the total cost and hide the floating button with the new class
-            floatingTotalCostElement.textContent = '$0.00';
-            totalCostButton.classList.remove('is-visible');
-            cart = []; // Reset the cart on new data fetch
+    const fallbackMessage = document.getElementById('fallbackMessage');
 
-            try {
-                const response = await fetch(SPREADSHEET_URL);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                const csvText = await response.text();
-                
-                // Native JavaScript CSV parsing logic
-                const rows = csvText.split('\n').map(row => row.trim());
-                if (rows.length === 0) {
-                    throw new Error("The sheet is empty or could not be parsed.");
-                }
+    // Cart state
+    let cart = {};
 
-                const headers = rows[0].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(header => header.trim().replace(/"/g, ''));
-                
-                // Map column headers to their indexes.
-                const columnIndices = {
-                    code: headers.indexOf('Code'),
-                    productName: headers.indexOf('Product Name'),
-                    inventory: headers.indexOf('Inventory'),
-                    price: headers.indexOf('Price'),
-                    resale: headers.indexOf('Resale')
-                };
+    // Firebase instances
+    let app, db, auth, functions;
+    let submitSecureOrder;
+    // Get the app ID from the global variable to create the correct path
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+    const PRODUCTS_COLLECTION_PATH = 'inventory';
+    const productPlaceholder = 'https://raw.githubusercontent.com/coltonteefy/Midway-Grays/refs/heads/main/BLANK_VIAL.jpg';
 
-                // Check if the required columns exist.
-                const requiredColumns = ['code', 'productName', 'inventory', 'price', 'resale'];
-                const missingColumns = requiredColumns.filter(col => columnIndices[col] === -1);
-                if (missingColumns.length > 0) {
-                    console.warn(`Missing required columns: ${missingColumns.join(', ')}. Proceeding with available data.`);
-                }
-                
-                productData = []; // Reset productData to prevent stale data.
-                
-                // Process the data rows.
-                rows.slice(1).forEach(row => {
-                    const columns = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(col => col.trim().replace(/"/g, ''));
-                    
-                    // Only process rows that have a product name and are available for resale.
-                    if (columns[columnIndices.productName]) {
-                        const inventoryValue = columns[columnIndices.inventory] ? parseInt(columns[columnIndices.inventory]) : 0;
-                        const resaleValue = columns[columnIndices.resale] ? columns[columnIndices.resale].toLowerCase().trim() : '';
+    // Age Gate
+    yesBtn.addEventListener('click', () => {
+      console.log('User confirmed age, starting data load.');
+      ageGateContent.classList.add('hidden');
+      ageGateLoading.classList.remove('hidden');
+      initFirebaseAndListeners();
+      sessionStorage.setItem('isAdult', 'true');
+    });
+    noBtn.addEventListener('click', () => {
+      console.log('User denied age, showing rejection message.');
+      rejectionMessage.classList.remove('hidden')
+    });
+    if (sessionStorage.getItem('isAdult') === 'true') {
+      console.log('User previously confirmed age, bypassing age gate.');
+      ageGate.classList.add('hidden');
+      mainContent.classList.remove('hidden');
+      initFirebaseAndListeners();
+    }
 
-                        // --- UPDATED FILTERING LOGIC ---
-                        // Only add the product if the resale value is explicitly 'true'.
-                        if (resaleValue === 'true') {
-                            productData.push({
-                                code: columns[columnIndices.code],
-                                name: columns[columnIndices.productName],
-                                inventory: inventoryValue,
-                                trimPrice: columns[columnIndices.price]
-                            });
-                        }
-                        // --- END OF UPDATED LOGIC ---
-                    }
-                });
-                
-                // Once data is fetched, apply initial filters and render.
-                applyFilters();
+    // Nav interactions
+    searchIconButton.addEventListener('click', () => {
+      if (searchContainer.classList.contains('collapsed')) {
+        searchContainer.classList.remove('collapsed');
+        searchContainer.classList.add('expanded');
+      } else {
+        searchContainer.classList.remove('expanded');
+        searchContainer.classList.add('collapsed');
+      }
+    });
+    accountButton.addEventListener('click', () => {
+      accountMenu.classList.toggle('hidden');
+      dropdownArrow.classList.toggle('rotate-180');
+    });
+    window.addEventListener('click', (event) => {
+      if (!accountButton.contains(event.target) && !accountMenu.contains(event.target)) {
+        accountMenu.classList.add('hidden');
+        dropdownArrow.classList.remove('rotate-180');
+      }
+    });
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 0) mainNav.classList.add('sticky-scrolled');
+      else mainNav.classList.remove('sticky-scrolled');
+    });
 
-                const now = new Date();
-                refreshInfo.textContent = `Last updated: ${now.toLocaleTimeString()} | Next refresh is on page load.`;
+    // ------------ Firestore Init + Listener (with sanity check) ------------
+    let productData = {};
 
-            } catch (error) {
-                dataContainer.innerHTML = `<p class="col-span-full text-center text-red-500 p-4">Error fetching data: ${error.message}. Please check that the SPREADSHEET_URL is correct and the sheet is published to the web as a CSV.</p>`;
-                console.error('Error fetching data:', error);
-            }
+    async function initFirebaseAndListeners() {
+      try {
+        console.log('Initializing Firebase with app ID:', appId);
+        console.log('Using product collection path:', PRODUCTS_COLLECTION_PATH);
+        app = initializeApp(firebaseConfig);
+        auth = getAuth(app);
+        db = getFirestore(app);
+        functions = getFunctions(app, 'us-central1');
+        submitSecureOrder = httpsCallable(functions, 'submitSecureOrder');
+
+        // Initial sign-in attempt
+        try {
+          await signInAnonymously(auth);
+          console.log('Signed in anonymously.');
+        } catch (e) {
+          console.warn('Anonymous sign-in failed. Please check your Firebase Auth settings.', e);
         }
 
-        /**
-         * Applies search and category filters to the product data.
-         */
-        function applyFilters() {
-            // Get the search query and convert it to lower case for case-insensitive matching.
-            const searchQuery = productSearchInput.value.toLowerCase().trim();
-            
-            let filteredProducts = productData;
-
-            // Apply search filter if a query exists.
-            if (searchQuery) {
-                filteredProducts = filteredProducts.filter(product =>
-                    // Check if the product name or code includes the search query.
-                    product.name.toLowerCase().includes(searchQuery) ||
-                    product.code.toLowerCase().includes(searchQuery)
-                );
-            }
-
-            renderCards(filteredProducts);
-        }
-        
-        /**
-         * Renders the product cards from the fetched data.
-         * This version now handles out-of-stock items.
-         * @param {Array<Object>} products - The array of product objects.
-         */
-        function renderCards(products) {
-            dataContainer.innerHTML = '';
-            
-            if (products.length === 0) {
-                dataContainer.innerHTML = '<p class="col-span-full text-center text-gray-500">No products found matching your criteria.</p>';
-                return;
-            }
-
-            products.forEach((product, index) => {
-                const cleanedPrice = product.trimPrice.trim().replace('$', '');
-                const priceValue = parseFloat(cleanedPrice);
-                const priceText = !isNaN(priceValue) ? `$${priceValue.toFixed(2)}` : 'Price not available';
-                
-                const isOutOfStock = product.inventory === 0;
-                
-                // Get the current quantity from the cart, or default to 0.
-                const cartItem = cart.find(item => item.code === product.code);
-                const currentQuantity = cartItem ? cartItem.quantity : 0;
-                
-                // --- Updated Logic for Image URL selection ---
-                let imageUrl = null;
-                const productKey = product.code.trim(); // Use the product code as the key.
-                if (imageDatabase[productKey]) {
-                    imageUrl = imageDatabase[productKey];
-                }
-
-                // If no image URL is found, use a generic placeholder.
-                if (!imageUrl) {
-                    imageUrl = `https://placehold.co/600x400/2B3A67/FFFFFF?text=${product.code.trim().replace(/\s/g, '+')}`;
-                }
-                // --- End of Updated Logic ---
-                
-                const card = document.createElement('div');
-                card.className = `relative bg-white p-2 rounded-lg shadow-xl transition-all duration-300 transform border border-gray-200 h-full flex flex-col ${isOutOfStock ? 'out-of-stock' : ''}`;
-                card.innerHTML = `
-                    <!-- The image now uses a tiny placeholder for immediate load, and the actual URL is in 'data-src'. -->
-                    <!-- The 'loading="lazy"' attribute tells the browser to only load the image when it's near the viewport. -->
-                    <img src="${imageUrl}" 
-                         alt="${product.name.trim()} image" 
-                         class="w-full h-65 object-contain rounded-lg mb-4 lazy-image"
-                         loading="lazy"
-                         onerror="this.onerror=null; this.src='https://placehold.co/600x400/ef4444/ffffff?text=Image+Load+Failed!';"
-                         >
-                    
-                    <div class="flex-grow flex flex-col justify-between p-3">
-                        <div>
-                            <h3 class="text-xl font-semibold text-primary mb-2">${product.name.trim()}</h3>
-                            <p class="text-gray-500 mb-2">Inventory: <span class="font-medium text-primary">${product.inventory}</span></p>
-                            ${isOutOfStock ? `<span class="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full absolute top-4 right-4 shadow">OUT OF STOCK</span>` : ''}
-                        </div>
-                        
-                        <!-- This is the section that has been updated to break the line -->
-                        <div class="mt-4 flex flex-col items-start space-y-2">
-                            <p class="text-lg font-bold text-sky-500 price-per-unit" data-price="${priceValue}">${priceText}</p>
-                            <div class="flex items-center space-x-2">
-                                
-                                <!-- The data attribute is now data-product-code, which is a unique identifier -->
-                                <button class="quantity-btn p-1 rounded-full bg-gray-200 text-primary hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-colors" data-action="decrement" data-product-code="${product.code}" ${isOutOfStock ? 'disabled' : ''}>
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
-                                    </svg>
-                                </button>
-                                <!-- The data attribute is also data-product-code -->
-                                <span class="text-primary text-lg font-bold w-6 text-center quantity-display" data-product-code="${product.code}">${currentQuantity}</span>
-                                <button class="quantity-btn p-1 rounded-full bg-gray-200 text-primary hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-colors" data-action="increment" data-product-code="${product.code}" ${isOutOfStock ? 'disabled' : ''}>
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Temporary message for low inventory, hidden by default -->
-                    <span class="inventory-message">Out of stock!</span>
-                `;
-                dataContainer.appendChild(card);
+        // Wait for auth state change before fetching data
+        onAuthStateChanged(auth, (user) => {
+          if (user) {
+            console.log('User is authenticated, UID:', user.uid);
+            // Now that we are authenticated, we can listen for data
+            const productsColRef = collection(db, PRODUCTS_COLLECTION_PATH);
+            onSnapshot(productsColRef, (querySnapshot) => {
+              const products = {};
+              if (!querySnapshot.empty) {
+                querySnapshot.forEach((doc) => { products[doc.id] = doc.data(); });
+                productData = products;
+                console.log('Products fetched and updated:', productData);
+                renderProducts(productData);
+                ageGate.classList.add('hidden');
+                mainContent.classList.remove('hidden');
+              } else {
+                console.log('No data found at ' + PRODUCTS_COLLECTION_PATH);
+                productGrid.innerHTML = '';
+                fallbackMessage.classList.remove('hidden');
+                ageGate.classList.add('hidden');
+                mainContent.classList.remove('hidden');
+              }
+            }, (error) => {
+              console.error('Firestore access failed:', error);
+              fallbackMessage.innerHTML = `<div class="text-center p-8"><h3 class="text-2xl font-bold text-gray-800 mb-2">Connection Error!</h3><p class="text-gray-600">Could not load products. (Error: ${error.message})</p></div>`;
+              fallbackMessage.classList.remove('hidden');
+              ageGate.classList.add('hidden');
+              mainContent.classList.remove('hidden');
             });
-        }
-        
-        /**
-         * Syncs the quantity displays on the main page with the current cart data.
-         */
-        function syncQuantitiesWithCardPage() {
-            // Find all quantity displays on the main page.
-            const quantityDisplays = document.querySelectorAll('.quantity-display');
-            quantityDisplays.forEach(display => {
-                const productCode = display.dataset.productCode;
-                // Find the corresponding item in the cart.
-                const cartItem = cart.find(item => item.code === productCode);
-                // Update the quantity display based on the cart or set to 0.
-                display.textContent = cartItem ? cartItem.quantity : 0;
-            });
-        }
-
-        /**
-         * Updates the floating cart button's total cost display.
-         */
-        function updateTotalCost() {
-            const totalCost = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            floatingTotalCostElement.textContent = `$${totalCost.toFixed(2)}`;
-
-            // Show or hide the floating cart button.
-            if (cart.length > 0) {
-                totalCostButton.classList.add('is-visible');
-            } else {
-                totalCostButton.classList.remove('is-visible');
-            }
-        }
-        
-        /**
-         * Checks if the form is valid and updates the submit button state.
-         * The form is valid if the cart is not empty AND the email, full name, phone, and shipping address inputs are filled.
-         */
-        function checkFormValidity() {
-            const isCartNotEmpty = cart.length > 0;
-            const isEmailFilled = emailInput.value.trim() !== '';
-            const isFullNameFilled = fullNameInput.value.trim() !== '';
-            const isPhoneFilled = phoneInput.value.trim() !== '';
-            const isStreetAddressFilled = shippingAddressInput.value.trim() !== '';
-            const isCityFilled = cityInput.value.trim() !== '';
-            const isStateFilled = stateInput.value.trim() !== '';
-            const isZipFilled = zipInput.value.trim() !== '';
-            
-            // Enable the button only if all conditions are met.
-            if (isCartNotEmpty && isEmailFilled && isFullNameFilled && isPhoneFilled && isStreetAddressFilled && isCityFilled && isStateFilled && isZipFilled) {
-                submitButton.removeAttribute('disabled');
-            } else {
-                submitButton.setAttribute('disabled', 'disabled');
-            }
-        }
-
-        /**
-         * Renders the items in the order summary modal.
-         */
-        function renderOrderSummary() {
-            orderSummaryList.innerHTML = ''; // Clear previous items.
-            if (cart.length === 0) {
-                orderSummaryList.innerHTML = '<p class="text-center text-gray-500 italic">Your cart is empty.</p>';
-                orderSubtotalElement.textContent = '$0.00';
-                checkFormValidity(); // Disable button if cart is empty.
-                return;
-            }
-
-            let subtotal = 0;
-            checkFormValidity(); // Re-check button state after rendering.
-
-            cart.forEach(item => {
-                const itemTotal = item.price * item.quantity;
-                subtotal += itemTotal;
-                const itemElement = document.createElement('div');
-                itemElement.className = 'flex flex-col text-primary border-b border-gray-200 pb-2 last:border-b-0 last:pb-0';
-                
-                itemElement.innerHTML = `
-                    <div class="flex justify-between items-center w-full">
-                        <p class="font-semibold text-lg">${item.name}</p>
-                        <span class="font-bold shrink-0">$${itemTotal.toFixed(2)}</span>
-                    </div>
-                    <div class="flex justify-between items-center w-full mt-2">
-                        <p class="text-sm text-gray-500">$${item.price.toFixed(2)} per unit</p>
-                        <div class="flex items-center space-x-2">
-                            <!-- New decrement button in the cart summary -->
-                            <button class="cart-btn p-1 rounded-full bg-gray-200 text-primary hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-colors" data-action="decrement" data-product-code="${item.code}">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
-                                    </svg>
-                            </button>
-                            <span class="text-lg font-bold w-6 text-center">${item.quantity}</span>
-                            <!-- New increment button in the cart summary -->
-                            <button class="cart-btn p-1 rounded-full bg-gray-200 text-primary hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-colors" data-action="increment" data-product-code="${item.code}">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                                </svg>
-                            </button>
-                            <!-- New remove button -->
-                            <button class="cart-btn ml-4 text-gray-400 hover:text-red-500 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 rounded-full p-1" data-action="remove" data-product-code="${item.code}">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                `;
-                orderSummaryList.appendChild(itemElement);
-            });
-            orderSubtotalElement.textContent = `$${subtotal.toFixed(2)}`;
-        }
-
-        /**
-         * Displays a temporary message above a product card.
-         * @param {HTMLElement} cardElement - The product card element.
-         * @param {string} message - The message to display.
-         * @param {string} type - 'success', 'warning', or 'error'.
-         */
-        function showTemporaryMessage(cardElement, message) {
-            const existingMessage = cardElement.querySelector('.inventory-message');
-            if (existingMessage) {
-                existingMessage.textContent = message;
-                existingMessage.classList.add('show');
-                
-                // Clear any existing timeout.
-                clearTimeout(cardElement.messageTimeout);
-
-                // Hide the message after 2 seconds.
-                cardElement.messageTimeout = setTimeout(() => {
-                    existingMessage.classList.remove('show');
-                }, 2000);
-            }
-        }
-
-        /**
-         * Sends the order data to the Google Apps Script.
-         * @param {Object} orderData - The order data to send.
-         */
-        async function submitOrder(orderData) {
-            submitButton.textContent = 'Submitting...';
-            submitButton.disabled = true;
-            confirmationMessage.textContent = '';
-            confirmationMessage.classList.add('hidden');
-
-            try {
-                // Using fetch API to send the data as a POST request.
-                const response = await fetch(APPS_SCRIPT_URL, {
-                    method: 'POST',
-                    mode: 'no-cors', // Required for Google Apps Script
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(orderData),
-                });
-                // Since 'no-cors' is used, we cannot check the response status.
-                // We assume success and move on.
-                
-                // Show confirmation modal.
-                modalOrderId.textContent = orderData.orderId;
-                confirmationModal.classList.remove('hidden');
-
-                // Clear the cart and update the display after successful submission.
-                cart = [];
-                updateTotalCost();
-                syncQuantitiesWithCardPage(); // Sync quantities on main page after order.
-                
-                // --- UPDATED: Hide the order summary drawer ---
-                orderSummaryDrawer.classList.remove('is-open');
-                cartBackdrop.classList.remove('is-open');
-                // --- END UPDATED ---
-
-            } catch (error) {
-                console.error('Submission failed:', error);
-                confirmationMessage.textContent = 'Failed to submit order. Please try again.';
-                confirmationMessage.classList.remove('hidden');
-            } finally {
-                submitButton.textContent = 'Submit Order';
-                submitButton.disabled = false;
-            }
-        }
-        
-        /**
-         * Renders the list of past orders from localStorage.
-         */
-        function renderPastOrders() {
-            const pastOrders = JSON.parse(localStorage.getItem('pastOrders')) || [];
-            pastOrdersList.innerHTML = '';
-            if (pastOrders.length === 0) {
-                pastOrdersList.innerHTML = '<p class="text-center text-gray-500 italic">No past orders found.</p>';
-                clearOrdersButton.classList.add('hidden');
-            } else {
-                clearOrdersButton.classList.remove('hidden');
-                pastOrders.forEach(order => {
-                    const orderDate = new Date(order.timestamp);
-                    const orderDiv = document.createElement('div');
-                    orderDiv.className = 'p-4 rounded-lg bg-gray-100 border border-gray-200';
-                    
-                    const totalValue = parseFloat(order.total);
-
-                    orderDiv.innerHTML = `
-                        <p class="font-bold text-lg text-primary">Order ID: ${order.orderId}</p>
-                        <p class="text-sm text-gray-500">Date: ${orderDate.toLocaleDateString()} at ${orderDate.toLocaleTimeString()}</p>
-                        <ul class="list-disc list-inside mt-2 text-sm text-gray-600 space-y-1">
-                            ${order.items.map(item => {
-                                const itemPrice = parseFloat(item.price);
-                                if (isNaN(itemPrice)) {
-                                    return `<li>${item.name} x ${item.quantity} (Price N/A)</li>`;
-                                }
-                                return `<li>${item.name} x ${item.quantity} ($${(itemPrice * item.quantity).toFixed(2)})</li>`;
-                            }).join('')}
-                        </ul>
-                        <p class="mt-2 text-right font-bold text-sky-500">Total: $${!isNaN(totalValue) ? totalValue.toFixed(2) : 'N/A'}</p>
-                    `;
-                    
-                    pastOrdersList.appendChild(orderDiv);
-                });
-            }
-        }
-        
-        /**
-         * Clears all past orders from local storage.
-         */
-        function clearPastOrders() {
-            localStorage.removeItem('pastOrders');
-            renderPastOrders(); // Re-render to show the "no orders" message.
-        }
-
-        /**
-         * All event listeners are attached here.
-         */
-        function attachEventListeners() {
-            // Toggle account menu.
-            accountButton.addEventListener('click', (event) => {
-                event.stopPropagation(); // Prevents the window click listener from immediately closing it.
-                toggleAccountMenu();
-            });
-
-            // Close account menu if user clicks outside.
-            window.addEventListener('click', (event) => {
-                if (!accountMenu.contains(event.target) && !accountButton.contains(event.target)) {
-                    accountMenu.classList.remove('open');
-                    const arrow = document.getElementById('dropdown-arrow');
-                    arrow.classList.remove('rotate-180');
-                }
-            });
-            
-            // Add click listener to the search icon button to toggle the search bar.
-            searchIconButton.addEventListener('click', toggleSearch);
-            
-            // Handle quantity buttons and total cost update.
-            dataContainer.addEventListener('click', (event) => {
-                const target = event.target.closest('.quantity-btn');
-                if (!target) return;
-
-                const card = target.closest('.bg-white');
-                const productCode = target.dataset.productCode;
-                const product = productData.find(p => p.code === productCode);
-
-                if (!product) {
-                    console.error("Product not found for code:", productCode);
-                    return;
-                }
-
-                const quantityDisplay = card.querySelector(`.quantity-display[data-product-code="${productCode}"]`);
-                let currentQuantity = parseInt(quantityDisplay.textContent);
-
-                if (target.dataset.action === 'increment') {
-                    if (currentQuantity < product.inventory) {
-                        currentQuantity++;
-                    } else {
-                        showTemporaryMessage(card, 'Out of stock!');
-                    }
-                } else if (target.dataset.action === 'decrement' && currentQuantity > 0) {
-                    currentQuantity--;
-                }
-
-                quantityDisplay.textContent = currentQuantity;
-
-                // Update the cart array.
-                const cartIndex = cart.findIndex(item => item.code === product.code);
-                if (currentQuantity > 0) {
-                    const priceValue = parseFloat(product.trimPrice.trim().replace('$', ''));
-                    if (cartIndex > -1) {
-                        cart[cartIndex].quantity = currentQuantity;
-                    } else {
-                        cart.push({
-                            code: product.code,
-                            name: product.name,
-                            price: priceValue,
-                            quantity: currentQuantity,
-                            inventory: product.inventory
-                        });
-                    }
-                } else {
-                    if (cartIndex > -1) {
-                        cart.splice(cartIndex, 1);
-                    }
-                }
-                updateTotalCost();
-                renderOrderSummary();
-            });
-
-            // Event listener for the floating cart button.
-            totalCostButton.addEventListener('click', () => {
-                renderOrderSummary();
-                orderSummaryDrawer.classList.add('is-open');
-                cartBackdrop.classList.remove('hidden');
-                cartBackdrop.classList.add('is-open');
-            });
-            
-            orderSummaryDrawer.addEventListener('click', (event) => {
-                const target = event.target.closest('.cart-btn');
-                if (!target) return;
-
-                const productCode = target.dataset.productCode;
-                const cartItemIndex = cart.findIndex(item => item.code === productCode);
-                if (cartItemIndex === -1) {
-                    console.error("Cart item not found for product code:", productCode);
-                    return;
-                }
-
-                const action = target.dataset.action;
-
-                if (action === 'increment') {
-                    const product = productData.find(p => p.code === productCode);
-                    if (product && cart[cartItemIndex].quantity < product.inventory) {
-                        cart[cartItemIndex].quantity++;
-                    } else {
-                        // Inventory limit reached, do nothing.
-                        return;
-                    }
-                } else if (action === 'decrement') {
-                    if (cart[cartItemIndex].quantity > 1) {
-                        cart[cartItemIndex].quantity--;
-                    } else {
-                        // If quantity is 1 and user clicks decrement, remove the item.
-                        cart.splice(cartItemIndex, 1);
-                    }
-                } else if (action === 'remove') {
-                    // Remove the item completely from the cart.
-                    cart.splice(cartItemIndex, 1);
-                }
-                
-                // Re-render the cart summary drawer to reflect the changes.
-                renderOrderSummary();
-                // Update the floating total cost.
-                updateTotalCost();
-                // Sync quantities on the main page after a cart change.
-                syncQuantitiesWithCardPage();
-            });
-
-            // Close the drawer if the backdrop is clicked.
-            closeOrderSummaryButton.addEventListener('click', () => {
-                orderSummaryDrawer.classList.remove('is-open');
-                cartBackdrop.classList.remove('is-open');
-                cartBackdrop.classList.add('hidden');
-            });
-            cartBackdrop.addEventListener('click', () => {
-                orderSummaryDrawer.classList.remove('is-open');
-                cartBackdrop.classList.remove('is-open');
-                cartBackdrop.classList.add('hidden');
-            });
-
-
-            // Form submission handler.
-            orderForm.addEventListener('submit', (event) => {
-                event.preventDefault();
-
-                if (cart.length === 0) {
-                    return;
-                }
-                
-                // Get the data from the new form fields.
-                const fullName = fullNameInput.value;
-                const email = emailInput.value;
-                const phone = phoneInput.value;
-                // --- NEW: Get values from all the individual address fields ---
-                const streetAddress = shippingAddressInput.value;
-                const city = cityInput.value;
-                const state = stateInput.value;
-                const zip = zipInput.value;
-                // --- NEW: Combine the address fields into a single string ---
-                const shippingAddress = `${streetAddress}, ${city}, ${state} ${zip}`;
-
-                const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-                const orderId = `ORDER-${Date.now()}`;
-                const orderData = {
-                    orderId: orderId,
-                    fullName: fullName,
-                    email: email,
-                    phone: phone,
-                    shippingAddress: shippingAddress,
-                    items: cart,
-                    total: total,
-                    timestamp: new Date().toISOString()
-                };
-
-                // Save to localStorage for past orders view.
-                const pastOrders = JSON.parse(localStorage.getItem('pastOrders')) || [];
-                pastOrders.push(orderData);
-                localStorage.setItem('pastOrders', JSON.stringify(pastOrders));
-
-                submitOrder(orderData);
-            });
-
-            // Close confirmation modal.
-            modalCloseButton.addEventListener('click', () => {
-                confirmationModal.classList.add('hidden'); 
-                window.location.reload();
-            });
-
-            // Open past orders modal.
-            pastOrdersButton.addEventListener('click', () => {
-                renderPastOrders();
-                pastOrdersModal.classList.remove('hidden');
-            });
-
-            // Close past orders modal.
-            closePastOrdersButton.addEventListener('click', () => {
-                pastOrdersModal.classList.add('hidden');
-            });
-
-            // Clear past orders.
-            clearOrdersButton.addEventListener('click', () => {
-                clearPastOrders();
-            });
-            
-            // Add a new event listener for the search input.
-            productSearchInput.addEventListener('input', applyFilters);
-            
-            // Close the search bar if a click occurs outside of it.
-            document.addEventListener('click', (event) => {
-                const isClickInsideNav = document.getElementById('main-nav').contains(event.target);
-                const isClickInsideSearch = searchContainer.contains(event.target);
-                
-                // If the search bar is open and the click is outside the nav and search bar, close it.
-                if (searchContainer.classList.contains('is-visible') && !isClickInsideNav && !isClickInsideSearch) {
-                    toggleSearch();
-                }
-            });
-
-            // Handle ESC key to close the search bar.
-            document.addEventListener('keydown', (event) => {
-                if (event.key === 'Escape' && searchContainer.classList.contains('is-visible')) {
-                    toggleSearch();
-                }
-            });
-            
-            // Listen for input on the form fields to check form validity.
-            fullNameInput.addEventListener('input', checkFormValidity);
-            emailInput.addEventListener('input', checkFormValidity);
-            phoneInput.addEventListener('input', checkFormValidity);
-            shippingAddressInput.addEventListener('input', checkFormValidity);
-            cityInput.addEventListener('input', checkFormValidity);
-            stateInput.addEventListener('input', checkFormValidity);
-            zipInput.addEventListener('input', checkFormValidity);
-        }
-        
-        // This event now only handles hiding the loading screen and showing the age gate/app.
-        window.addEventListener('load', () => {
-            // Hide the loading screen.
-            loadingScreen.classList.add('fade-out');
-            setTimeout(() => {
-                loadingScreen.style.display = 'none';
-            }, 500);
-
-            // Check if the user is already verified from a previous session.
-            const isVerified = localStorage.getItem('age_verified');
-            if (isVerified === 'true') {
-                // If so, show the main app immediately.
-                ageGate.style.display = 'none'; // Use direct style manipulation.
-                mainAppContent.style.display = 'block';
-                fetchData();
-                attachEventListeners();
-            } else {
-                // Otherwise, show the age gate and wait for a user action.
-                ageGate.style.display = 'flex'; // Show age gate.
-                mainAppContent.style.display = 'none'; // Ensure main content is hidden.
-                denialModal.style.display = 'none'; // Ensure denial modal is hidden.
-                
-                // Add event listeners for the age gate buttons.
-                yesButton.addEventListener('click', () => {
-                    localStorage.setItem('age_verified', 'true');
-                    ageGate.style.display = 'none'; // Hide age gate.
-                    mainAppContent.style.display = 'block'; // Show main content.
-                    fetchData();
-                    attachEventListeners();
-                });
-                noButton.addEventListener('click', () => {
-                    ageGate.style.display = 'none'; // Hide age gate.
-                    denialModal.style.display = 'flex'; // Show the denial message.
-                });
-                denialBackButton.addEventListener('click', () => {
-                    denialModal.style.display = 'none'; // Hide denial modal.
-                    ageGate.style.display = 'flex'; // Show age gate again.
-                });
-            }
+          } else {
+            // User is not authenticated, show an error
+            console.warn('Authentication failed. Cannot load products.');
+            fallbackMessage.innerHTML = `<div class="text-center p-8"><h3 class="text-2xl font-bold text-gray-800 mb-2">Authentication Failed!</h3><p class="text-gray-600">Could not authenticate user. Check your Firebase Authentication setup.</p></div>`;
+            fallbackMessage.classList.remove('hidden');
+            ageGate.classList.add('hidden');
+            mainContent.classList.remove('hidden');
+          }
         });
+      } catch (error) {
+        console.error('Failed to initialize Firebase:', error);
+        fallbackMessage.innerHTML = `<div class="text-center p-8"><h3 class="text-2xl font-bold text-gray-800 mb-2">Initialization Error!</h3><p class="text-gray-600">Failed to initialize Firebase. (Error: ${error.message})</p></div>`;
+        fallbackMessage.classList.remove('hidden');
+        ageGate.classList.add('hidden');
+        mainContent.classList.remove('hidden');
+      }
+    }
 
-    </script>
+    // -------- Rendering, search, and cart logic --------
+    const renderProducts = (productsToRender) => {
+      productGrid.innerHTML = '';
+      fallbackMessage.classList.add('hidden');
+
+      if (Object.keys(productsToRender).length === 0) {
+        productGrid.innerHTML = '<p class="text-center text-gray-500 italic">No products found matching your search.</p>';
+        return;
+      }
+
+      Object.keys(productsToRender).forEach(key => {
+        const product = productsToRender[key];
+        const productCard = document.createElement('div');
+        productCard.className = "bg-white rounded-xl shadow-lg overflow-hidden flex flex-col items-start p-4 transition-transform duration-300";
+
+        const vialWeight = product.totalVialWeight ? `${product.totalVialWeight}mg` : 'N/A';
+        const inventory = (product.currentInventory !== undefined) ? product.currentInventory : 'N/A';
+        const priceValue = (product.sellPricePerVial !== undefined) ? product.sellPricePerVial : product.price;
+        const priceDisplay = (typeof priceValue === 'number') ? `$${priceValue.toFixed(2)}` : 'Price N/A';
+
+        productCard.innerHTML = `
+          <div class="relative w-full overflow-hidden rounded-md mb-4">
+            <img src="${product.image || ''}" onerror="this.onerror=null;this.src='${productPlaceholder}';" alt="Product Image" class="w-full h-auto object-contain">
+          </div>
+          <h3 class="text-xl font-bold text-gray-800">${product.name || key}</h3>
+          <p class="text-gray-500 text-sm mt-1">${vialWeight}</p>
+          <p class="text-gray-500 text-sm mb-2">Inventory: ${inventory}</p>
+          <div class="flex-grow"></div>
+          <p class="text-2xl font-bold text-primary-blue-dark mb-4">${priceDisplay}</p>
+          <button class="addToCartBtn w-full bg-primary-blue text-white font-bold py-2 rounded-lg hover:bg-primary-blue-dark transition-colors duration-300" data-product-id="${key}">
+            Add to Cart
+          </button>
+        `;
+        productGrid.appendChild(productCard);
+      });
+    };
+
+    productSearchInput.addEventListener('input', (event) => {
+      const searchTerm = event.target.value.toLowerCase();
+      if (!searchTerm) return renderProducts(productData);
+      const filtered = Object.fromEntries(
+        Object.entries(productData).filter(([_, p]) => (p.name || '').toLowerCase().includes(searchTerm))
+      );
+      renderProducts(filtered);
+    });
+
+    productGrid.addEventListener('click', (e) => {
+      if (e.target.classList.contains('addToCartBtn')) {
+        const productId = e.target.dataset.productId;
+        const product = productData[productId];
+        if (product) {
+          if (cart[productId]) cart[productId].quantity++;
+          else {
+            const price = (product.sellPricePerVial !== undefined) ? product.sellPricePerVial : (product.price || 0);
+            cart[productId] = { id: productId, name: product.name || 'Item', price, quantity: 1 };
+          }
+          updateTotalCost();
+          renderOrderSummary();
+          totalCostButton.classList.add('is-visible');
+        }
+      }
+    });
+
+    function updateTotalCost() {
+      const totalCost = Object.values(cart).reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      floatingTotalCostElement.textContent = `$${totalCost.toFixed(2)}`;
+      if (Object.keys(cart).length > 0) totalCostButton.classList.add('is-visible');
+      else totalCostButton.classList.remove('is-visible');
+    }
+
+    function checkFormValidity() {
+      const isCartNotEmpty = Object.keys(cart).length > 0;
+      const fields = [
+        emailInput.value.trim(),
+        fullNameInput.value.trim(),
+        phoneInput.value.trim(),
+        shippingAddressInput.value.trim(),
+        cityInput.value.trim(),
+        stateInput.value.trim(),
+        zipInput.value.trim(),
+      ];
+      const allFilled = fields.every(Boolean);
+      if (isCartNotEmpty && allFilled) {
+        submitButton.removeAttribute('disabled');
+        submitButton.classList.remove('opacity-50', 'cursor-not-allowed');
+      } else {
+        submitButton.setAttribute('disabled', 'disabled');
+        submitButton.classList.add('opacity-50', 'cursor-not-allowed');
+      }
+    }
+
+    function renderOrderSummary() {
+      orderSummaryList.innerHTML = '';
+      if (Object.keys(cart).length === 0) {
+        orderSummaryList.innerHTML = '<p class="text-center text-gray-500 italic">Your cart is empty.</p>';
+        orderSubtotalElement.textContent = '$0.00';
+        checkFormValidity();
+        return;
+      }
+
+      let subtotal = 0;
+      checkFormValidity();
+
+      Object.keys(cart).forEach(productId => {
+        const item = cart[productId];
+        const itemTotal = item.price * item.quantity;
+        subtotal += itemTotal;
+
+        const itemElement = document.createElement('div');
+        itemElement.className = 'flex flex-col text-gray-800 border-b border-gray-200 pb-2 last:border-b-0 last:pb-0';
+        const itemTotalDisplay = `$${itemTotal.toFixed(2)}`;
+        const itemPriceDisplay = `$${item.price.toFixed(2)}`;
+
+        itemElement.innerHTML = `
+          <div class="flex justify-between items-center w-full">
+            <p class="font-semibold text-lg">${item.name}</p>
+            <span class="font-bold shrink-0">${itemTotalDisplay}</span>
+          </div>
+          <div class="flex justify-between items-center w-full mt-2">
+            <p class="text-sm text-gray-500">${itemPriceDisplay} per unit</p>
+            <div class="flex items-center space-x-2">
+              <button class="cart-btn p-1 rounded-full bg-gray-200 text-gray-800 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-blue-light transition-colors" data-action="decrement" data-product-id="${productId}">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/></svg>
+              </button>
+              <span class="text-lg font-bold w-6 text-center">${item.quantity}</span>
+              <button class="cart-btn p-1 rounded-full bg-gray-200 text-gray-800 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-blue-light transition-colors" data-action="increment" data-product-id="${productId}">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+              </button>
+              <button class="cart-btn ml-4 text-gray-400 hover:text-red-500 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 rounded-full p-1" data-action="remove" data-product-id="${productId}">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+              </button>
+            </div>
+          </div>
+        `;
+        orderSummaryList.appendChild(itemElement);
+      });
+      orderSubtotalElement.textContent = `$${subtotal.toFixed(2)}`;
+    }
+
+    function resetAppState() {
+      cart = {};
+      updateTotalCost();
+      renderOrderSummary();
+      orderForm.reset();
+      confirmationModal.classList.add('hidden');
+    }
+
+    async function submitOrder(orderData) {
+      submitButton.textContent = 'Submitting...';
+      submitButton.disabled = true;
+      confirmationMessage.textContent = '';
+      confirmationMessage.classList.add('hidden');
+      console.log('Attempting to submit order with data:', orderData);
+
+      try {
+        const result = await submitSecureOrder(orderData);
+        console.log('Order submission successful. Order ID:', result.data.orderId);
+        modalOrderId.textContent = result.data.orderId;
+        confirmationModal.classList.remove('hidden');
+        orderSummaryDrawer.classList.remove('is-open');
+        cartBackdrop.classList.remove('is-open');
+      } catch (error) {
+        console.error('Submission failed:', error);
+        confirmationMessage.textContent = `Failed to submit order: ${error.message}.`;
+        confirmationMessage.classList.remove('hidden');
+      } finally {
+        submitButton.textContent = 'Submit Order';
+        submitButton.disabled = false;
+      }
+    }
+
+    function attachEventListeners() {
+      totalCostButton.addEventListener('click', () => {
+        renderOrderSummary();
+        orderSummaryDrawer.classList.add('is-open');
+        cartBackdrop.classList.remove('hidden');
+        cartBackdrop.classList.add('is-open');
+      });
+      const closeDrawer = () => {
+        orderSummaryDrawer.classList.remove('is-open');
+        cartBackdrop.classList.remove('is-open');
+        cartBackdrop.classList.add('hidden');
+      };
+      document.getElementById('close-order-summary').addEventListener('click', closeDrawer);
+      cartBackdrop.addEventListener('click', closeDrawer);
+
+      orderSummaryDrawer.addEventListener('click', (event) => {
+        const target = event.target.closest('.cart-btn');
+        if (!target) return;
+        const productId = target.dataset.productId;
+        if (!cart[productId]) return;
+
+        const action = target.dataset.action;
+        if (action === 'increment') cart[productId].quantity++;
+        else if (action === 'decrement') {
+          if (cart[productId].quantity > 1) cart[productId].quantity--;
+          else delete cart[productId];
+        } else if (action === 'remove') delete cart[productId];
+
+        renderOrderSummary();
+        updateTotalCost();
+      });
+
+      orderForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        console.log('Order form submitted.');
+        if (Object.keys(cart).length === 0) {
+          console.warn('Attempted to submit empty cart.');
+          return;
+        }
+
+        const itemsForCloudFunction = Object.values(cart).map(i => ({ id: i.id, quantity: i.quantity }));
+        const contactInfo = {
+          fullName: fullNameInput.value.trim(),
+          email: emailInput.value.trim(),
+          phone: phoneInput.value.trim(),
+          shippingAddress: `${shippingAddressInput.value.trim()}, ${cityInput.value.trim()}, ${stateInput.value.trim()} ${zipInput.value.trim()}`,
+        };
+        submitOrder({ items: itemsForCloudFunction, contactInfo });
+      });
+
+      modalCloseButton.addEventListener('click', () => {
+        console.log('Resetting application state.');
+        resetAppState();
+      });
+
+      [fullNameInput, emailInput, phoneInput, shippingAddressInput, cityInput, stateInput, zipInput]
+        .forEach(el => el.addEventListener('input', checkFormValidity));
+    }
+
+    window.addEventListener('load', () => {
+      console.log('Window loaded, attaching event listeners and updating total cost.');
+      attachEventListeners();
+      updateTotalCost();
+    });
+  </script>
 </body>
 </html>
