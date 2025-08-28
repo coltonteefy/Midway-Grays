@@ -118,14 +118,22 @@
     
 /* remove if you dont want background blue */
     
-    .spline-container {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: -1;
-    }  
+.spline-container {
+  position: fixed;     /* sit on the viewport, not inside a scrolling div */
+  inset: 0;            /* top:0 right:0 bottom:0 left:0 */
+  width: 100%;
+  height: 100%;
+  z-index: 0;          /* NOT negative */
+  pointer-events: none;/* so it doesn’t block taps */
+}
+
+.spline-container iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  transform: translateZ(0);       /* nudge GPU on iOS */
+  will-change: transform;
+}
   </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col items-center justify-center relative">
@@ -165,6 +173,51 @@
     </div>
   </div>
 
+  
+   <!--REMOVE THIS IF YOU DONT WANT BACKGROUND -->
+    <!-- Fullscreen Spline background -->
+  <div class="spline-container opacity-80">
+    <iframe
+      src="https://my.spline.design/venturadaccord2copycopy-iOeF1h9eOZyNW4lCTWoX263y/"
+      allow="autoplay; fullscreen; xr-spatial-tracking"
+      allowfullscreen
+      loading="lazy"
+      style="pointer-events:none"
+    ></iframe>
+  </div>
+  
+     <!--REMOVE THIS IF YOU DONT WANT BACKGROUND -->
+
+    <!-- Fullscreen 3D Background -->
+<!--   <div class="fixed inset-0 w-full h-full -z-20">
+    <iframe
+      src="https://my.spline.design/herolightcopy-HWuYMA6IdNGk0VGuyvrItNGB/"
+      frameborder="0"
+      width="100%"
+      height="100%"
+      class="w-full h-full"
+      allowfullscreen
+      aria-hidden="true"
+      tabindex="-1"
+      style="pointer-events: none;"
+    ></iframe>
+  </div> 
+
+<div class="pointer-events-none fixed inset-0 -z-10">
+  <div class="absolute inset-0 bg-gradient-to-b from-white/40 via-transparent to-white/60"></div>
+  <div class="absolute inset-0"
+       style="background: radial-gradient(60% 50% at 50% 10%,
+         rgba(255,255,255,0.25) 0%,
+         rgba(255,255,255,0.10) 40%,
+         rgba(255,255,255,0) 70%);"></div>
+  <div class="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-white/50 via-transparent"></div>
+  <div class="absolute inset-0 ring-1 ring-white/10"></div>
+</div> 
+    
+   
+
+-->
+  
   <!-- Main App -->
   <div id="mainContent" class="hidden flex-grow flex flex-col w-full h-full max-w-7xl mx-auto p-4 transition-all">
     <div class="sticky top-0 z-40">
@@ -202,47 +255,7 @@
     </div>
     
     
-    <!--REMOVE THIS IF YOU DONT WANT BACKGROUND -->
-    <div class="spline-container opacity-80">
-      <iframe src='https://my.spline.design/venturadaccord2copycopy-iOeF1h9eOZyNW4lCTWoX263y/' frameborder='0' width='100%' height='100%'></iframe>
-    </div> 
-    
-    
-    <!-- Fullscreen 3D Background -->
-<!--   <div class="fixed inset-0 w-full h-full -z-20">
-    <iframe
-      src="https://my.spline.design/herolightcopy-HWuYMA6IdNGk0VGuyvrItNGB/"
-      frameborder="0"
-      width="100%"
-      height="100%"
-      class="w-full h-full"
-      allowfullscreen
-      aria-hidden="true"
-      tabindex="-1"
-      style="pointer-events: none;"
-    ></iframe>
-  </div> -->
-
-  <!-- Subtle Overlays for Depth/Readability -->
-<!-- <div class="pointer-events-none fixed inset-0 -z-10">
-  <div class="absolute inset-0 bg-gradient-to-b from-white/40 via-transparent to-white/60"></div>
-  <div class="absolute inset-0"
-       style="background: radial-gradient(60% 50% at 50% 10%,
-         rgba(255,255,255,0.25) 0%,
-         rgba(255,255,255,0.10) 40%,
-         rgba(255,255,255,0) 70%);"></div>
-  <div class="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-white/50 via-transparent"></div>
-  <div class="absolute inset-0 ring-1 ring-white/10"></div>
-</div> -->
-    
-    <!-- 
-
-
-
--->
-    
-    <div class="relative w-full mt-8 rounded-xl overflow-hidden">
-         
+    <div class="relative w-full mt-8 rounded-xl overflow-hidden"> 
       <img src="https://raw.githubusercontent.com/coltonteefy/inventory/refs/heads/main/HERO.PNG" alt="Hero section banner showing chemical flasks" class="w-full h-full object-cover">
     </div>
 
