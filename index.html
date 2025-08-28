@@ -67,7 +67,7 @@
 
     .modal-content-scrollable { max-height: 80vh; overflow-y: auto; -webkit-overflow-scrolling: touch; }
 
-    /* Loading Animation Styles */
+    /* Age Gate Loading Animation Styles */
     .vial-container {
       width: 100px; height: 150px; position: relative; display: flex; align-items: flex-end;
     }
@@ -100,6 +100,20 @@
       0% { transform: translateY(0) scale(0); opacity: 0; }
       50% { opacity: 1; }
       100% { transform: translateY(-100px) scale(1); opacity: 0; }
+    }
+
+    /* Button loader styling */
+    .button-loader {
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
   </style>
 </head>
@@ -216,6 +230,7 @@
         <div class="mb-4">
           <label for="email-input" class="block text-gray-500 mb-2">Email for confirmation:</label>
           <input id="email-input" type="email" class="w-full p-3 rounded-lg bg-gray-100 border border-gray-300 text-primary focus:outline-none focus:ring-2 focus:ring-primary-blue-light" placeholder="yourname@example.com" required>
+          <p id="email-error" class="text-red-500 text-sm mt-1 hidden">Please enter a valid email address.</p>
         </div>
         <div class="mb-4">
           <label for="phone-input" class="block text-gray-500 mb-2">Phone Number:</label>
@@ -239,8 +254,14 @@
           <label for="zip-input" class="block text-gray-500 mb-2">ZIP Code:</label>
           <input id="zip-input" type="text" class="w-full p-3 rounded-lg bg-gray-100 border border-gray-300 text-primary focus:outline-none focus:ring-2 focus:ring-primary-blue-light" placeholder="12345" required>
         </div>
-        <button id="submit-button" type="submit" class="w-full py-3 bg-primary-blue text-white font-bold rounded-lg hover:bg-primary-blue-dark transition-colors focus:outline-none focus:ring-2 focus:ring-primary-blue-light">
-          Submit Order
+        <button id="submit-button" type="submit" class="w-full py-3 bg-primary-blue text-white font-bold rounded-lg hover:bg-primary-blue-dark transition-colors focus:outline-none focus:ring-2 focus:ring-primary-blue-light opacity-50 cursor-not-allowed">
+          <!-- The span with the loader will be centered inside the button with flexbox -->
+          <span id="button-content" class="flex items-center justify-center">
+            <span id="button-text">Submit Order</span>
+            <span id="button-loader" class="hidden ml-2">
+              <div class="button-loader"></div>
+            </span>
+          </span>
         </button>
       </form>
       <div id="confirmation-message" class="mt-4 text-center font-semibold hidden"></div>
@@ -263,6 +284,7 @@
       </button>
     </div>
   </div>
+
 
   <!-- Firebase SDKs -->
   <script type="module">
@@ -312,11 +334,11 @@
     const orderForm = document.getElementById('order-form');
     const fullNameInput = document.getElementById('full-name-input');
     const emailInput = document.getElementById('email-input');
+    const emailError = document.getElementById('email-error');
     const phoneInput = document.getElementById('phone-input');
     const shippingAddressInput = document.getElementById('shipping-address-input');
     const cityInput = document.getElementById('city-input');
     const stateInput = document.getElementById('state-input');
-    // Corrected the syntax error here
     const zipInput = document.getElementById('zip-input');
     const submitButton = document.getElementById('submit-button');
     const confirmationMessage = document.getElementById('confirmation-message');
@@ -326,6 +348,11 @@
     const confirmationModal = document.getElementById('confirmation-modal');
 
     const fallbackMessage = document.getElementById('fallbackMessage');
+    
+    // Button loader DOM elements
+    const buttonText = document.getElementById('button-text');
+    const buttonLoader = document.getElementById('button-loader');
+
 
     // Cart state
     let cart = {};
@@ -340,18 +367,15 @@
 
     // Age Gate
     yesBtn.addEventListener('click', () => {
-      console.log('User confirmed age, starting data load.');
       ageGateContent.classList.add('hidden');
       ageGateLoading.classList.remove('hidden');
       initFirebaseAndListeners();
       sessionStorage.setItem('isAdult', 'true');
     });
     noBtn.addEventListener('click', () => {
-      console.log('User denied age, showing rejection message.');
       rejectionMessage.classList.remove('hidden')
     });
     if (sessionStorage.getItem('isAdult') === 'true') {
-      console.log('User previously confirmed age, bypassing age gate.');
       ageGate.classList.add('hidden');
       mainContent.classList.remove('hidden');
       initFirebaseAndListeners();
@@ -382,13 +406,12 @@
       else mainNav.classList.remove('sticky-scrolled');
     });
 
+
     // ------------ Firestore Init + Listener (with sanity check) ------------
     let productData = {};
 
     async function initFirebaseAndListeners() {
       try {
-        console.log('Initializing Firebase with app ID:', appId);
-        console.log('Using product collection path:', PRODUCTS_COLLECTION_PATH);
         app = initializeApp(firebaseConfig);
         auth = getAuth(app);
         db = getFirestore(app);
@@ -398,15 +421,12 @@
         // Initial sign-in attempt
         try {
           await signInAnonymously(auth);
-          console.log('Signed in anonymously.');
         } catch (e) {
-          console.warn('Anonymous sign-in failed. Please check your Firebase Auth settings.', e);
         }
 
         // Wait for auth state change before fetching data
         onAuthStateChanged(auth, (user) => {
           if (user) {
-            console.log('User is authenticated, UID:', user.uid);
             // Now that we are authenticated, we can listen for data
             const productsColRef = collection(db, PRODUCTS_COLLECTION_PATH);
             onSnapshot(productsColRef, (querySnapshot) => {
@@ -414,19 +434,16 @@
               if (!querySnapshot.empty) {
                 querySnapshot.forEach((doc) => { products[doc.id] = doc.data(); });
                 productData = products;
-                console.log('Products fetched and updated:', productData);
                 renderProducts(productData);
                 ageGate.classList.add('hidden');
                 mainContent.classList.remove('hidden');
               } else {
-                console.log('No data found at ' + PRODUCTS_COLLECTION_PATH);
                 productGrid.innerHTML = '';
                 fallbackMessage.classList.remove('hidden');
                 ageGate.classList.add('hidden');
                 mainContent.classList.remove('hidden');
               }
             }, (error) => {
-              console.error('Firestore access failed:', error);
               fallbackMessage.innerHTML = `<div class="text-center p-8"><h3 class="text-2xl font-bold text-gray-800 mb-2">Connection Error!</h3><p class="text-gray-600">Could not load products. (Error: ${error.message})</p></div>`;
               fallbackMessage.classList.remove('hidden');
               ageGate.classList.add('hidden');
@@ -434,15 +451,13 @@
             });
           } else {
             // User is not authenticated, show an error
-            console.warn('Authentication failed. Cannot load products.');
-            fallbackMessage.innerHTML = `<div class="text-center p-8"><h3 class="text-2xl font-bold text-gray-800 mb-2">Authentication Failed!</h3><p class="text-gray-600">Could not authenticate user. Check your Firebase Authentication setup.</p></div>`;
+            fallbackMessage.innerHTML = `<div class="text-center p-8"><h3 class="2xl font-bold text-gray-800 mb-2">Authentication Failed!</h3><p class="text-gray-600">Could not authenticate user. Check your Firebase Authentication setup.</p></div>`;
             fallbackMessage.classList.remove('hidden');
             ageGate.classList.add('hidden');
             mainContent.classList.remove('hidden');
           }
         });
       } catch (error) {
-        console.error('Failed to initialize Firebase:', error);
         fallbackMessage.innerHTML = `<div class="text-center p-8"><h3 class="text-2xl font-bold text-gray-800 mb-2">Initialization Error!</h3><p class="text-gray-600">Failed to initialize Firebase. (Error: ${error.message})</p></div>`;
         fallbackMessage.classList.remove('hidden');
         ageGate.classList.add('hidden');
@@ -462,26 +477,41 @@
 
       Object.keys(productsToRender).forEach(key => {
         const product = productsToRender[key];
+        const isOutOfStock = (product.currentInventory || 0) <= 0;
         const productCard = document.createElement('div');
-        productCard.className = "bg-white rounded-xl shadow-lg overflow-hidden flex flex-col items-start p-4 transition-transform duration-300";
+        productCard.className = `bg-white rounded-xl shadow-lg overflow-hidden flex flex-col items-start p-4 transition-transform duration-300 relative ${isOutOfStock ? 'opacity-70' : ''}`;
 
         const vialWeight = product.totalVialWeight ? `${product.totalVialWeight}mg` : 'N/A';
         const inventory = (product.currentInventory !== undefined) ? product.currentInventory : 'N/A';
         const priceValue = (product.sellPricePerVial !== undefined) ? product.sellPricePerVial : product.price;
         const priceDisplay = (typeof priceValue === 'number') ? `$${priceValue.toFixed(2)}` : 'Price N/A';
 
+        // Conditional rendering for the "Add to Cart" button and out of stock badge
+        let buttonHtml;
+        if (isOutOfStock) {
+          buttonHtml = `<button class="w-full bg-gray-400 text-white font-bold py-2 rounded-lg cursor-not-allowed" disabled>Out of Stock</button>`;
+        } else {
+          buttonHtml = `<button class="addToCartBtn w-full bg-primary-blue text-white font-bold py-2 rounded-lg hover:bg-primary-blue-dark transition-colors duration-300" data-product-id="${key}">Add to Cart</button>`;
+        }
+        
+        const outOfStockBadge = isOutOfStock ? `
+          <div class="absolute inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center pointer-events-none">
+            <span class="text-white text-xl font-bold tracking-wider uppercase bg-red-600 px-4 py-2 rounded-lg shadow-lg rotate-12">
+              Out of Stock
+            </span>
+          </div>` : '';
+
         productCard.innerHTML = `
           <div class="relative w-full overflow-hidden rounded-md mb-4">
             <img src="${product.image || ''}" onerror="this.onerror=null;this.src='${productPlaceholder}';" alt="Product Image" class="w-full h-auto object-contain">
+            ${outOfStockBadge}
           </div>
           <h3 class="text-xl font-bold text-gray-800">${product.name || key}</h3>
           <p class="text-gray-500 text-sm mt-1">${vialWeight}</p>
           <p class="text-gray-500 text-sm mb-2">Inventory: ${inventory}</p>
           <div class="flex-grow"></div>
           <p class="text-2xl font-bold text-primary-blue-dark mb-4">${priceDisplay}</p>
-          <button class="addToCartBtn w-full bg-primary-blue text-white font-bold py-2 rounded-lg hover:bg-primary-blue-dark transition-colors duration-300" data-product-id="${key}">
-            Add to Cart
-          </button>
+          ${buttonHtml}
         `;
         productGrid.appendChild(productCard);
       });
@@ -500,9 +530,12 @@
       if (e.target.classList.contains('addToCartBtn')) {
         const productId = e.target.dataset.productId;
         const product = productData[productId];
-        if (product) {
-          if (cart[productId]) cart[productId].quantity++;
-          else {
+        if (product && (product.currentInventory || 0) > 0) {
+          if (cart[productId]) {
+            if (cart[productId].quantity < product.currentInventory) {
+              cart[productId].quantity++;
+            }
+          } else {
             const price = (product.sellPricePerVial !== undefined) ? product.sellPricePerVial : (product.price || 0);
             cart[productId] = { id: productId, name: product.name || 'Item', price, quantity: 1 };
           }
@@ -520,19 +553,33 @@
       else totalCostButton.classList.remove('is-visible');
     }
 
+    // Function to check if the form is valid for submission
     function checkFormValidity() {
+      // A simple regex to check for a valid email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const isEmailValid = emailRegex.test(emailInput.value.trim());
+
+      // Show or hide the email error message
+      if (emailInput.value.trim() !== '' && !isEmailValid) {
+        emailError.classList.remove('hidden');
+      } else {
+        emailError.classList.add('hidden');
+      }
+
+      // Check if all input fields have a value AND the email is valid
+      const isFormFilledAndValid = fullNameInput.value.trim() !== '' &&
+                           isEmailValid &&
+                           phoneInput.value.trim() !== '' &&
+                           shippingAddressInput.value.trim() !== '' &&
+                           cityInput.value.trim() !== '' &&
+                           stateInput.value.trim() !== '' &&
+                           zipInput.value.trim() !== '';
+
+      // Check if the cart is not empty
       const isCartNotEmpty = Object.keys(cart).length > 0;
-      const fields = [
-        emailInput.value.trim(),
-        fullNameInput.value.trim(),
-        phoneInput.value.trim(),
-        shippingAddressInput.value.trim(),
-        cityInput.value.trim(),
-        stateInput.value.trim(),
-        zipInput.value.trim(),
-      ];
-      const allFilled = fields.every(Boolean);
-      if (isCartNotEmpty && allFilled) {
+
+      // Enable the button only if both conditions are met
+      if (isFormFilledAndValid && isCartNotEmpty) {
         submitButton.removeAttribute('disabled');
         submitButton.classList.remove('opacity-50', 'cursor-not-allowed');
       } else {
@@ -551,7 +598,6 @@
       }
 
       let subtotal = 0;
-      checkFormValidity();
 
       Object.keys(cart).forEach(productId => {
         const item = cart[productId];
@@ -587,6 +633,7 @@
         orderSummaryList.appendChild(itemElement);
       });
       orderSubtotalElement.textContent = `$${subtotal.toFixed(2)}`;
+      checkFormValidity();
     }
 
     function resetAppState() {
@@ -595,28 +642,31 @@
       renderOrderSummary();
       orderForm.reset();
       confirmationModal.classList.add('hidden');
+      emailError.classList.add('hidden');
     }
 
     async function submitOrder(orderData) {
-      submitButton.textContent = 'Submitting...';
+      // Show the button loader and disable the button
+      buttonText.classList.add('hidden');
+      buttonLoader.classList.remove('hidden');
       submitButton.disabled = true;
+
       confirmationMessage.textContent = '';
       confirmationMessage.classList.add('hidden');
-      console.log('Attempting to submit order with data:', orderData);
 
       try {
         const result = await submitSecureOrder(orderData);
-        console.log('Order submission successful. Order ID:', result.data.orderId);
         modalOrderId.textContent = result.data.orderId;
         confirmationModal.classList.remove('hidden');
         orderSummaryDrawer.classList.remove('is-open');
         cartBackdrop.classList.remove('is-open');
       } catch (error) {
-        console.error('Submission failed:', error);
         confirmationMessage.textContent = `Failed to submit order: ${error.message}.`;
         confirmationMessage.classList.remove('hidden');
       } finally {
-        submitButton.textContent = 'Submit Order';
+        // Hide the button loader and reset button state
+        buttonText.classList.remove('hidden');
+        buttonLoader.classList.add('hidden');
         submitButton.disabled = false;
       }
     }
@@ -643,19 +693,39 @@
         if (!cart[productId]) return;
 
         const action = target.dataset.action;
-        if (action === 'increment') cart[productId].quantity++;
-        else if (action === 'decrement') {
-          if (cart[productId].quantity > 1) cart[productId].quantity--;
-          else delete cart[productId];
-        } else if (action === 'remove') delete cart[productId];
+        const product = productData[productId];
+
+        if (action === 'increment') {
+          if (product && cart[productId].quantity < product.currentInventory) {
+            cart[productId].quantity++;
+          }
+        } else if (action === 'decrement') {
+          if (cart[productId].quantity > 1) {
+            cart[productId].quantity--;
+          } else {
+            delete cart[productId];
+          }
+        } else if (action === 'remove') {
+          delete cart[productId];
+        }
 
         renderOrderSummary();
         updateTotalCost();
+        // Check form validity after every cart change
+        checkFormValidity();
       });
 
       orderForm.addEventListener('submit', (event) => {
         event.preventDefault();
-        console.log('Order form submitted.');
+
+        // Re-check validity before final submission
+        checkFormValidity();
+        if (submitButton.disabled) {
+          // If the button is disabled, something is not valid, so we should not proceed.
+          console.warn('Attempted to submit an invalid form.');
+          return;
+        }
+
         if (Object.keys(cart).length === 0) {
           console.warn('Attempted to submit empty cart.');
           return;
@@ -672,18 +742,19 @@
       });
 
       modalCloseButton.addEventListener('click', () => {
-        console.log('Resetting application state.');
         resetAppState();
       });
 
-      [fullNameInput, emailInput, phoneInput, shippingAddressInput, cityInput, stateInput, zipInput]
-        .forEach(el => el.addEventListener('input', checkFormValidity));
+      // Add event listeners to all input fields to check for validity on every change
+      [fullNameInput, emailInput, phoneInput, shippingAddressInput, cityInput, stateInput, zipInput].forEach(el => {
+        el.addEventListener('input', checkFormValidity);
+      });
     }
 
     window.addEventListener('load', () => {
-      console.log('Window loaded, attaching event listeners and updating total cost.');
       attachEventListeners();
       updateTotalCost();
+      checkFormValidity(); // Initial check on page load
     });
   </script>
 </body>
