@@ -5,30 +5,30 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Midway Grays</title>
 
-  <!-- Tailwind CSS CDN -->
+  <!-- External Libraries and Fonts -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- Inter font -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
-  <!-- Tailwind custom colors -->
+  <!-- Tailwind Custom Configuration -->
   <script>
     tailwind.config = {
       theme: {
         extend: {
           colors: {
             'primary-blue': {
-              DEFAULT: '#256997',
+              'DEFAULT': '#256997',
               dark: '#1e537a',
               light: '#4184b2'
-            }
+            },
+            'dark-teal': '#008080'
           }
         }
       }
     }
   </script>
 
+  <!-- Custom CSS Styles -->
   <style>
     body { font-family: 'Inter', sans-serif; background-color: #f7fafc; }
     .scroll-hidden::-webkit-scrollbar { display: none; }
@@ -39,8 +39,8 @@
 
     #account-menu.hidden { display: none; }
 
-    #main-nav { transition: all .3s ease-in-out; max-width: 80rem; }
-    #main-nav.sticky-scrolled { max-width: none; border-radius: 0; box-shadow: 0 4px 6px -1px rgba(0,0,0,.1), 0 2px 4px -1px rgba(0,0,0,.06); }
+    #main-nav { transition: all .3s ease-in-out; }
+    #main-nav.sticky-scrolled { border-radius: 0; box-shadow: 0 4px 6px -1px rgba(0,0,0,.1), 0 2px 4px -1px rgba(0,0,0,.06); }
 
     #total-cost-button {
       position: fixed; bottom: 0; left: 0; right: 0; z-index: 40;
@@ -114,31 +114,52 @@
     @keyframes spin {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
-    } 
+    }
     
-/* remove if you dont want background blue */
-    
-.spline-container {
-  position: fixed;     /* sit on the viewport, not inside a scrolling div */
-  inset: 0;            /* top:0 right:0 bottom:0 left:0 */
-  width: 100%;
-  height: 100%;
-  z-index: 0;          /* NOT negative */
-  pointer-events: none;/* so it doesn’t block taps */
-}
+    .spline-container {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+    .spline-container iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      transform: translateZ(0);
+      will-change: transform;
+    }
+    #mainContent {
+      z-index: 1;
+    }
 
-.spline-container iframe {
-  width: 100%;
-  height: 100%;
-  border: 0;
-  transform: translateZ(0);       /* nudge GPU on iOS */
-  will-change: transform;
-}
+    /* Updated Hero Section Styling */
+    .hero-background {
+      position: relative;
+    }
+    .hero-background::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.3);
+      z-index: 1;
+    }
+
+    /* Custom shadow for product cards */
+    .glowing-border {
+        box-shadow: 0 0 10px rgba(0, 128, 128, 0.4);
+        transition: box-shadow 0.3s ease-in-out;
+    }
   </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col items-center justify-center relative">
 
-  <!-- Age Gate Modal -->
+  <!-- ======================== Age Gate Section ======================== -->
   <div id="ageGate" class="fixed inset-0 z-50 bg-gray-900 bg-opacity-80 flex items-center justify-center p-4 transition-opacity duration-300 ease-in-out">
     <div class="bg-white rounded-xl shadow-2xl p-8 max-w-xl w-full text-center">
       <!-- Content for the initial age gate prompt -->
@@ -173,65 +194,18 @@
     </div>
   </div>
 
-  
-   <!--REMOVE THIS IF YOU DONT WANT BACKGROUND -->
-    <!-- Fullscreen Spline background -->
-  <div class="spline-container opacity-80">
-    <iframe
-      src="https://my.spline.design/venturadaccord2copycopy-iOeF1h9eOZyNW4lCTWoX263y/"
-      allow="autoplay; fullscreen; xr-spatial-tracking"
-      allowfullscreen
-      loading="lazy"
-      style="pointer-events:none"
-    ></iframe>
-  </div>
-  
-     <!--REMOVE THIS IF YOU DONT WANT BACKGROUND -->
-
-    <!-- Fullscreen 3D Background -->
-<!--   <div class="fixed inset-0 w-full h-full -z-20">
-    <iframe
-      src="https://my.spline.design/herolightcopy-HWuYMA6IdNGk0VGuyvrItNGB/"
-      frameborder="0"
-      width="100%"
-      height="100%"
-      class="w-full h-full"
-      allowfullscreen
-      aria-hidden="true"
-      tabindex="-1"
-      style="pointer-events: none;"
-    ></iframe>
-  </div> 
-
-<div class="pointer-events-none fixed inset-0 -z-10">
-  <div class="absolute inset-0 bg-gradient-to-b from-white/40 via-transparent to-white/60"></div>
-  <div class="absolute inset-0"
-       style="background: radial-gradient(60% 50% at 50% 10%,
-         rgba(255,255,255,0.25) 0%,
-         rgba(255,255,255,0.10) 40%,
-         rgba(255,255,255,0) 70%);"></div>
-  <div class="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-white/50 via-transparent"></div>
-  <div class="absolute inset-0 ring-1 ring-white/10"></div>
-</div> 
-    
-   
-
--->
-  
-  <!-- Main App -->
-  <div id="mainContent" class="hidden flex-grow flex flex-col w-full h-full max-w-7xl mx-auto p-4 transition-all">
+  <!-- ======================== Main Content Section ======================== -->
+  <div id="mainContent" class="hidden flex-grow flex flex-col w-full h-full mx-auto px-4 transition-all z-10">
     <div class="sticky top-0 z-40">
-
+      <!-- Navigation Bar -->
       <nav id="main-nav" class="bg-white shadow-md p-4 w-full flex justify-between items-center h-16 text-primary relative z-40 rounded-xl mb-4">
         <div class="flex-1 flex items-center">
           <img src="https://raw.githubusercontent.com/coltonteefy/inventory/refs/heads/main/MWG_LOGO_3.PNG" alt="Company Logo" class="h-10 sm:h-12 transform scale-[2.0] origin-left">
         </div>
         <div class="flex-grow"></div>
         <div class="flex items-center space-x-2 relative">
-          <button id="search-icon-button" class="p-2 text-gray-600 hover:text-gray-900 rounded-full transition duration-300 focus:outline-none focus:ring-2 focus:ring-primary-blue-light" aria-label="Open search">
-            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
+          <button id="search-icon-button" class="flex items-center justify-center h-12 w-12 text-2xl text-primary-blue-dark hover:text-primary-blue-light rounded-full transition duration-300 focus:outline-none focus:ring-2 focus:ring-primary-blue-light" aria-label="Open search">
+            <i class="fa-solid fa-magnifying-glass"></i>
           </button>
           <button id="account-button" class="flex items-center space-x-2 px-4 py-2 bg-primary-blue text-white font-bold rounded-lg hover:bg-primary-blue-dark transition-colors focus:outline-none focus:ring-2 focus:ring-primary-blue-light text-sm shadow-md">
             <span>Account</span>
@@ -248,30 +222,68 @@
           </div>
         </div>
       </nav>
-
+      <!-- Search Bar -->
       <div id="search-container" class="flex justify-center transition-all duration-300 ease-in-out collapsed">
         <input id="product-search" type="text" placeholder="Search products..." class="w-full px-6 py-4 rounded-full border-2 border-gray-300 text-gray-700 placeholder-gray-500 bg-white focus:outline-none focus:ring-2 focus:ring-primary-blue-light transition-all" aria-label="Product search">
       </div>
     </div>
     
-    
-    <div class="relative w-full mt-8 rounded-xl overflow-hidden"> 
-      <img src="https://raw.githubusercontent.com/coltonteefy/inventory/refs/heads/main/HERO.PNG" alt="Hero section banner showing chemical flasks" class="w-full h-full object-cover">
+    <!-- Hero Section -->
+    <section class="hero-background flex flex-col md:flex-row items-center justify-start min-h-[60vh] md:min-h-[80vh] px-4 py-16 sm:px-8 text-white rounded-xl overflow-hidden mb-4 relative">
+      <!-- Background Section -->
+      <div class="spline-container opacity-80">
+        <iframe
+          src="https://my.spline.design/venturadaccord2copycopy-iOeF1h9eOZyNW4lCTWoX263y/"
+          allow="autoplay; fullscreen; xr-spatial-tracking"
+          allowfullscreen
+          loading="lazy"
+          style="pointer-events:none"
+        ></iframe>
+      </div>
+      <!-- Content container -->
+      <div class="relative max-w-2xl z-20 mx-auto md:mx-0 text-left md:text-left hero-text">
+          <!-- Headline with responsive text size -->
+          <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold leading-tight mb-4">
+              <span class="text-base sm:text-xl md:text-2xl font-bold block mb-1 text-primary-blue-dark">MIDWAY GRAY</span>
+              UNLOCK YOUR<br>RESEARCH POTENTIAL
+          </h1>
+          <!-- Paragraph copy -->
+          <p class="text-base sm:text-lg font-normal leading-relaxed mb-8">
+              Premium Peptides for Uncompromised Science.<br>Purity & Potency Guaranteed.
+          </p>
+          <!-- Call-to-action button -->
+          <button id="shopAllPeptidesBtn" class="bg-primary-blue text-white font-semibold py-3 px-8 rounded-full transition-transform transform hover:scale-105 hover:bg-primary-blue-dark focus:outline-none focus:ring-2 focus:ring-primary-blue-light focus:ring-opacity-50 shadow-lg">
+              SHOP ALL PEPTIDES
+          </button>
+      </div>
+      <!-- Image on the bottom right of the hero section -->
+      <div class="relative z-10 mt-8 md:mt-0 w-full max-w-lg md:w-1/2 md:max-w-none md:absolute md:bottom-0 md:right-0">
+        <!-- Desktop Image -->
+        <img src="https://raw.githubusercontent.com/coltonteefy/Midway-Grays/refs/heads/main/hero_image.PNG" alt="Midway Grays Research Image" class="w-full h-auto object-contain hidden md:block">
+        <!-- Mobile Image -->
+        <img src="https://raw.githubusercontent.com/coltonteefy/Midway-Grays/refs/heads/main/mobile_hero.PNG" alt="Midway Grays Research Image Mobile" class="w-full h-auto object-contain block md:hidden">
+      </div>
+    </section>
+
+    <!-- Product Grid -->
+    <div id="peptidesSection" class="mt-8 bg-white p-6 rounded-xl shadow-lg z-10">
+      <h2 class="text-3xl font-extrabold text-primary-blue-dark mb-6 text-left">PEPTIDES</h2>
+      <main id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 flex-grow pb-8"></main>
     </div>
-
-    <main id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 flex-grow pb-8 mt-8"></main>
-
-    <div id="fallbackMessage" class="hidden text-center p-8">
+    <!-- Fallback Message for Errors or No Products -->
+    <div id="fallbackMessage" class="hidden text-center p-8 z-10">
       <h3 class="text-2xl font-bold text-gray-800 mb-2">Site is broken.</h3>
       <p class="text-gray-600">Please come back later.</p>
     </div>
   </div>
 
+  <!-- ======================== Cart and Modals Section ======================== -->
+  <!-- Floating Cart Button -->
   <button id="total-cost-button" class="w-full py-4 bg-orange-500 text-white font-bold text-lg rounded-t-lg shadow-lg hover:bg-orange-600 transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 flex justify-center items-center px-6">
     <i class="fas fa-shopping-cart mr-4 text-xl" aria-hidden="true"></i><span>View Cart: </span><span id="floating-total-cost">$0.00</span>
   </button>
   <div id="cart-backdrop" class="hidden"></div>
-
+  <!-- Order Summary Modal/Drawer -->
   <div id="order-summary-modal" class="p-8">
     <div class="flex justify-between items-center text-primary mb-4 pb-4 border-b border-gray-200">
       <h2 class="text-2xl font-bold">Your Order</h2>
@@ -288,6 +300,7 @@
       <div class="flex justify-between items-center text-xl font-bold text-primary mb-4">
         <span>Total:</span><span id="order-subtotal">$0.00</span>
       </div>
+      <!-- Order Form -->
       <form id="order-form">
         <div class="mb-4">
           <label for="full-name-input" class="block text-gray-500 mb-2">Full Name:</label>
@@ -321,7 +334,6 @@
           <input id="zip-input" type="text" class="w-full p-3 rounded-lg bg-gray-100 border border-gray-300 text-primary focus:outline-none focus:ring-2 focus:ring-primary-blue-light" placeholder="12345" required>
         </div>
         <button id="submit-button" type="submit" class="w-full py-3 bg-primary-blue text-white font-bold rounded-lg hover:bg-primary-blue-dark transition-colors focus:outline-none focus:ring-2 focus:ring-primary-blue-light opacity-50 cursor-not-allowed">
-          <!-- The span with the loader will be centered inside the button with flexbox -->
           <span id="button-content" class="flex items-center justify-center">
             <span id="button-text">Submit Order</span>
             <span id="button-loader" class="hidden ml-2">
@@ -333,12 +345,12 @@
       <div id="confirmation-message" class="mt-4 text-center font-semibold hidden"></div>
     </div>
   </div>
-
+  <!-- Order Confirmation Modal -->
   <div id="confirmation-modal" class="fixed inset-0 bg-gray-900 bg-opacity-80 flex items-center justify-center p-4 hidden z-50">
     <div class="bg-white p-8 rounded-xl shadow-2xl max-w-sm w-full text-center border border-gray-200 modal-content-scrollable">
       <h3 class="text-2xl font-bold text-green-600 mb-4">Order Submitted!</h3>
       <p class="text-gray-600 mb-4">Your order has been successfully submitted and is awaiting payment to be processed. An email confirmation with all the details of your order has been sent to the email address you provided.</p>
-      <p class="text-gray-600 font-bold mb-4">Order ID: <span id="modal-order-id" class="text-primary"></span></p>
+      <p class="text-600 font-bold mb-4">Order ID: <span id="modal-order-id" class="text-primary"></span></p>
       <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4 text-left" role="alert">
         <h4 class="font-bold text-lg mb-1">IMPORTANT!</h4>
         <p>This is not a payment. To secure your order, please proceed to the payment options detailed in your confirmation email. Your order will not be fully processed until payment is completed.</p>
@@ -351,8 +363,7 @@
     </div>
   </div>
 
-
-  <!-- Firebase SDKs -->
+  <!-- ======================== JavaScript Section ======================== -->
   <script type="module">
     // Firebase v12 modular imports
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
@@ -360,7 +371,7 @@
     import { getFirestore, collection, onSnapshot, getDocs, query, limit } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
     import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-functions.js";
 
-    // Firebase configuration
+    // ================== Firebase Configuration and Initialization ==================
     const firebaseConfig = {
       apiKey: "AIzaSyCWgqGvXzXWBUWd_W-q7uEuARIBZj_JXyI",
       authDomain: "peptide-inventory.firebaseapp.com",
@@ -371,109 +382,11 @@
       measurementId: "G-1W58JMJN37"
     };
 
-    // DOM refs
-    const ageGate = document.getElementById('ageGate');
-    const ageGateContent = document.getElementById('ageGateContent');
-    const ageGateLoading = document.getElementById('ageGateLoading');
-    const yesBtn = document.getElementById('yesBtn');
-    const noBtn = document.getElementById('noBtn');
-    const rejectionMessage = document.getElementById('rejectionMessage');
-    const mainContent = document.getElementById('mainContent');
-
-    const productGrid = document.getElementById('productGrid');
-    const searchIconButton = document.getElementById('search-icon-button');
-    const searchContainer = document.getElementById('search-container');
-    const productSearchInput = document.getElementById('product-search');
-    const accountButton = document.getElementById('account-button');
-    const accountMenu = document.getElementById('account-menu');
-    const dropdownArrow = document.getElementById('dropdown-arrow');
-    const mainNav = document.getElementById('main-nav');
-
-    const totalCostButton = document.getElementById('total-cost-button');
-    const floatingTotalCostElement = document.getElementById('floating-total-cost');
-    const orderSummaryDrawer = document.getElementById('order-summary-modal');
-    const closeOrderSummaryButton = document.getElementById('close-order-summary');
-    const cartBackdrop = document.getElementById('cart-backdrop');
-    const orderSummaryList = document.getElementById('order-summary-list');
-    const orderSubtotalElement = document.getElementById('order-subtotal');
-
-    const orderForm = document.getElementById('order-form');
-    const fullNameInput = document.getElementById('full-name-input');
-    const emailInput = document.getElementById('email-input');
-    const emailError = document.getElementById('email-error');
-    const phoneInput = document.getElementById('phone-input');
-    const shippingAddressInput = document.getElementById('shipping-address-input');
-    const cityInput = document.getElementById('city-input');
-    const stateInput = document.getElementById('state-input');
-    const zipInput = document.getElementById('zip-input');
-    const submitButton = document.getElementById('submit-button');
-    const confirmationMessage = document.getElementById('confirmation-message');
-
-    const modalOrderId = document.getElementById('modal-order-id');
-    const modalCloseButton = document.getElementById('modal-close-button');
-    const confirmationModal = document.getElementById('confirmation-modal');
-
-    const fallbackMessage = document.getElementById('fallbackMessage');
-    
-    // Button loader DOM elements
-    const buttonText = document.getElementById('button-text');
-    const buttonLoader = document.getElementById('button-loader');
-
-
-    // Cart state
-    let cart = {};
-
-    // Firebase instances
     let app, db, auth, functions;
     let submitSecureOrder;
-    // Get the app ID from the global variable to create the correct path
     const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
     const PRODUCTS_COLLECTION_PATH = 'inventory';
     const productPlaceholder = 'https://raw.githubusercontent.com/coltonteefy/Midway-Grays/refs/heads/main/BLANK_VIAL.jpg';
-
-    // Age Gate
-    yesBtn.addEventListener('click', () => {
-      ageGateContent.classList.add('hidden');
-      ageGateLoading.classList.remove('hidden');
-      initFirebaseAndListeners();
-      sessionStorage.setItem('isAdult', 'true');
-    });
-    noBtn.addEventListener('click', () => {
-      rejectionMessage.classList.remove('hidden')
-    });
-    if (sessionStorage.getItem('isAdult') === 'true') {
-      ageGate.classList.add('hidden');
-      mainContent.classList.remove('hidden');
-      initFirebaseAndListeners();
-    }
-
-    // Nav interactions
-    searchIconButton.addEventListener('click', () => {
-      if (searchContainer.classList.contains('collapsed')) {
-        searchContainer.classList.remove('collapsed');
-        searchContainer.classList.add('expanded');
-      } else {
-        searchContainer.classList.remove('expanded');
-        searchContainer.classList.add('collapsed');
-      }
-    });
-    accountButton.addEventListener('click', () => {
-      accountMenu.classList.toggle('hidden');
-      dropdownArrow.classList.toggle('rotate-180');
-    });
-    window.addEventListener('click', (event) => {
-      if (!accountButton.contains(event.target) && !accountMenu.contains(event.target)) {
-        accountMenu.classList.add('hidden');
-        dropdownArrow.classList.remove('rotate-180');
-      }
-    });
-    window.addEventListener('scroll', () => {
-      if (window.scrollY > 0) mainNav.classList.add('sticky-scrolled');
-      else mainNav.classList.remove('sticky-scrolled');
-    });
-
-
-    // ------------ Firestore Init + Listener (with sanity check) ------------
     let productData = {};
 
     async function initFirebaseAndListeners() {
@@ -484,16 +397,10 @@
         functions = getFunctions(app, 'us-central1');
         submitSecureOrder = httpsCallable(functions, 'submitSecureOrder');
 
-        // Initial sign-in attempt
-        try {
-          await signInAnonymously(auth);
-        } catch (e) {
-        }
+        try { await signInAnonymously(auth); } catch (e) { }
 
-        // Wait for auth state change before fetching data
         onAuthStateChanged(auth, (user) => {
           if (user) {
-            // Now that we are authenticated, we can listen for data
             const productsColRef = collection(db, PRODUCTS_COLLECTION_PATH);
             onSnapshot(productsColRef, (querySnapshot) => {
               const products = {};
@@ -516,7 +423,6 @@
               mainContent.classList.remove('hidden');
             });
           } else {
-            // User is not authenticated, show an error
             fallbackMessage.innerHTML = `<div class="text-center p-8"><h3 class="2xl font-bold text-gray-800 mb-2">Authentication Failed!</h3><p class="text-gray-600">Could not authenticate user. Check your Firebase Authentication setup.</p></div>`;
             fallbackMessage.classList.remove('hidden');
             ageGate.classList.add('hidden');
@@ -531,127 +437,57 @@
       }
     }
 
-    // -------- Rendering, search, and cart logic --------
-    const renderProducts = (productsToRender) => {
-      productGrid.innerHTML = '';
-      fallbackMessage.classList.add('hidden');
+    // ================== DOM Element References ==================
+    const ageGate = document.getElementById('ageGate');
+    const ageGateContent = document.getElementById('ageGateContent');
+    const ageGateLoading = document.getElementById('ageGateLoading');
+    const yesBtn = document.getElementById('yesBtn');
+    const noBtn = document.getElementById('noBtn');
+    const rejectionMessage = document.getElementById('rejectionMessage');
+    const mainContent = document.getElementById('mainContent');
+    const productGrid = document.getElementById('productGrid');
+    const searchIconButton = document.getElementById('search-icon-button');
+    const searchContainer = document.getElementById('search-container');
+    const productSearchInput = document.getElementById('product-search');
+    const accountButton = document.getElementById('account-button');
+    const accountMenu = document.getElementById('account-menu');
+    const dropdownArrow = document.getElementById('dropdown-arrow');
+    const mainNav = document.getElementById('main-nav');
+    const totalCostButton = document.getElementById('total-cost-button');
+    const floatingTotalCostElement = document.getElementById('floating-total-cost');
+    const orderSummaryDrawer = document.getElementById('order-summary-modal');
+    const closeOrderSummaryButton = document.getElementById('close-order-summary');
+    const cartBackdrop = document.getElementById('cart-backdrop');
+    const orderSummaryList = document.getElementById('order-summary-list');
+    const orderSubtotalElement = document.getElementById('order-subtotal');
+    const orderForm = document.getElementById('order-form');
+    const fullNameInput = document.getElementById('full-name-input');
+    const emailInput = document.getElementById('email-input');
+    const emailError = document.getElementById('email-error');
+    const phoneInput = document.getElementById('phone-input');
+    const shippingAddressInput = document.getElementById('shipping-address-input');
+    const cityInput = document.getElementById('city-input');
+    const stateInput = document.getElementById('state-input');
+    const zipInput = document.getElementById('zip-input');
+    const submitButton = document.getElementById('submit-button');
+    const confirmationMessage = document.getElementById('confirmation-message');
+    const modalOrderId = document.getElementById('modal-order-id');
+    const modalCloseButton = document.getElementById('modal-close-button');
+    const confirmationModal = document.getElementById('confirmation-modal');
+    const fallbackMessage = document.getElementById('fallbackMessage');
+    const buttonText = document.getElementById('button-text');
+    const buttonLoader = document.getElementById('button-loader');
+    const shopAllPeptidesBtn = document.getElementById('shopAllPeptidesBtn');
+    const peptidesSection = document.getElementById('peptidesSection');
 
-      if (Object.keys(productsToRender).length === 0) {
-        productGrid.innerHTML = '<p class="text-center text-gray-500 italic">No products found matching your search.</p>';
-        return;
-      }
-
-      Object.keys(productsToRender).forEach(key => {
-        const product = productsToRender[key];
-        const isOutOfStock = (product.currentInventory || 0) <= 0;
-        const productCard = document.createElement('div');
-        productCard.className = `bg-white rounded-xl shadow-lg overflow-hidden flex flex-col items-start p-4 transition-transform duration-300 relative ${isOutOfStock ? 'opacity-70' : ''}`;
-
-        const vialWeight = product.totalVialWeight ? `${product.totalVialWeight}mg` : 'N/A';
-        const inventory = (product.currentInventory !== undefined) ? product.currentInventory : 'N/A';
-        const priceValue = (product.sellPricePerVial !== undefined) ? product.sellPricePerVial : product.price;
-        const priceDisplay = (typeof priceValue === 'number') ? `$${priceValue.toFixed(2)}` : 'Price N/A';
-
-        // Conditional rendering for the "Add to Cart" button and out of stock badge
-        let buttonHtml;
-        if (isOutOfStock) {
-          buttonHtml = `<button class="w-full bg-gray-400 text-white font-bold py-2 rounded-lg cursor-not-allowed" disabled>Out of Stock</button>`;
-        } else {
-          buttonHtml = `<button class="addToCartBtn w-full bg-primary-blue text-white font-bold py-2 rounded-lg hover:bg-primary-blue-dark transition-colors duration-300" data-product-id="${key}">Add to Cart</button>`;
-        }
-        
-        const outOfStockBadge = isOutOfStock ? `
-          <div class="absolute inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center pointer-events-none">
-            <span class="text-white text-xl font-bold tracking-wider uppercase bg-red-600 px-4 py-2 rounded-lg shadow-lg rotate-12">
-              Out of Stock
-            </span>
-          </div>` : '';
-
-        productCard.innerHTML = `
-          <div class="relative w-full overflow-hidden rounded-md mb-4">
-            <img src="${product.image || ''}" onerror="this.onerror=null;this.src='${productPlaceholder}';" alt="Product Image" class="w-full h-auto object-contain">
-            ${outOfStockBadge}
-          </div>
-          <h3 class="text-xl font-bold text-gray-800">${product.name || key}</h3>
-          <p class="text-gray-500 text-sm mt-1">${vialWeight}</p>
-          <p class="text-gray-500 text-sm mb-2">Inventory: ${inventory}</p>
-          <div class="flex-grow"></div>
-          <p class="text-2xl font-bold text-primary-blue-dark mb-4">${priceDisplay}</p>
-          ${buttonHtml}
-        `;
-        productGrid.appendChild(productCard);
-      });
-    };
-
-    productSearchInput.addEventListener('input', (event) => {
-      const searchTerm = event.target.value.toLowerCase();
-      if (!searchTerm) return renderProducts(productData);
-      const filtered = Object.fromEntries(
-        Object.entries(productData).filter(([_, p]) => (p.name || '').toLowerCase().includes(searchTerm))
-      );
-      renderProducts(filtered);
-    });
-
-    productGrid.addEventListener('click', (e) => {
-      if (e.target.classList.contains('addToCartBtn')) {
-        const productId = e.target.dataset.productId;
-        const product = productData[productId];
-        if (product && (product.currentInventory || 0) > 0) {
-          if (cart[productId]) {
-            if (cart[productId].quantity < product.currentInventory) {
-              cart[productId].quantity++;
-            }
-          } else {
-            const price = (product.sellPricePerVial !== undefined) ? product.sellPricePerVial : (product.price || 0);
-            cart[productId] = { id: productId, name: product.name || 'Item', price, quantity: 1 };
-          }
-          updateTotalCost();
-          renderOrderSummary();
-          totalCostButton.classList.add('is-visible');
-        }
-      }
-    });
+    // ================== Cart State Management ==================
+    let cart = {};
 
     function updateTotalCost() {
       const totalCost = Object.values(cart).reduce((sum, item) => sum + (item.price * item.quantity), 0);
       floatingTotalCostElement.textContent = `$${totalCost.toFixed(2)}`;
       if (Object.keys(cart).length > 0) totalCostButton.classList.add('is-visible');
       else totalCostButton.classList.remove('is-visible');
-    }
-
-    // Function to check if the form is valid for submission
-    function checkFormValidity() {
-      // A simple regex to check for a valid email format
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      const isEmailValid = emailRegex.test(emailInput.value.trim());
-
-      // Show or hide the email error message
-      if (emailInput.value.trim() !== '' && !isEmailValid) {
-        emailError.classList.remove('hidden');
-      } else {
-        emailError.classList.add('hidden');
-      }
-
-      // Check if all input fields have a value AND the email is valid
-      const isFormFilledAndValid = fullNameInput.value.trim() !== '' &&
-                           isEmailValid &&
-                           phoneInput.value.trim() !== '' &&
-                           shippingAddressInput.value.trim() !== '' &&
-                           cityInput.value.trim() !== '' &&
-                           stateInput.value.trim() !== '' &&
-                           zipInput.value.trim() !== '';
-
-      // Check if the cart is not empty
-      const isCartNotEmpty = Object.keys(cart).length > 0;
-
-      // Enable the button only if both conditions are met
-      if (isFormFilledAndValid && isCartNotEmpty) {
-        submitButton.removeAttribute('disabled');
-        submitButton.classList.remove('opacity-50', 'cursor-not-allowed');
-      } else {
-        submitButton.setAttribute('disabled', 'disabled');
-        submitButton.classList.add('opacity-50', 'cursor-not-allowed');
-      }
     }
 
     function renderOrderSummary() {
@@ -662,19 +498,15 @@
         checkFormValidity();
         return;
       }
-
       let subtotal = 0;
-
       Object.keys(cart).forEach(productId => {
         const item = cart[productId];
         const itemTotal = item.price * item.quantity;
         subtotal += itemTotal;
-
         const itemElement = document.createElement('div');
         itemElement.className = 'flex flex-col text-gray-800 border-b border-gray-200 pb-2 last:border-b-0 last:pb-0';
         const itemTotalDisplay = `$${itemTotal.toFixed(2)}`;
         const itemPriceDisplay = `$${item.price.toFixed(2)}`;
-
         itemElement.innerHTML = `
           <div class="flex justify-between items-center w-full">
             <p class="font-semibold text-lg">${item.name}</p>
@@ -711,12 +543,36 @@
       emailError.classList.add('hidden');
     }
 
+    // ================== Form Validation and Submission ==================
+    function checkFormValidity() {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const isEmailValid = emailRegex.test(emailInput.value.trim());
+      if (emailInput.value.trim() !== '' && !isEmailValid) {
+        emailError.classList.remove('hidden');
+      } else {
+        emailError.classList.add('hidden');
+      }
+      const isFormFilledAndValid = fullNameInput.value.trim() !== '' &&
+                           isEmailValid &&
+                           phoneInput.value.trim() !== '' &&
+                           shippingAddressInput.value.trim() !== '' &&
+                           cityInput.value.trim() !== '' &&
+                           stateInput.value.trim() !== '' &&
+                           zipInput.value.trim() !== '';
+      const isCartNotEmpty = Object.keys(cart).length > 0;
+      if (isFormFilledAndValid && isCartNotEmpty) {
+        submitButton.removeAttribute('disabled');
+        submitButton.classList.remove('opacity-50', 'cursor-not-allowed');
+      } else {
+        submitButton.setAttribute('disabled', 'disabled');
+        submitButton.classList.add('opacity-50', 'cursor-not-allowed');
+      }
+    }
+
     async function submitOrder(orderData) {
-      // Show the button loader and disable the button
       buttonText.classList.add('hidden');
       buttonLoader.classList.remove('hidden');
       submitButton.disabled = true;
-
       confirmationMessage.textContent = '';
       confirmationMessage.classList.add('hidden');
 
@@ -730,14 +586,127 @@
         confirmationMessage.textContent = `Failed to submit order: ${error.message}.`;
         confirmationMessage.classList.remove('hidden');
       } finally {
-        // Hide the button loader and reset button state
         buttonText.classList.remove('hidden');
         buttonLoader.classList.add('hidden');
         submitButton.disabled = false;
       }
     }
 
+    // ================== Product Rendering and Search ==================
+    const renderProducts = (productsToRender) => {
+      productGrid.innerHTML = '';
+      fallbackMessage.classList.add('hidden');
+      if (Object.keys(productsToRender).length === 0) {
+        productGrid.innerHTML = '<p class="text-center text-gray-500 italic">No products found matching your search.</p>';
+        return;
+      }
+      Object.keys(productsToRender).forEach(key => {
+        const product = productsToRender[key];
+        const isOutOfStock = (product.currentInventory || 0) <= 0;
+        const productCard = document.createElement('div');
+        productCard.className = `bg-white rounded-xl glowing-border overflow-hidden flex flex-col items-start p-4 transition-transform duration-300 relative ${isOutOfStock ? 'opacity-70' : ''}`;
+        const vialWeight = product.totalVialWeight ? `${product.totalVialWeight}mg` : 'N/A';
+        const inventory = (product.currentInventory !== undefined) ? product.currentInventory : 'N/A';
+        const priceValue = (product.sellPricePerVial !== undefined) ? product.sellPricePerVial : product.price;
+        const priceDisplay = (typeof priceValue === 'number') ? `$${priceValue.toFixed(2)}` : 'Price N/A';
+        let buttonHtml;
+        if (isOutOfStock) {
+          buttonHtml = `<button class="w-full bg-gray-400 text-white font-bold py-2 rounded-lg cursor-not-allowed" disabled>Out of Stock</button>`;
+        } else {
+          buttonHtml = `<button class="addToCartBtn w-full bg-primary-blue text-white font-bold py-2 rounded-lg hover:bg-primary-blue-dark transition-colors duration-300" data-product-id="${key}">Add to Cart</button>`;
+        }
+        const outOfStockBadge = isOutOfStock ? `
+          <div class="absolute inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center pointer-events-none">
+            <span class="text-white text-xl font-bold tracking-wider uppercase bg-red-600 px-4 py-2 rounded-lg shadow-lg rotate-12">
+              Out of Stock
+            </span>
+          </div>` : '';
+        productCard.innerHTML = `
+          <div class="relative w-full overflow-hidden rounded-md mb-4">
+            <img src="${product.image || ''}" onerror="this.onerror=null;this.src='${productPlaceholder}';" alt="Product Image" class="w-full h-auto object-contain">
+            ${outOfStockBadge}
+          </div>
+          <h3 class="text-xl font-bold text-gray-800">${product.name || key}</h3>
+          <p class="text-gray-500 text-sm mt-1">${vialWeight}</p>
+          <p class="text-gray-500 text-sm mb-2">Inventory: ${inventory}</p>
+          <div class="flex-grow"></div>
+          <p class="text-2xl font-bold text-primary-blue-dark mb-4">${priceDisplay}</p>
+          ${buttonHtml}
+        `;
+        productGrid.appendChild(productCard);
+      });
+    };
+
+    // ================== Event Listeners ==================
     function attachEventListeners() {
+      // Age Gate
+      yesBtn.addEventListener('click', () => {
+        ageGateContent.classList.add('hidden');
+        ageGateLoading.classList.remove('hidden');
+        initFirebaseAndListeners();
+        sessionStorage.setItem('isAdult', 'true');
+      });
+      noBtn.addEventListener('click', () => {
+        rejectionMessage.classList.remove('hidden');
+      });
+      if (sessionStorage.getItem('isAdult') === 'true') {
+        ageGate.classList.add('hidden');
+        mainContent.classList.remove('hidden');
+        initFirebaseAndListeners();
+      }
+
+      // Navigation
+      searchIconButton.addEventListener('click', () => {
+        searchContainer.classList.toggle('collapsed');
+        searchContainer.classList.toggle('expanded');
+      });
+      accountButton.addEventListener('click', () => {
+        accountMenu.classList.toggle('hidden');
+        dropdownArrow.classList.toggle('rotate-180');
+      });
+      window.addEventListener('click', (event) => {
+        if (!accountButton.contains(event.target) && !accountMenu.contains(event.target)) {
+          accountMenu.classList.add('hidden');
+          dropdownArrow.classList.remove('rotate-180');
+        }
+      });
+      window.addEventListener('scroll', () => {
+        if (window.scrollY > 0) mainNav.classList.add('sticky-scrolled');
+        else mainNav.classList.remove('sticky-scrolled');
+      });
+
+      // Search
+      productSearchInput.addEventListener('input', (event) => {
+        const searchTerm = event.target.value.toLowerCase();
+        if (!searchTerm) return renderProducts(productData);
+        const filtered = Object.fromEntries(
+          Object.entries(productData).filter(([_, p]) => (p.name || '').toLowerCase().includes(searchTerm))
+        );
+        renderProducts(filtered);
+      });
+
+      // Add to Cart
+      productGrid.addEventListener('click', (e) => {
+        if (e.target.classList.contains('addToCartBtn')) {
+          const productId = e.target.dataset.productId;
+          const product = productData[productId];
+          if (product && (product.currentInventory || 0) > 0) {
+            if (cart[productId]) {
+              if (cart[productId].quantity < product.currentInventory) {
+                cart[productId].quantity++;
+              }
+            } else {
+              const price = (product.sellPricePerVial !== undefined) ? product.sellPricePerVial : (product.price || 0);
+              cart[productId] = { id: productId, name: product.name || 'Item', price, quantity: 1 };
+            }
+            updateTotalCost();
+            renderOrderSummary();
+            totalCostButton.classList.add('is-visible');
+          }
+        }
+      });
+
+      // Cart Drawer
       totalCostButton.addEventListener('click', () => {
         renderOrderSummary();
         orderSummaryDrawer.classList.add('is-open');
@@ -752,15 +721,14 @@
       document.getElementById('close-order-summary').addEventListener('click', closeDrawer);
       cartBackdrop.addEventListener('click', closeDrawer);
 
+      // Cart Item Management
       orderSummaryDrawer.addEventListener('click', (event) => {
         const target = event.target.closest('.cart-btn');
         if (!target) return;
         const productId = target.dataset.productId;
         if (!cart[productId]) return;
-
         const action = target.dataset.action;
         const product = productData[productId];
-
         if (action === 'increment') {
           if (product && cart[productId].quantity < product.currentInventory) {
             cart[productId].quantity++;
@@ -774,29 +742,19 @@
         } else if (action === 'remove') {
           delete cart[productId];
         }
-
         renderOrderSummary();
         updateTotalCost();
-        // Check form validity after every cart change
         checkFormValidity();
       });
 
+      // Order Form Submission
       orderForm.addEventListener('submit', (event) => {
         event.preventDefault();
-
-        // Re-check validity before final submission
         checkFormValidity();
-        if (submitButton.disabled) {
-          // If the button is disabled, something is not valid, so we should not proceed.
-          console.warn('Attempted to submit an invalid form.');
+        if (submitButton.disabled || Object.keys(cart).length === 0) {
+          console.warn('Attempted to submit an invalid or empty form.');
           return;
         }
-
-        if (Object.keys(cart).length === 0) {
-          console.warn('Attempted to submit empty cart.');
-          return;
-        }
-
         const itemsForCloudFunction = Object.values(cart).map(i => ({ id: i.id, quantity: i.quantity }));
         const contactInfo = {
           fullName: fullNameInput.value.trim(),
@@ -807,20 +765,29 @@
         submitOrder({ items: itemsForCloudFunction, contactInfo });
       });
 
+      // Confirmation Modal
       modalCloseButton.addEventListener('click', () => {
         resetAppState();
       });
 
-      // Add event listeners to all input fields to check for validity on every change
+      // Form Input Validation
       [fullNameInput, emailInput, phoneInput, shippingAddressInput, cityInput, stateInput, zipInput].forEach(el => {
         el.addEventListener('input', checkFormValidity);
       });
+
+      // Smooth scroll for "SHOP ALL PEPTIDES" button
+      if (shopAllPeptidesBtn && peptidesSection) {
+        shopAllPeptidesBtn.addEventListener('click', () => {
+          peptidesSection.scrollIntoView({ behavior: 'smooth' });
+        });
+      }
     }
 
+    // ================== Initial App Load ==================
     window.addEventListener('load', () => {
       attachEventListeners();
       updateTotalCost();
-      checkFormValidity(); // Initial check on page load
+      checkFormValidity();
     });
   </script>
 </body>
